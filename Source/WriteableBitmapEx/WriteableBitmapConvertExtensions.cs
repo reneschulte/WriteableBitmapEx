@@ -4,10 +4,10 @@
 //   Description:       Collection of interchange extension methods for the WriteableBitmap class.
 //
 //   Changed by:        $Author: unknown $
-//   Changed on:        $Date: 2015-03-17 16:18:15 +0100 (Di, 17 Mrz 2015) $
+//   Changed on:        $Date: 2015-03-17 16:18:14 +0100 (Di, 17 Mrz 2015) $
 //   Changed in:        $Revision: 113386 $
 //   Project:           $URL: https://writeablebitmapex.svn.codeplex.com/svn/trunk/Source/WriteableBitmapEx/WriteableBitmapConvertExtensions.cs $
-//   Id:                $Id: WriteableBitmapConvertExtensions.cs 113386 2015-03-17 15:18:15Z unknown $
+//   Id:                $Id: WriteableBitmapConvertExtensions.cs 113386 2015-03-17 15:18:14Z unknown $
 //
 //
 //   Copyright © 2009-2015 Rene Schulte and WriteableBitmapEx Contributors

@@ -4,10 +4,10 @@
 //   Description:       Collection of blit (copy) extension methods for the WriteableBitmap class.
 //
 //   Changed by:        $Author: unknown $
-//   Changed on:        $Date: 2015-03-23 10:25:31 +0100 (Mo, 23 Mrz 2015) $
+//   Changed on:        $Date: 2015-03-23 10:25:30 +0100 (Mo, 23 Mrz 2015) $
 //   Changed in:        $Revision: 113508 $
 //   Project:           $URL: https://writeablebitmapex.svn.codeplex.com/svn/trunk/Source/WriteableBitmapEx/WriteableBitmapBlitExtensions.cs $
-//   Id:                $Id: WriteableBitmapBlitExtensions.cs 113508 2015-03-23 09:25:31Z unknown $
+//   Id:                $Id: WriteableBitmapBlitExtensions.cs 113508 2015-03-23 09:25:30Z unknown $
 //
 //
 //   Copyright © 2009-2015 Bill Reiss, Rene Schulte and WriteableBitmapEx Contributors
