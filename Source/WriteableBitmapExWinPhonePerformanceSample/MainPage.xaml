@@ -1,0 +1,32 @@
+﻿<phone:PhoneApplicationPage 
+    x:Class="WriteableBitmapExWinPhonePerformanceSample.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="768"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    Loaded="UserControlLoaded"
+    shell:SystemTray.IsVisible="True">
+
+    <Grid x:Name="LayoutRoot" Background="Transparent" Width="480" Height="800">
+        <StackPanel>
+            <TextBlock HorizontalAlignment="Center" FontSize="14" Text="WriteableBitmapEx - Silverlight WriteableBitmap Extensions - Shape Sample" />
+            <Grid Name="ViewPortContainer" Width="448" Height="448" Margin="0,12">
+                <Image Name="ImageViewport" />
+                <Rectangle Stroke="Red" />
+            </Grid>
+            <StackPanel Grid.Column="0" Background="White" >
+                <TextBlock Margin="12" Text="Shape count:" Foreground="Black" />
+                <TextBox Name="TxtBoxShapeCount" Text="10" TextChanged="TxtBoxShapeCount_TextChanged" Foreground="Black" BorderBrush="Black" />
+                <TextBlock Margin="12" Name="TxtBlockPerf" Text="Speed" Foreground="Black" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+
+</phone:PhoneApplicationPage>

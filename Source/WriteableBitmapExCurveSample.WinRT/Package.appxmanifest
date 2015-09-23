@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
+
+  <Identity Name="c809030c-badf-48b1-8bed-030aa9d0883c"
+            Publisher="CN=Rene"
+            Version="1.0.0.0" />
+
+  <Properties>
+    <DisplayName>WriteableBitmapExCurveSample.WinRT</DisplayName>
+    <PublisherDisplayName>Rene</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+    <Description>WriteableBitmapExCurveSample.WinRT</Description>
+  </Properties>
+
+  <Prerequisites>
+    <OSMinVersion>6.2</OSMinVersion>
+    <OSMaxVersionTested>6.2</OSMaxVersionTested>
+  </Prerequisites>
+
+  <Resources>
+    <Resource Language="x-generate"/>
+  </Resources>
+
+  <Applications>
+    <Application Id="App"
+        Executable="$targetnametoken$.exe"
+        EntryPoint="WriteableBitmapExCurveSample.WinRT.App">
+        <VisualElements
+            DisplayName="WriteableBitmapExCurveSample.WinRT"
+            Logo="Assets\Logo.png"
+            SmallLogo="Assets\SmallLogo.png"
+            Description="WriteableBitmapExCurveSample.WinRT"
+            ForegroundText="light"
+            BackgroundColor="#222222">
+            <DefaultTile ShowName="allLogos" />
+            <SplashScreen Image="Assets\SplashScreen.png" />
+        </VisualElements>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <Capability Name="internetClient" />
+  </Capabilities>
+</Package>
