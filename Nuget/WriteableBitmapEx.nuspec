@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+<metadata>
+  <id>WriteableBitmapEx</id>
+  <version>1.5.0.0</version>
+  <authors>Schulte Software Development</authors>
+  <owners>Schulte Software Development</owners>
+  <licenseUrl>http://writeablebitmapex.codeplex.com/license</licenseUrl>
+  <projectUrl>http://writeablebitmapex.codeplex.com</projectUrl>
+  <iconUrl>http://dl.dropbox.com/u/2681028/CodeplexData/WriteableBitmapEx/Nuget_Logo.png</iconUrl>
+  <requireLicenseAcceptance>false</requireLicenseAcceptance>
+  <summary>The WriteableBitmapEx library is a collection of extension methods for the WriteableBitmap. The WriteableBitmap class is available for Windows Phone, WPF, WinRT Windows Store XAML, UAP and Silverlight and allows the direct manipulation of a bitmap and could be used to generate fast procedural images by drawing directly to a bitmap.</summary>
+  <description>The WriteableBitmapEx library extensions.</description>
+  <copyright>Copyright (c) 2009-2015 Schulte Software Development</copyright>
+  <tags>WriteableBitmap Bitmap Graphics Silverlight WP7 WP7Dev WindowsPhone wp8 wpdev WPF .NET WinRT Metro Windows Store UAP</tags>
+</metadata>
+<files>    
+  <file src="..\Build\Release\WriteableBitmapEx.xml" target="lib\sl4" /> 
+  <file src="..\Build\Release\WriteableBitmapEx.dll" target="lib\sl4" /> 
+  <file src="..\Build\Release\WriteableBitmapEx.pdb" target="lib\sl4" /> 
+  <file src="..\Build\Release\WriteableBitmapEx.Wpf.xml" target="lib\net40" /> 
+  <file src="..\Build\Release\WriteableBitmapEx.Wpf.dll" target="lib\net40" /> 
+  <file src="..\Build\Release\WriteableBitmapEx.Wpf.pdb" target="lib\net40" /> 
+  <file src="..\Build\Release\WriteableBitmapExWinPhone.xml" target="lib\sl4-wp71" /> 
+  <file src="..\Build\Release\WriteableBitmapExWinPhone.dll" target="lib\sl4-wp71" /> 
+  <file src="..\Build\Release\WriteableBitmapExWinPhone.pdb" target="lib\sl4-wp71" /> 
+  <file src="..\Build\Release\WriteableBitmapExWinPhoneXnaDependant.xml" target="lib\sl4-wp71" /> 
+  <file src="..\Build\Release\WriteableBitmapExWinPhoneXnaDependant.dll" target="lib\sl4-wp71" /> 
+  <file src="..\Build\Release\WriteableBitmapExWinPhoneXnaDependant.pdb" target="lib\sl4-wp71" /> 
+  <file src="..\Build\Release\WinPhone8\WriteableBitmapExWinPhone.xml" target="lib\WindowsPhone8" /> 
+  <file src="..\Build\Release\WinPhone8\WriteableBitmapExWinPhone.dll" target="lib\WindowsPhone8" /> 
+  <file src="..\Build\Release\WinPhone8\WriteableBitmapExWinPhone.pdb" target="lib\WindowsPhone8" /> 
+  <file src="..\Build\Release\WinPhone8\WriteableBitmapExWinPhoneXnaDependant.xml" target="lib\WindowsPhone8" /> 
+  <file src="..\Build\Release\WinPhone8\WriteableBitmapExWinPhoneXnaDependant.dll" target="lib\WindowsPhone8" /> 
+  <file src="..\Build\Release\WinPhone8\WriteableBitmapExWinPhoneXnaDependant.pdb" target="lib\WindowsPhone8" /> 
+  <file src="..\Build\Release\WriteableBitmapEx.WinRT.xml" target="lib\NetCore45" /> 
+  <file src="..\Build\Release\WriteableBitmapEx.WinRT.dll" target="lib\NetCore45" /> 
+  <file src="..\Build\Release\WriteableBitmapEx.WinRT.pdb" target="lib\NetCore45" /> 
+  <file src="..\Build\Release\WriteableBitmapEx.WinRT.xml" target="lib\wpa81" /> 
+  <file src="..\Build\Release\WriteableBitmapEx.WinRT.dll" target="lib\wpa81" /> 
+  <file src="..\Build\Release\WriteableBitmapEx.WinRT.pdb" target="lib\wpa81" /> 
+</files>
+</package>

@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="WriteableBitmapExCurveSample.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="480"
+    Loaded="UserControl_Loaded">
+    <Grid x:Name="LayoutRoot" Width="550" Height="650">
+        <StackPanel>
+            <TextBlock HorizontalAlignment="Center" FontSize="14" Text="WriteableBitmapEx - Silverlight WriteableBitmap Extensions - Spline Sample" />
+            <TextBlock Name="TxtUsage"  HorizontalAlignment="Center" FontSize="13" Text="Add / move points with the mouse. Hit [Del] to delete the selected point." Margin="0,10" />
+            <Grid Name="ViewPortContainer" Width="512" Height="512" Margin="0,5">
+                <Rectangle Stroke="Black" />
+                <Image Name="ImageViewport" MouseLeftButtonUp="Image_MouseLeftButtonUp" MouseLeftButtonDown="Image_MouseLeftButtonDown" MouseMove="Image_MouseMove"  />
+            </Grid>
+            <StackPanel Orientation="Horizontal" Width="512" Margin="0,10">
+                <StackPanel Name="SPCurveMode">
+                    <RadioButton Name="RBBezier" Content="Bézier" Checked="RadioButton_Checked" />
+                    <RadioButton Name="RBCardinal" Content="Cardinal" IsChecked="True" Checked="RadioButton_Checked" />
+                </StackPanel>
+                <StackPanel Name="SldTension" Margin="10,0">
+                    <TextBlock Text="Tension" Name="TxtTension" TextAlignment="Left" Margin="0,2,0,0" />
+                    <Slider Minimum="-4" Maximum="4" Value="{Binding Tension, Mode=TwoWay}" Width="150"  ValueChanged="Slider_ValueChanged" />
+                </StackPanel>
+                <StackPanel>
+                    <CheckBox Name="ChkDemoPlant" Content="Growing plant demo" IsChecked="True" Checked="CheckDemoPlant_Checked" Unchecked="CheckDemoPlant_UnChecked" />
+                    <CheckBox Name="ChkDemoPerf" Content="Perf demo" />
+                </StackPanel>
+                <CheckBox Name="ChkShowPoints" Content="Points" IsChecked="True" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" />
+                <StackPanel Margin="10,0" >
+                    <Button Name="BtnClear" HorizontalAlignment="Left" Content="Clear" Width="50" Height="20" Click="Button_Click"/>
+                    <Button Name="BtnSave" HorizontalAlignment="Left" Content="Save" Width="50" Height="20" Click="BtnSave_Click"/>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

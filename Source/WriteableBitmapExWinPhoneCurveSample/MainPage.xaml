@@ -1,0 +1,53 @@
+﻿<phone:PhoneApplicationPage 
+    x:Class="WriteableBitmapExWinPhoneCurveSample.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Landscape" Orientation="Landscape"
+    mc:Ignorable="d" d:DesignWidth="750" d:DesignHeight="480"
+    shell:SystemTray.IsVisible="True"
+    Loaded="UserControl_Loaded"
+    BackKeyPress="PhoneApplicationPage_BackKeyPress">
+
+    <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+        <!--TitlePanel contains the name of the application and page title-->
+        <StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="24,24,0,12">
+            <TextBlock x:Name="ApplicationTitle" Text="WriteableBitmapEx for Windows Phone - Interactive Curve Sample" Style="{StaticResource PhoneTextNormalStyle}"/>
+        </StackPanel>
+
+        <Grid x:Name="ContentGrid" Grid.Row="1">
+            <StackPanel Orientation="Horizontal" >
+                <Grid Name="ViewPortContainer" Width="580" Height="410" >
+                    <Image Name="Viewport" MouseLeftButtonUp="Image_MouseLeftButtonUp" MouseLeftButtonDown="Image_MouseLeftButtonDown" MouseMove="Image_MouseMove" />
+                </Grid>
+                <StackPanel >
+                    <StackPanel Name="SPCurveMode">
+                        <RadioButton Name="RBBezier" Content="Bézier" Checked="RadioButton_Checked" />
+                        <RadioButton Name="RBCardinal" Content="Cardinal" IsChecked="True" Checked="RadioButton_Checked" />
+                        <CheckBox Name="ChkShowPoints" Content="Points" IsChecked="True" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" />
+                    </StackPanel>
+                    <StackPanel Name="SldTension" Margin="0,30,0,0" >
+                        <TextBlock Text="Tension" Name="TxtTension" TextAlignment="Left" Margin="0,0,0,15" />
+                        <Slider Minimum="-4" Maximum="4" Value="{Binding Tension, Mode=TwoWay}" Width="150"  ValueChanged="Slider_ValueChanged" />
+                    </StackPanel>
+                    <StackPanel Margin="0,80,0,0" >
+                        <Button Name="BtnClear" HorizontalAlignment="Left" Content="Clear" Click="Button_Click" />
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Grid>
+    
+</phone:PhoneApplicationPage>
