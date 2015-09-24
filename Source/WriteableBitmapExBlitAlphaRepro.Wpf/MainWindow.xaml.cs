@@ -34,7 +34,7 @@ namespace WriteableBitmapExBlitAlphaRepro.Wpf
         {
             using (var fileStream = File.OpenRead(fileName))
             {
-                var wb = BitmapFactory.New(1, 1).FromStream(fileStream);
+                var wb = BitmapFactory.FromStream(fileStream);
                 return wb;
             }
         }
