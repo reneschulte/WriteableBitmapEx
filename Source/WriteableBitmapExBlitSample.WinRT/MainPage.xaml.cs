@@ -82,7 +82,7 @@ namespace WriteableBitmapExBlitSample.WinRT
         async Task<WriteableBitmap> LoadBitmap(string path)
         {
             Uri imageUri = new Uri(BaseUri, path);
-            var bmp = await BitmapFactory.New(1, 1).FromContent(imageUri);
+            var bmp = await BitmapFactory.FromContent(imageUri);
             return bmp;
         }
 

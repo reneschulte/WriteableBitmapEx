@@ -48,7 +48,7 @@ namespace PhoneApp1
 
         public static async Task<WriteableBitmap> LoadFromUri(string path)
         {
-            return new WriteableBitmap(1, 1).FromContent(path);
+            return BitmapFactory.FromContent(path);
         }
 
         // Sample code for building a localized ApplicationBar
