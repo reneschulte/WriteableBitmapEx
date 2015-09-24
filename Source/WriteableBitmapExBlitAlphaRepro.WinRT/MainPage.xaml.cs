@@ -72,7 +72,7 @@ namespace WriteableBitmapExBlitAlphaRepro.WinRT
 
             using (var fileStream = await file.OpenAsync(FileAccessMode.Read))
             {
-                var wb = await new WriteableBitmap(1, 1).FromStream(fileStream);
+                var wb = await BitmapFactory.FromStream(fileStream);
                 return wb;
             }
         }

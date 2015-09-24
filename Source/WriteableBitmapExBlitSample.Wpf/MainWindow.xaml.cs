@@ -51,7 +51,7 @@ namespace WriteableBitmapExBlitSample.Wpf
         {
             using (var s = Application.GetResourceStream(new Uri(path, UriKind.Relative)).Stream)
             {
-                var wb = BitmapFactory.New(1, 1).FromStream(s);
+                var wb = BitmapFactory.FromStream(s);
                 return BitmapFactory.ConvertToPbgra32Format(wb);
             }
         }

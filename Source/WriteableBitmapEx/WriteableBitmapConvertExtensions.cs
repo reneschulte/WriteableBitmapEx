@@ -219,6 +219,7 @@ namespace System.Windows.Media.Imaging
       /// <param name="bmp">The WriteableBitmap.</param>
       /// <param name="relativePath">Only the relative path to the resource file. The assembly name is retrieved automatically.</param>
       /// <returns>A new WriteableBitmap containing the pixel data.</returns>
+      [Obsolete]
       public static WriteableBitmap FromResource(this WriteableBitmap bmp, string relativePath)
       {
          var fullName = Assembly.GetCallingAssembly().FullName;
@@ -235,6 +236,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="uri">The URI to the content file.</param>
         /// <param name="pixelFormat">The pixel format of the stream data. If Unknown is provided as param, the default format of the BitmapDecoder is used.</param>
         /// <returns>A new WriteableBitmap containing the pixel data.</returns>
+        [Obsolete]
         public static async Task<WriteableBitmap> FromContent(this WriteableBitmap bmp, Uri uri, BitmapPixelFormat pixelFormat = BitmapPixelFormat.Unknown)
         {
             // Decode pixel data
@@ -252,6 +254,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="stream">The stream with the image data.</param>
         /// <param name="pixelFormat">The pixel format of the stream data. If Unknown is provided as param, the default format of the BitmapDecoder is used.</param>
         /// <returns>A new WriteableBitmap containing the pixel data.</returns>
+        [Obsolete]
         public static async Task<WriteableBitmap> FromStream(this WriteableBitmap bmp, Stream stream, BitmapPixelFormat pixelFormat = BitmapPixelFormat.Unknown)
         {
             using (var dstStream = new InMemoryRandomAccessStream())
@@ -268,6 +271,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="stream">The stream with the image data.</param>
         /// <param name="pixelFormat">The pixel format of the stream data. If Unknown is provided as param, the default format of the BitmapDecoder is used.</param>
         /// <returns>A new WriteableBitmap containing the pixel data.</returns>
+        [Obsolete]
         public static async Task<WriteableBitmap> FromStream(this WriteableBitmap bmp, IRandomAccessStream stream, BitmapPixelFormat pixelFormat = BitmapPixelFormat.Unknown)
         {
             var decoder = await BitmapDecoder.CreateAsync(stream);
@@ -329,6 +333,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="width">The width of the image data.</param>
         /// <param name="height">The height of the image data.</param>
         /// <returns>A new WriteableBitmap containing the pixel data.</returns>
+        [Obsolete]
         public static async Task<WriteableBitmap> FromPixelBuffer(this WriteableBitmap bmp, IBuffer pixelBuffer, int width, int height)
         {
             // Copy to WriteableBitmap
@@ -350,6 +355,7 @@ namespace System.Windows.Media.Imaging
       /// <param name="bmp">The WriteableBitmap.</param>
       /// <param name="relativePath">Only the relative path to the content file.</param>
       /// <returns>A new WriteableBitmap containing the pixel data.</returns>
+      [Obsolete]
       public static WriteableBitmap FromContent(this WriteableBitmap bmp, string relativePath)
       {
         using (var bmpStream = Application.GetResourceStream(new Uri(relativePath, UriKind.Relative)).Stream)
@@ -364,6 +370,7 @@ namespace System.Windows.Media.Imaging
       /// <param name="bmp">The WriteableBitmap.</param>
       /// <param name="stream">The stream with the image data.</param>
       /// <returns>A new WriteableBitmap containing the pixel data.</returns>
+      [Obsolete]
       public static WriteableBitmap FromStream(this WriteableBitmap bmp, Stream stream)
       {
          var bmpi = new BitmapImage();
