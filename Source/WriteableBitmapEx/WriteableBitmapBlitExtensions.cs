@@ -47,7 +47,7 @@ namespace System.Windows.Media.Imaging
         public enum BlendMode
         {
             /// <summary>
-            /// Alpha blendiing uses the alpha channel to combine the source and destination. 
+            /// Alpha blending uses the alpha channel to combine the source and destination. 
             /// </summary>
             Alpha,
 
