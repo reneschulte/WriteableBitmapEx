@@ -6,7 +6,7 @@ The extension methods are grouped into different C# files using a partial class 
 
 The latest binaries are always available as [NuGet package](http://nuget.org/List/Packages/WriteableBitmapEx).
 
-See the [Codeplex Issue Tracker](http://writeablebitmapex.codeplex.com/WorkItem/List.aspx) for a list of features that will be added in the future.
+See the [Codeplex Issue Tracker](http://writeablebitmapex.codeplex.com/WorkItem/List.aspx) for a list of features that will be added in the future. Please use the [GitHub Issues functionality](https://github.com/teichgraf/WriteableBitmapEx/issues) to add new issues which are not already reported. 
 
 ![wbx_announcement.png](http://download-codeplex.sec.s-msft.com/Download?ProjectName=writeablebitmapex&DownloadId=96071 "wbx_announcement.png")
 

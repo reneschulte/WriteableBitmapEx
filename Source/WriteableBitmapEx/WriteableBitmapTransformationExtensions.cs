@@ -91,7 +91,7 @@ namespace System.Windows.Media.Imaging
                 var srcWidth = srcContext.Width;
                 var srcHeight = srcContext.Height;
 
-                // If the rectangle is completly out of the bitmap
+                // If the rectangle is completely out of the bitmap
                 if (x > srcWidth || y > srcHeight)
                 {
                     return BitmapFactory.New(0, 0);
@@ -312,7 +312,7 @@ namespace System.Windows.Media.Imaging
         /// Rotates the bitmap in 90° steps clockwise and returns a new rotated WriteableBitmap.
         /// </summary>
         /// <param name="bmp">The WriteableBitmap.</param>
-        /// <param name="angle">The angle in degress the bitmap should be rotated in 90° steps clockwise.</param>
+        /// <param name="angle">The angle in degrees the bitmap should be rotated in 90° steps clockwise.</param>
         /// <returns>A new WriteableBitmap that is a rotated version of the input.</returns>
         public static WriteableBitmap Rotate(this WriteableBitmap bmp, int angle)
         {
@@ -402,7 +402,7 @@ namespace System.Windows.Media.Imaging
             // calculated indices in Cartesian coordinates
             int x, y;
             double fDistance, fPolarAngle;
-            // for use in neighbouring indices in Cartesian coordinates
+            // for use in neighboring indices in Cartesian coordinates
             int iFloorX, iCeilingX, iFloorY, iCeilingY;
             // calculated indices in Cartesian coordinates with trailing decimals
             double fTrueX, fTrueY;
@@ -415,7 +415,7 @@ namespace System.Windows.Media.Imaging
             // interpolated "bottom" pixels
             double fBottomRed, fBottomGreen, fBottomBlue, fBottomAlpha;
 
-            // final interpolated colour components
+            // final interpolated color components
             int iRed, iGreen, iBlue, iAlpha;
 
             int iCentreX, iCentreY;
@@ -470,7 +470,7 @@ namespace System.Windows.Media.Imaging
                             {
                                 if (y == 0)
                                 {
-                                    // centre of image, no rotation needed
+                                    // center of image, no rotation needed
                                     newp[i * newWidth + j] = oldp[iCentreY * oldw + iCentreX];
                                     continue;
                                 }
@@ -522,7 +522,7 @@ namespace System.Windows.Media.Imaging
                             fTopGreen = (1 - fDeltaX) * ((clrTopLeft >> 8) & 0xFF) + fDeltaX * ((clrTopRight >> 8) & 0xFF);
                             fTopBlue = (1 - fDeltaX) * (clrTopLeft & 0xFF) + fDeltaX * (clrTopRight & 0xFF);
 
-                            // linearly interpolate horizontally between bottom neighbours
+                            // linearly interpolate horizontally between bottom neighbors
                             fBottomAlpha = (1 - fDeltaX) * ((clrBottomLeft >> 24) & 0xFF) + fDeltaX * ((clrBottomRight >> 24) & 0xFF);
                             fBottomRed = (1 - fDeltaX) * ((clrBottomLeft >> 16) & 0xFF) + fDeltaX * ((clrBottomRight >> 16) & 0xFF);
                             fBottomGreen = (1 - fDeltaX) * ((clrBottomLeft >> 8) & 0xFF) + fDeltaX * ((clrBottomRight >> 8) & 0xFF);
@@ -534,7 +534,7 @@ namespace System.Windows.Media.Imaging
                             iBlue = (int)(Math.Round((1 - fDeltaY) * fTopBlue + fDeltaY * fBottomBlue));
                             iAlpha = (int)(Math.Round((1 - fDeltaY) * fTopAlpha + fDeltaY * fBottomAlpha));
 
-                            // make sure colour values are valid
+                            // make sure color values are valid
                             if (iRed < 0) iRed = 0;
                             if (iRed > 255) iRed = 255;
                             if (iGreen < 0) iGreen = 0;
@@ -561,7 +561,7 @@ namespace System.Windows.Media.Imaging
         #region Flip
 
         /// <summary>
-        /// Flips (reflects the image) eiter vertical or horizontal.
+        /// Flips (reflects the image) either vertical or horizontal.
         /// </summary>
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="flipMode">The flip mode.</param>

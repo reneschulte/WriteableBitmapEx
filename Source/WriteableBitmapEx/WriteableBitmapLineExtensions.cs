@@ -191,7 +191,7 @@ namespace System.Windows.Media.Imaging
                 int dx = x2 - x1;
                 int dy = y2 - y1;
 
-                // Determine slope (absoulte value)
+                // Determine slope (absolute value)
                 int len = dy >= 0 ? dy : -dy;
                 int lenx = dx >= 0 ? dx : -dx;
                 if (lenx > len)
@@ -199,7 +199,7 @@ namespace System.Windows.Media.Imaging
                     len = lenx;
                 }
 
-                // Prevent divison by zero
+                // Prevent division by zero
                 if (len != 0)
                 {
                     // Init steps and start
@@ -279,7 +279,7 @@ namespace System.Windows.Media.Imaging
 
             const int PRECISION_SHIFT = 8;
 
-            // Determine slope (absoulte value)
+            // Determine slope (absolute value)
             int lenX, lenY;
             if (dy >= 0)
             {
@@ -411,7 +411,7 @@ namespace System.Windows.Media.Imaging
             }
             else
             {
-                // Prevent divison by zero
+                // Prevent division by zero
                 if (lenY == 0)
                 {
                     return;
@@ -561,8 +561,8 @@ namespace System.Windows.Media.Imaging
         /// <param name="pen">The pen context.</param>
         public static void DrawLinePenned(BitmapContext context, int w, int h, int x1, int y1, int x2, int y2, BitmapContext pen)
         {
-            // Edge case where lines that went out of vertical bounds clipped instead of dissapear
-            if ((y1 < 0 && y2 < 0) || (y1 > h && y2 > h))
+			// Edge case where lines that went out of vertical bounds clipped instead of disappearing
+			if((y1 < 0 && y2 < 0) || (y1 > h && y2 > h))
                 return;
 
             if (x1 == x2 && y1 == y2)
@@ -679,7 +679,7 @@ namespace System.Windows.Media.Imaging
         /// <returns></returns>
         private static byte ComputeOutCode(Rect extents, double x, double y)
         {
-            // initialised as being inside of clip window
+            // initialized as being inside of clip window
             byte code = INSIDE;
 
             if (x < extents.Left)           // to the left of clip window
@@ -759,7 +759,7 @@ namespace System.Windows.Media.Imaging
                 tmp = x1; x1 = x2; x2 = tmp;
             }
 
-            // draw initial pixle, which is always intersected by line to it's at 100% intensity
+            // draw initial pixel, which is always intersected by line to it's at 100% intensity
             pixels[y1 * pixelWidth + x1] = AlphaBlend(sa, sr, sg, sb, pixels[y1 * pixelWidth + x1]);
             //bitmap.SetPixel(X0, Y0, BaseColor);
 
@@ -823,7 +823,7 @@ namespace System.Windows.Media.Imaging
                 // Draw all pixels other than the first and last 
                 while (--DeltaY != 0)
                 {
-                    ErrorAccTemp = ErrorAcc;   // remember currrent accumulated error 
+                    ErrorAccTemp = ErrorAcc;   // remember current accumulated error 
                     ErrorAcc += ErrorAdj;      // calculate error for next pixel 
                     if (ErrorAcc <= ErrorAccTemp)
                     {
@@ -859,7 +859,7 @@ namespace System.Windows.Media.Imaging
             // Draw all pixels other than the first and last 
             while (--DeltaX != 0)
             {
-                ErrorAccTemp = ErrorAcc;   // remember currrent accumulated error 
+                ErrorAccTemp = ErrorAcc;   // remember current accumulated error 
                 ErrorAcc += ErrorAdj;      // calculate error for next pixel 
                 if (ErrorAcc <= ErrorAccTemp) // if error accumulator turned over
                 {
@@ -1130,7 +1130,7 @@ namespace System.Windows.Media.Imaging
 
             // blend with high-quality alpha and lower quality but faster 1-off RGBs 
             pixels[index] = (int)(
-               ((sa + ((da * (255 - sa) * 0x8081) >> 23)) << 24) | // aplha 
+               ((sa + ((da * (255 - sa) * 0x8081) >> 23)) << 24) | // alpha 
                (((sg - dg) * sa + (dg << 8)) & 0xFFFFFF00) | // green 
                (((((srb - drb) * sa) >> 8) + drb) & 0x00FF00FF) // red and blue 
             );

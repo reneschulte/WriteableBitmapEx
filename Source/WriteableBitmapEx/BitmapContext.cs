@@ -353,7 +353,7 @@ namespace System.Windows.Media.Imaging
       }
 
       /// <summary>
-      /// Performs a Copy operation from source Bto destination BitmapContext
+      /// Performs a Copy operation from source to destination BitmapContext
       /// </summary>
       /// <remarks>Equivalent to calling Buffer.BlockCopy in Silverlight, or native memcpy in WPF</remarks>
       [System.Runtime.TargetedPatchingOptOut("Candidate for inlining across NGen boundaries for performance reasons")]
