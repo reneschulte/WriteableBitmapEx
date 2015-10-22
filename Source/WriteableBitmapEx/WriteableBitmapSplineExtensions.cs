@@ -91,7 +91,7 @@ namespace System.Windows.Media.Imaging
                 len = lenx;
             }
 
-            // Prevent divison by zero
+            // Prevent division by zero
             if (len != 0)
             {
                 using (var context = bmp.GetBitmapContext())
@@ -131,7 +131,7 @@ namespace System.Windows.Media.Imaging
         /// <summary>
         /// Draws a series of cubic Beziér splines each defined by start, end and two control points. 
         /// The ending point of the previous curve is used as starting point for the next. 
-        /// Therfore the inital curve needs four points and the subsequent 3 (2 control and 1 end point).
+        /// Therefore the initial curve needs four points and the subsequent 3 (2 control and 1 end point).
         /// </summary>
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, cx1, cy1, cx2, cy2, x2, y2, cx3, cx4 ..., xn, yn).</param>
@@ -145,7 +145,7 @@ namespace System.Windows.Media.Imaging
         /// <summary>
         /// Draws a series of cubic Beziér splines each defined by start, end and two control points. 
         /// The ending point of the previous curve is used as starting point for the next. 
-        /// Therfore the inital curve needs four points and the subsequent 3 (2 control and 1 end point).
+        /// Therefore the initial curve needs four points and the subsequent 3 (2 control and 1 end point).
         /// </summary>
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, cx1, cy1, cx2, cy2, x2, y2, cx3, cx4 ..., xn, yn).</param>
@@ -201,7 +201,7 @@ namespace System.Windows.Media.Imaging
                 len = lenx;
             }
 
-            // Prevent divison by zero
+            // Prevent division by zero
             if (len != 0)
             {
                 // Init vars
