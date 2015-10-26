@@ -21,7 +21,7 @@
     <DefineConstants>TRACE;DEBUG;WPF</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -95,6 +95,7 @@
     <Compile Include="..\WriteableBitmapEx\WriteableBitmapLineExtensions.cs">
       <Link>WriteableBitmapLineExtensions.cs</Link>
     </Compile>
+    <Compile Include="IntPtrExtender.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

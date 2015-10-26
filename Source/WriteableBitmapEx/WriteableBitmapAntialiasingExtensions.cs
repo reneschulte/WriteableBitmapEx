@@ -16,6 +16,7 @@
 //
 #endregion
 using System;
+using System.Runtime.InteropServices;
 
 #if NETFX_CORE
 using Windows.Foundation;
@@ -30,11 +31,7 @@ namespace System.Windows.Media.Imaging
     /// <summary>
     /// Collection of draw extension methods for the Silverlight WriteableBitmap class.
     /// </summary>
-    public
-#if !SILVERLIGHT 
-       unsafe 
-#endif
- static partial class WriteableBitmapExtensions
+    public static partial class WriteableBitmapExtensions
     {
         private static readonly int[] leftEdgeX = new int[8192];
         private static readonly int[] rightEdgeX = new int[8192];
@@ -95,9 +92,10 @@ namespace System.Windows.Media.Imaging
                         gs = g;
                         bs = b;
 
-                        d = buffer[y * width + x];
+						// d = buffer[y * width + x];
+						d = Marshal.ReadInt32( buffer.Add<Int32>( y * width + x ) );
 
-                        rd = (byte)((d & 0x00ff0000) >> 16);
+						rd = (byte)((d & 0x00ff0000) >> 16);
                         gd = (byte)((d & 0x0000ff00) >> 8);
                         bd = (byte)((d & 0x000000ff) >> 0);
 
@@ -105,8 +103,9 @@ namespace System.Windows.Media.Imaging
                         gd = (byte)((gs * a + gd * (0xff - a)) >> 8);
                         bd = (byte)((bs * a + bd * (0xff - a)) >> 8);
 
-                        buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
-                    }
+						// buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
+						Marshal.WriteInt32( buffer.Add<Int32>( y * width + x ), ( 0xff << 24 ) | ( rd << 16 ) | ( gd << 8 ) | ( bd << 0 ) );
+					}
                 }
 
                 return;
@@ -147,9 +146,10 @@ namespace System.Windows.Media.Imaging
                         gs = g;
                         bs = b;
 
-                        d = buffer[y * width + x];
+                        //d = buffer[y * width + x];
+						d = Marshal.ReadInt32( buffer.Add<Int32>( y * width + x ) );
 
-                        rd = (byte)((d & 0x00ff0000) >> 16);
+						rd = (byte)((d & 0x00ff0000) >> 16);
                         gd = (byte)((d & 0x0000ff00) >> 8);
                         bd = (byte)((d & 0x000000ff) >> 0);
 
@@ -157,9 +157,10 @@ namespace System.Windows.Media.Imaging
                         gd = (byte)((gs * a + gd * (0xff - a)) >> 8);
                         bd = (byte)((bs * a + bd * (0xff - a)) >> 8);
 
-                        buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
-                    }
-                }
+                        //buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
+						Marshal.WriteInt32( buffer.Add<Int32>( y * width + x ), ( 0xff << 24 ) | ( rd << 16 ) | ( gd << 8 ) | ( bd << 0 ) );
+					}
+				}
 
                 return;
             }
@@ -284,9 +285,10 @@ namespace System.Windows.Media.Imaging
                     gs = g;
                     bs = b;
 
-                    d = buffer[y * width + x];
+					//d = buffer[y * width + x];
+					d = Marshal.ReadInt32( buffer.Add<Int32>( y * width + x ) );
 
-                    rd = (byte)((d & 0x00ff0000) >> 16);
+					rd = (byte)((d & 0x00ff0000) >> 16);
                     gd = (byte)((d & 0x0000ff00) >> 8);
                     bd = (byte)((d & 0x000000ff) >> 0);
 
@@ -294,9 +296,10 @@ namespace System.Windows.Media.Imaging
                     gd = (byte)((gs * a + gd * (0xff - a)) >> 8);
                     bd = (byte)((bs * a + bd * (0xff - a)) >> 8);
 
-                    buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
-                }
-            }
+					//buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
+					Marshal.WriteInt32( buffer.Add<Int32>( y * width + x ), ( 0xff << 24 ) | ( rd << 16 ) | ( gd << 8 ) | ( bd << 0 ) );
+				}
+			}
         }
 
         private static void Swap<T>(ref T a, ref T b)
@@ -381,9 +384,10 @@ namespace System.Windows.Media.Imaging
                     gs = g;
                     bs = b;
 
-                    d = buffer[y * width + x];
+                    //d = buffer[y * width + x];
+					d = Marshal.ReadInt32( buffer.Add<Int32>( y * width + x ) );
 
-                    rd = (byte)((d & 0x00ff0000) >> 16);
+					rd = (byte)((d & 0x00ff0000) >> 16);
                     gd = (byte)((d & 0x0000ff00) >> 8);
                     bd = (byte)((d & 0x000000ff) >> 0);
 
@@ -391,11 +395,10 @@ namespace System.Windows.Media.Imaging
                     gd = (byte)((gs * ta + gd * (0xff - ta)) >> 8);
                     bd = (byte)((bs * ta + bd * (0xff - ta)) >> 8);
 
-                    buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
-
-                    //
-                }
-            }
+                    //buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
+					Marshal.WriteInt32( buffer.Add<Int32>( y * width + x ), ( 0xff << 24 ) | ( rd << 16 ) | ( gd << 8 ) | ( bd << 0 ) );
+				}
+			}
             else
             {
                 off ^= 0xff;
@@ -423,9 +426,10 @@ namespace System.Windows.Media.Imaging
                     gs = g;
                     bs = b;
 
-                    d = buffer[y * width + x];
+					//d = buffer[y * width + x];
+					d = Marshal.ReadInt32( buffer.Add<Int32>( y * width + x ) );
 
-                    rd = (byte)((d & 0x00ff0000) >> 16);
+					rd = (byte)((d & 0x00ff0000) >> 16);
                     gd = (byte)((d & 0x0000ff00) >> 8);
                     bd = (byte)((d & 0x000000ff) >> 0);
 
@@ -433,9 +437,10 @@ namespace System.Windows.Media.Imaging
                     gd = (byte)((gs * ta + gd * (0xff - ta)) >> 8);
                     bd = (byte)((bs * ta + bd * (0xff - ta)) >> 8);
 
-                    buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
+                    //buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
+					Marshal.WriteInt32( buffer.Add<Int32>( y * width + x ), ( 0xff << 24 ) | ( rd << 16 ) | ( gd << 8 ) | ( bd << 0 ) );
 
-                    if (leftEdge) leftEdgeX[y] = x + 1;
+					if (leftEdge) leftEdgeX[y] = x + 1;
                     else rightEdgeX[y] = x - 1;
                 }
             }

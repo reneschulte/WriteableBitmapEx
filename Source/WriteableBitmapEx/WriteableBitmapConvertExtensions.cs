@@ -19,6 +19,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 #if NETFX_CORE
 using Windows.ApplicationModel.Resources;
@@ -36,11 +37,7 @@ namespace System.Windows.Media.Imaging
     /// <summary>
     /// Collection of interchange extension methods for the WriteableBitmap class.
     /// </summary>
-    public
-#if WPF
- unsafe
-#endif
- static partial class WriteableBitmapExtensions
+    public static partial class WriteableBitmapExtensions
     {
         #region Methods
 
@@ -159,9 +156,10 @@ namespace System.Windows.Media.Imaging
                 {
                     for (int x = 0; x < width; x++)
                     {
-                        // Account for pre-multiplied alpha
-                        int c = pixels[offsetSource];
-                        var a = (byte)(c >> 24);
+						// Account for pre-multiplied alpha
+						//int c = pixels[offsetSource];
+						int c = Marshal.ReadInt32( pixels.Add<Int32>( offsetSource ) );
+						var a = (byte)(c >> 24);
 
                         // Prevent division by zero
                         int ai = a;

@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Runtime.InteropServices;
 
 #if NETFX_CORE
 namespace Windows.UI.Xaml.Media.Imaging
@@ -27,11 +28,7 @@ namespace System.Windows.Media.Imaging
     /// <summary>
     /// Collection of filter / convolution extension methods for the WriteableBitmap class.
     /// </summary>
-    public
-#if WPF
- unsafe
-#endif
- static partial class WriteableBitmapExtensions
+    public static partial class WriteableBitmapExtensions
     {
         #region Kernels
 
@@ -157,7 +154,8 @@ namespace System.Windows.Media.Imaging
                                         py = h - 1;
                                     }
 
-                                    var col = pixels[py * w + px];
+									//var col = pixels[py * w + px];
+									var col = Marshal.ReadInt32( pixels.Add<Int32>( py * w + px ) );
                                     var k = kernel[ky + kwh, kx + khh];
                                     a += ((col >> 24) & 0x000000FF) * k;
                                     r += ((col >> 16) & 0x000000FF) * k;
@@ -177,7 +175,8 @@ namespace System.Windows.Media.Imaging
                             var bg = (byte)((tg > 255) ? 255 : ((tg < 0) ? 0 : tg));
                             var bb = (byte)((tb > 255) ? 255 : ((tb < 0) ? 0 : tb));
 
-                            resultPixels[index++] = (ba << 24) | (br << 16) | (bg << 8) | (bb);
+							//resultPixels[index++] = (ba << 24) | (br << 16) | (bg << 8) | (bb);
+							Marshal.WriteInt32( resultPixels.Add<Int32>( index++ ), ( ba << 24 ) | ( br << 16 ) | ( bg << 8 ) | ( bb ) );
                         }
                     }
                     return result;
@@ -207,8 +206,9 @@ namespace System.Windows.Media.Imaging
 
                     for (var i = 0; i < length; i++)
                     {
-                        // Extract
-                        var c = p[i];
+						// Extract
+						// var c = p[i];
+						var c = Marshal.ReadInt32( p.Add<Int32>( i ));
                         var a = (c >> 24) & 0x000000FF;
                         var r = (c >> 16) & 0x000000FF;
                         var g = (c >> 8) & 0x000000FF;
@@ -219,11 +219,12 @@ namespace System.Windows.Media.Imaging
                         g = 255 - g;
                         b = 255 - b;
 
-                        // Set
-                        rp[i] = (a << 24) | (r << 16) | (g << 8) | b;
-                    }
+						// Set
+						//rp[i] = (a << 24) | (r << 16) | (g << 8) | b;
+						Marshal.WriteInt32( rp.Add<Int32>( i ), ( a << 24 ) | ( r << 16 ) | ( g << 8 ) | b );
+					}
 
-                    return result;
+					return result;
                 }
             }
         }
@@ -252,9 +253,10 @@ namespace System.Windows.Media.Imaging
                     var len = context.Length;
                     for (var i = 0; i < len; i++)
                     {
-                        // Extract
-                        var c = px[i];
-                        var a = (c >> 24) & 0x000000FF;
+						// Extract
+						//var c = px[i];
+						var c = Marshal.ReadInt32( px.Add<Int32>( i ) );
+						var a = (c >> 24) & 0x000000FF;
                         var r = (c >> 16) & 0x000000FF;
                         var g = (c >> 8) & 0x000000FF;
                         var b = (c) & 0x000000FF;
@@ -264,9 +266,10 @@ namespace System.Windows.Media.Imaging
                         r = g = b = gray;
 
                         // Set
-                        rp[i] = (a << 24) | (r << 16) | (g << 8) | b;
-                    }
-                }
+                        //rp[i] = (a << 24) | (r << 16) | (g << 8) | b;
+						Marshal.WriteInt32( rp.Add<Int32>( i ), ( a << 24 ) | ( r << 16 ) | ( g << 8 ) | b );
+					}
+				}
 
                 return result;
             }
@@ -295,9 +298,10 @@ namespace System.Windows.Media.Imaging
                     var len = context.Length;
                     for (var i = 0; i < len; i++)
                     {
-                        // Extract
-                        var c = px[i];
-                        var a = (c >> 24) & 0x000000FF;
+						// Extract
+						//var c = px[i];
+						var c = Marshal.ReadInt32( px.Add<Int32>( i ) );
+						var a = (c >> 24) & 0x000000FF;
                         var r = (c >> 16) & 0x000000FF;
                         var g = (c >> 8) & 0x000000FF;
                         var b = (c) & 0x000000FF;
@@ -313,9 +317,10 @@ namespace System.Windows.Media.Imaging
                         b = b < 0 ? 0 : b > 255 ? 255 : b;
 
                         // Set
-                        rp[i] = (a << 24) | (r << 16) | (g << 8) | b;
-                    }
-                }
+                        //rp[i] = (a << 24) | (r << 16) | (g << 8) | b;
+						Marshal.WriteInt32( rp.Add<Int32>( i ), ( a << 24 ) | ( r << 16 ) | ( g << 8 ) | b );
+					}
+				}
 
                 return result;
             }
@@ -343,8 +348,9 @@ namespace System.Windows.Media.Imaging
                     for (var i = 0; i < len; i++)
                     {
                         // Extract
-                        var c = px[i];
-                        var a = (c >> 24) & 0x000000FF;
+                        //var c = px[i];
+						var c = Marshal.ReadInt32( px.Add<Int32>( i ) );
+						var a = (c >> 24) & 0x000000FF;
                         var r = (c >> 16) & 0x000000FF;
                         var g = (c >> 8) & 0x000000FF;
                         var b = (c) & 0x000000FF;
@@ -360,9 +366,10 @@ namespace System.Windows.Media.Imaging
                         b = b < 0 ? 0 : b > 255 ? 255 : b;
 
                         // Set
-                        rp[i] = (a << 24) | (r << 16) | (g << 8) | b;
-                    }
-                }
+                        //rp[i] = (a << 24) | (r << 16) | (g << 8) | b;
+						Marshal.WriteInt32( rp.Add<Int32>( i ), ( a << 24 ) | ( r << 16 ) | ( g << 8 ) | b );
+					}
+				}
 
                 return result;
             }
@@ -390,9 +397,10 @@ namespace System.Windows.Media.Imaging
                     var len = context.Length;
                     for (var i = 0; i < len; i++)
                     {
-                        // Extract
-                        var c = px[i];
-                        var a = (c >> 24) & 0x000000FF;
+						// Extract
+						//var c = px[i];
+						var c = Marshal.ReadInt32( px.Add<Int32>( i ) );
+						var a = (c >> 24) & 0x000000FF;
                         var r = (c >> 16) & 0x000000FF;
                         var g = (c >> 8) & 0x000000FF;
                         var b = (c) & 0x000000FF;
@@ -407,10 +415,11 @@ namespace System.Windows.Media.Imaging
                         g = g < 0 ? 0 : g > 255 ? 255 : g;
                         b = b < 0 ? 0 : b > 255 ? 255 : b;
 
-                        // Set
-                        rp[i] = (a << 24) | (r << 16) | (g << 8) | b;
-                    }
-                }
+						// Set
+						//rp[i] = (a << 24) | (r << 16) | (g << 8) | b;
+						Marshal.WriteInt32( rp.Add<Int32>( i ), ( a << 24 ) | ( r << 16 ) | ( g << 8 ) | b );
+					}
+				}
 
                 return result;
             }

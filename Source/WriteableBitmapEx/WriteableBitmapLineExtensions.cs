@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 #if NETFX_CORE
 using Windows.Foundation;
@@ -27,11 +28,7 @@ namespace Windows.UI.Xaml.Media.Imaging
 namespace System.Windows.Media.Imaging
 #endif
 {
-    public
-#if WPF
-        unsafe
-#endif
- static partial class WriteableBitmapExtensions
+    public static partial class WriteableBitmapExtensions
     {
         #region Normal line
 
@@ -123,7 +120,8 @@ namespace System.Windows.Media.Imaging
                 int error = el >> 1;
                 if (y < h && y >= 0 && x < w && x >= 0)
                 {
-                    pixels[y * w + x] = color;
+					//pixels[y * w + x] = color;
+					Marshal.WriteInt32( pixels.Add<Int32>( y * w + x ), color );
                 }
 
                 // Walk the line!
@@ -148,9 +146,10 @@ namespace System.Windows.Media.Imaging
                     // Set pixel
                     if (y < h && y >= 0 && x < w && x >= 0)
                     {
-                        pixels[y * w + x] = color;
-                    }
-                }
+						//pixels[y * w + x] = color;
+						Marshal.WriteInt32( pixels.Add<Int32>( y * w + x ), color );
+					}
+				}
             }
         }
 
@@ -213,9 +212,10 @@ namespace System.Windows.Media.Imaging
                     {
                         if (y < h && y >= 0 && x < w && x >= 0)
                         {
-                            pixels[(int)y * w + (int)x] = color;
-                        }
-                        x += incx;
+							//pixels[(int)y * w + (int)x] = color;
+							Marshal.WriteInt32( pixels.Add<Int32>( (int)y * w + (int)x ), color );
+						}
+						x += incx;
                         y += incy;
                     }
                 }
@@ -395,8 +395,9 @@ namespace System.Windows.Media.Imaging
                 int k = incy < 0 ? 1 - pixelWidth : 1 + pixelWidth;
                 for (int x = x1; x <= x2; ++x)
                 {
-                    pixels[index] = color;
-                    ys += incy;
+					//pixels[index] = color;
+					Marshal.WriteInt32( pixels.Add<Int32>( index ), color );
+					ys += incy;
                     y = ys >> PRECISION_SHIFT;
                     if (y != previousY)
                     {
@@ -508,8 +509,9 @@ namespace System.Windows.Media.Imaging
                 var inc = (pixelWidth << PRECISION_SHIFT) + incx;
                 for (int y = y1; y <= y2; ++y)
                 {
-                    pixels[indexBaseValue + (index >> PRECISION_SHIFT)] = color;
-                    index += inc;
+					//pixels[indexBaseValue + (index >> PRECISION_SHIFT)] = color;
+					Marshal.WriteInt32( pixels.Add<Int32>( indexBaseValue + ( index >> PRECISION_SHIFT ) ), color );
+					index += inc;
                 }
             }
         }
@@ -759,11 +761,12 @@ namespace System.Windows.Media.Imaging
                 tmp = x1; x1 = x2; x2 = tmp;
             }
 
-            // draw initial pixel, which is always intersected by line to it's at 100% intensity
-            pixels[y1 * pixelWidth + x1] = AlphaBlend(sa, sr, sg, sb, pixels[y1 * pixelWidth + x1]);
-            //bitmap.SetPixel(X0, Y0, BaseColor);
+			// draw initial pixel, which is always intersected by line to it's at 100% intensity
+			//pixels[y1 * pixelWidth + x1] = AlphaBlend(sa, sr, sg, sb, pixels[y1 * pixelWidth + x1]);
+			Marshal.WriteInt32( pixels.Add<Int32>( y1 * pixelWidth + x1 ), AlphaBlend( sa, sr, sg, sb, Marshal.ReadInt32( pixels.Add<Int32>( y1 * pixelWidth + x1 ) ) ) );
+			//bitmap.SetPixel(X0, Y0, BaseColor);
 
-            DeltaX = (short)(x2 - x1);
+			DeltaX = (short)(x2 - x1);
             if (DeltaX >= 0)
             {
                 XDir = 1;
@@ -783,9 +786,10 @@ namespace System.Windows.Media.Imaging
                 while (DeltaX-- != 0)
                 {
                     x1 += XDir;
-                    pixels[y1 * pixelWidth + x1] = AlphaBlend(sa, sr, sg, sb, pixels[y1 * pixelWidth + x1]);
-                }
-                return;
+					//pixels[y1 * pixelWidth + x1] = AlphaBlend(sa, sr, sg, sb, pixels[y1 * pixelWidth + x1]);
+					Marshal.WriteInt32( pixels.Add<Int32>( y1 * pixelWidth + x1 ), AlphaBlend( sa, sr, sg, sb, Marshal.ReadInt32( pixels.Add<Int32>( y1 * pixelWidth + x1 ) ) ) );
+				}
+				return;
             }
 
             if (DeltaX == 0) // if vertical line 
@@ -793,8 +797,9 @@ namespace System.Windows.Media.Imaging
                 do
                 {
                     y1++;
-                    pixels[y1 * pixelWidth + x1] = AlphaBlend(sa, sr, sg, sb, pixels[y1 * pixelWidth + x1]);
-                } while (--DeltaY != 0);
+					//pixels[y1 * pixelWidth + x1] = AlphaBlend(sa, sr, sg, sb, pixels[y1 * pixelWidth + x1]);
+					Marshal.WriteInt32( pixels.Add<Int32>( y1 * pixelWidth + x1 ), AlphaBlend( sa, sr, sg, sb, Marshal.ReadInt32( pixels.Add<Int32>( y1 * pixelWidth + x1 ) ) ) );
+				} while (--DeltaY != 0);
                 return;
             }
 
@@ -804,8 +809,9 @@ namespace System.Windows.Media.Imaging
                 {
                     x1 += XDir;
                     y1++;
-                    pixels[y1 * pixelWidth + x1] = AlphaBlend(sa, sr, sg, sb, pixels[y1 * pixelWidth + x1]);
-                } while (--DeltaY != 0);
+					//pixels[y1 * pixelWidth + x1] = AlphaBlend(sa, sr, sg, sb, pixels[y1 * pixelWidth + x1]);
+					Marshal.WriteInt32( pixels.Add<Int32>( y1 * pixelWidth + x1 ), AlphaBlend( sa, sr, sg, sb, Marshal.ReadInt32( pixels.Add<Int32>( y1 * pixelWidth + x1 ) ) ) );
+				} while (--DeltaY != 0);
                 return;
             }
 
@@ -837,19 +843,22 @@ namespace System.Windows.Media.Imaging
                     Weighting = (ushort)(ErrorAcc >> INTENSITY_SHIFT);
 
                     int weight = Weighting ^ WEIGHT_COMPLEMENT_MASK;
-                    pixels[y1 * pixelWidth + x1] = AlphaBlend(sa, (sr * weight) >> 8, (sg * weight) >> 8, (sb * weight) >> 8, pixels[y1 * pixelWidth + x1]);
+					//pixels[y1 * pixelWidth + x1] = AlphaBlend(sa, (sr * weight) >> 8, (sg * weight) >> 8, (sb * weight) >> 8, pixels[y1 * pixelWidth + x1]);
+					Marshal.WriteInt32( pixels.Add<Int32>( y1 * pixelWidth + x1 ), AlphaBlend( sa, ( sr * weight ) >> 8, ( sg * weight ) >> 8, ( sb * weight ) >> 8, Marshal.ReadInt32( pixels.Add<Int32>( y1 * pixelWidth + x1 ) ) ) );
 
-                    weight = Weighting;
-                    pixels[y1 * pixelWidth + x1 + XDir] = AlphaBlend(sa, (sr * weight) >> 8, (sg * weight) >> 8, (sb * weight) >> 8, pixels[y1 * pixelWidth + x1 + XDir]);
+					weight = Weighting;
+					//pixels[y1 * pixelWidth + x1 + XDir] = AlphaBlend(sa, (sr * weight) >> 8, (sg * weight) >> 8, (sb * weight) >> 8, pixels[y1 * pixelWidth + x1 + XDir]);
+					Marshal.WriteInt32( pixels.Add<Int32>( y1 * pixelWidth + x1 + XDir ), AlphaBlend( sa, ( sr * weight ) >> 8, ( sg * weight ) >> 8, ( sb * weight ) >> 8, Marshal.ReadInt32( pixels.Add<Int32>( y1 * pixelWidth + x1 + XDir ) ) ) );
 
-                    //bitmap.SetPixel(X0, Y0, 255 - (BaseColor + Weighting));
-                    //bitmap.SetPixel(X0 + XDir, Y0, 255 - (BaseColor + (Weighting ^ WeightingComplementMask)));
-                }
+					//bitmap.SetPixel(X0, Y0, 255 - (BaseColor + Weighting));
+					//bitmap.SetPixel(X0 + XDir, Y0, 255 - (BaseColor + (Weighting ^ WeightingComplementMask)));
+				}
 
-                // Draw the final pixel, which is always exactly intersected by the line and so needs no weighting
-                pixels[y2 * pixelWidth + x2] = AlphaBlend(sa, sr, sg, sb, pixels[y2 * pixelWidth + x2]);
-                //bitmap.SetPixel(X1, Y1, BaseColor);
-                return;
+				// Draw the final pixel, which is always exactly intersected by the line and so needs no weighting
+				//pixels[y2 * pixelWidth + x2] = AlphaBlend(sa, sr, sg, sb, pixels[y2 * pixelWidth + x2]);
+				Marshal.WriteInt32( pixels.Add<Int32>( y2 * pixelWidth + x2 ), AlphaBlend( sa, sr, sg, sb, Marshal.ReadInt32( pixels.Add<Int32>( y2 * pixelWidth + x2 ) ) ) );
+				//bitmap.SetPixel(X1, Y1, BaseColor);
+				return;
             }
             // It's an X-major line; calculate 16-bit fixed-point fractional part of a
             // pixel that Y advances each time X advances 1 pixel, truncating the
@@ -873,31 +882,34 @@ namespace System.Windows.Media.Imaging
                 Weighting = (ushort)(ErrorAcc >> INTENSITY_SHIFT);
 
                 int weight = Weighting ^ WEIGHT_COMPLEMENT_MASK;
-                pixels[y1 * pixelWidth + x1] = AlphaBlend(sa, (sr * weight) >> 8, (sg * weight) >> 8, (sb * weight) >> 8, pixels[y1 * pixelWidth + x1]);
+				//pixels[y1 * pixelWidth + x1] = AlphaBlend(sa, (sr * weight) >> 8, (sg * weight) >> 8, (sb * weight) >> 8, pixels[y1 * pixelWidth + x1]);
+				Marshal.WriteInt32( pixels.Add<Int32>( y1 * pixelWidth + x1 ), AlphaBlend( sa, ( sr * weight ) >> 8, ( sg * weight ) >> 8, ( sb * weight ) >> 8, Marshal.ReadInt32( pixels.Add<Int32>( y1 * pixelWidth + x1 ) ) ) );
 
-                weight = Weighting;
-                pixels[(y1 + 1) * pixelWidth + x1] = AlphaBlend(sa, (sr * weight) >> 8, (sg * weight) >> 8, (sb * weight) >> 8, pixels[(y1 + 1) * pixelWidth + x1]);
+				weight = Weighting;
+				//pixels[(y1 + 1) * pixelWidth + x1] = AlphaBlend(sa, (sr * weight) >> 8, (sg * weight) >> 8, (sb * weight) >> 8, pixels[(y1 + 1) * pixelWidth + x1]);
+				Marshal.WriteInt32( pixels.Add<Int32>( ( y1 + 1 ) * pixelWidth + x1 ), AlphaBlend( sa, ( sr * weight ) >> 8, ( sg * weight ) >> 8, ( sb * weight ) >> 8, Marshal.ReadInt32( pixels.Add<Int32>( ( y1 + 1 ) * pixelWidth + x1 ) ) ) );
 
-                //bitmap.SetPixel(X0, Y0, 255 - (BaseColor + Weighting));
-                //bitmap.SetPixel(X0, Y0 + 1,
-                //      255 - (BaseColor + (Weighting ^ WeightingComplementMask)));
-            }
-            // Draw the final pixel, which is always exactly intersected by the line and thus needs no weighting 
-            pixels[y2 * pixelWidth + x2] = AlphaBlend(sa, sr, sg, sb, pixels[y2 * pixelWidth + x2]);
-            //bitmap.SetPixel(X1, Y1, BaseColor);
-        }
+				//bitmap.SetPixel(X0, Y0, 255 - (BaseColor + Weighting));
+				//bitmap.SetPixel(X0, Y0 + 1,
+				//      255 - (BaseColor + (Weighting ^ WeightingComplementMask)));
+			}
+			// Draw the final pixel, which is always exactly intersected by the line and thus needs no weighting 
+			//pixels[y2 * pixelWidth + x2] = AlphaBlend(sa, sr, sg, sb, pixels[y2 * pixelWidth + x2]);
+			Marshal.WriteInt32( pixels.Add<Int32>( y2 * pixelWidth + x2 ), AlphaBlend( sa, sr, sg, sb, Marshal.ReadInt32( pixels.Add<Int32>( y2 * pixelWidth + x2 ) ) ) );
+			//bitmap.SetPixel(X1, Y1, BaseColor);
+		}
 
-        /// <summary> 
-        /// Draws an anti-aliased line with a desired stroke thickness
-        /// <param name="context">The context containing the pixels as int RGBA value.</param>
-        /// <param name="x1">The x-coordinate of the start point.</param>
-        /// <param name="y1">The y-coordinate of the start point.</param>
-        /// <param name="x2">The x-coordinate of the end point.</param>
-        /// <param name="y2">The y-coordinate of the end point.</param>
-        /// <param name="color">The color for the line.</param>
-        /// <param name="strokeThickness">The stroke thickness of the line.</param>
-        /// </summary>
-        public static void DrawLineAa(BitmapContext context, int pixelWidth, int pixelHeight, int x1, int y1, int x2, int y2, int color, int strokeThickness)
+		/// <summary> 
+		/// Draws an anti-aliased line with a desired stroke thickness
+		/// <param name="context">The context containing the pixels as int RGBA value.</param>
+		/// <param name="x1">The x-coordinate of the start point.</param>
+		/// <param name="y1">The y-coordinate of the start point.</param>
+		/// <param name="x2">The x-coordinate of the end point.</param>
+		/// <param name="y2">The y-coordinate of the end point.</param>
+		/// <param name="color">The color for the line.</param>
+		/// <param name="strokeThickness">The stroke thickness of the line.</param>
+		/// </summary>
+		public static void DrawLineAa(BitmapContext context, int pixelWidth, int pixelHeight, int x1, int y1, int x2, int y2, int color, int strokeThickness)
         {
             AAWidthLine(pixelWidth, pixelHeight, context, x1, y1, x2, y2, strokeThickness, color);
         }
@@ -1122,25 +1134,31 @@ namespace System.Windows.Media.Imaging
         private static void AlphaBlendNormalOnPremultiplied(BitmapContext context, int index, int sa, uint srb, uint sg)
         {
             var pixels = context.Pixels;
-            var destPixel = (uint)pixels[index];
+			//var destPixel = (uint)pixels[index];
+			var destPixel = (uint)Marshal.ReadInt32( pixels.Add<Int32>( index ) );
 
-            var da = (destPixel >> 24);
+			var da = (destPixel >> 24);
             var dg = ((destPixel >> 8) & 0xff);
             var drb = destPixel & 0x00FF00FF;
 
-            // blend with high-quality alpha and lower quality but faster 1-off RGBs 
-            pixels[index] = (int)(
-               ((sa + ((da * (255 - sa) * 0x8081) >> 23)) << 24) | // alpha 
-               (((sg - dg) * sa + (dg << 8)) & 0xFFFFFF00) | // green 
-               (((((srb - drb) * sa) >> 8) + drb) & 0x00FF00FF) // red and blue 
-            );
-        }
+			// blend with high-quality alpha and lower quality but faster 1-off RGBs 
+			//pixels[index] = (int)(
+			//   ((sa + ((da * (255 - sa) * 0x8081) >> 23)) << 24) | // alpha 
+			//   (((sg - dg) * sa + (dg << 8)) & 0xFFFFFF00) | // green 
+			//   (((((srb - drb) * sa) >> 8) + drb) & 0x00FF00FF) // red and blue 
+			//);
+			Marshal.WriteInt32( pixels.Add<Int32>( index ), (int)(
+			   ( ( sa + ( ( da * ( 255 - sa ) * 0x8081 ) >> 23 ) ) << 24 ) | // alpha 
+			   ( ( ( sg - dg ) * sa + ( dg << 8 ) ) & 0xFFFFFF00 ) | // green 
+			   ( ( ( ( ( srb - drb ) * sa ) >> 8 ) + drb ) & 0x00FF00FF ) // red and blue 
+			) );
+		}
 
-        #endregion
+		#endregion
 
-        #region Helper
+		#region Helper
 
-        internal static bool CohenSutherlandLineClipWithViewPortOffset(Rect viewPort, ref float xi0, ref float yi0, ref float xi1, ref float yi1, int offset)
+		internal static bool CohenSutherlandLineClipWithViewPortOffset(Rect viewPort, ref float xi0, ref float yi0, ref float xi1, ref float yi1, int offset)
         {
             var viewPortWithOffset = new Rect(viewPort.X - offset, viewPort.Y - offset, viewPort.Width + 2 * offset, viewPort.Height + 2 * offset);
 

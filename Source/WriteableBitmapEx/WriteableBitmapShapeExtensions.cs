@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Runtime.InteropServices;
 
 #if NETFX_CORE
 namespace Windows.UI.Xaml.Media.Imaging
@@ -27,11 +28,7 @@ namespace System.Windows.Media.Imaging
     /// <summary>
     /// Collection of extension methods for the WriteableBitmap class.
     /// </summary>
-    public
-#if WPF
-    unsafe
-#endif
- static partial class WriteableBitmapExtensions
+    public static partial class WriteableBitmapExtensions
     {
         #region Methods
 
@@ -274,9 +271,11 @@ namespace System.Windows.Media.Imaging
                 // top and bottom horizontal scanlines
                 for (var x = startYPlusX1; x <= endOffset; x++)
                 {
-                    pixels[x] = color; // top horizontal line
-                    pixels[offset2] = color; // bottom horizontal line
-                    offset2++;
+					//pixels[x] = color; // top horizontal line
+					Marshal.WriteInt32( pixels.Add<Int32>( x ), color );
+					//pixels[offset2] = color; // bottom horizontal line
+					Marshal.WriteInt32( pixels.Add<Int32>( offset2 ), color );
+					offset2++;
                 }
 
                 // offset2 == endY + x2
@@ -287,9 +286,11 @@ namespace System.Windows.Media.Imaging
 
                 for (var y = startY + x2 + w; y <= offset2; y += w)
                 {
-                    pixels[y] = color; // right vertical line
-                    pixels[endOffset] = color; // left vertical line
-                    endOffset += w;
+					//pixels[y] = color; // right vertical line
+					Marshal.WriteInt32( pixels.Add<Int32>( y ), color );
+					//pixels[endOffset] = color; // left vertical line
+					Marshal.WriteInt32( pixels.Add<Int32>( endOffset ), color );
+					endOffset += w;
                 }
             }
         }
@@ -407,12 +408,16 @@ namespace System.Windows.Media.Imaging
                     if (rx >= w) rx = w - 1;      // ...
                     if (lx < 0) lx = 0;
                     if (lx >= w) lx = w - 1;
-                    pixels[rx + uh] = color;      // Quadrant I (Actually an octant)
-                    pixels[lx + uh] = color;      // Quadrant II
-                    pixels[lx + lh] = color;      // Quadrant III
-                    pixels[rx + lh] = color;      // Quadrant IV
+					//pixels[rx + uh] = color;      // Quadrant I (Actually an octant)
+					Marshal.WriteInt32( pixels.Add<Int32>( rx + uh ), color );
+					//pixels[lx + uh] = color;      // Quadrant II
+					Marshal.WriteInt32( pixels.Add<Int32>( lx + uh ), color );
+					//pixels[lx + lh] = color;      // Quadrant III
+					Marshal.WriteInt32( pixels.Add<Int32>( lx + lh ), color );
+					//pixels[rx + lh] = color;      // Quadrant IV
+					Marshal.WriteInt32( pixels.Add<Int32>( rx + lh ), color );
 
-                    y++;
+					y++;
                     yStopping += xrSqTwo;
                     err += yChg;
                     yChg += xrSqTwo;
@@ -452,12 +457,16 @@ namespace System.Windows.Media.Imaging
                     if (rx >= w) rx = w - 1;      // ...
                     if (lx < 0) lx = 0;
                     if (lx >= w) lx = w - 1;
-                    pixels[rx + uh] = color;      // Quadrant I (Actually an octant)
-                    pixels[lx + uh] = color;      // Quadrant II
-                    pixels[lx + lh] = color;      // Quadrant III
-                    pixels[rx + lh] = color;      // Quadrant IV
+                    //pixels[rx + uh] = color;      // Quadrant I (Actually an octant)
+					Marshal.WriteInt32( pixels.Add<Int32>( rx + uh ), color );
+					//pixels[lx + uh] = color;      // Quadrant II
+					Marshal.WriteInt32( pixels.Add<Int32>( lx + uh ), color );
+					//pixels[lx + lh] = color;      // Quadrant III
+					Marshal.WriteInt32( pixels.Add<Int32>( lx + lh ), color );
+					//pixels[rx + lh] = color;      // Quadrant IV
+					Marshal.WriteInt32( pixels.Add<Int32>( rx + lh ), color );
 
-                    x++;
+					x++;
                     xStopping += yrSqTwo;
                     err += xChg;
                     xChg += yrSqTwo;

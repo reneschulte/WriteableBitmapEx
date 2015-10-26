@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Runtime.InteropServices;
 
 #if NETFX_CORE
 using Windows.Foundation;
@@ -29,11 +30,7 @@ namespace System.Windows.Media.Imaging
     /// <summary>
     /// Collection of transformation extension methods for the WriteableBitmap class.
     /// </summary>
-    public
-#if WPF
- unsafe
-#endif
- static partial class WriteableBitmapExtensions
+    public static partial class WriteableBitmapExtensions
     {
         #region Enums
 
@@ -182,7 +179,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="interpolation">The interpolation method that should be used.</param>
         /// <returns>A new bitmap that is a resized version of the input.</returns>
 #if WPF
-        public static int[] Resize(int* pixels, int widthSource, int heightSource, int width, int height, Interpolation interpolation)
+        public static int[] Resize(IntPtr pixels, int widthSource, int heightSource, int width, int height, Interpolation interpolation)
 #else
       public static int[] Resize(int[] pixels, int widthSource, int heightSource, int width, int height, Interpolation interpolation)
 #endif
@@ -208,10 +205,13 @@ namespace System.Windows.Media.Imaging
                         sy = y * ys;
                         x0 = (int)sx;
                         y0 = (int)sy;
-
-                        pd[srcIdx++] = pixels[y0 * widthSource + x0];
-                    }
-                }
+#if WPF
+						pd[srcIdx++] = Marshal.ReadInt32( pixels.Add<Int32>( y0 * widthSource + x0 ) );
+#else
+						pd[srcIdx++] = pixels[y0 * widthSource + x0];
+#endif
+					}
+				}
             }
 
                // Bilinear
@@ -244,27 +244,43 @@ namespace System.Windows.Media.Imaging
                         }
 
 
-                        // Read source color
-                        c = pixels[y0 * widthSource + x0];
-                        c1a = (byte)(c >> 24);
+						// Read source color
+#if WPF
+						c = Marshal.ReadInt32( pixels.Add<Int32>( y0 * widthSource + x0 ));
+#else
+						c = pixels[y0 * widthSource + x0];
+#endif
+						c1a = (byte)(c >> 24);
                         c1r = (byte)(c >> 16);
                         c1g = (byte)(c >> 8);
                         c1b = (byte)(c);
 
-                        c = pixels[y0 * widthSource + x1];
-                        c2a = (byte)(c >> 24);
+#if WPF
+						c = Marshal.ReadInt32( pixels.Add<Int32>( y0 * widthSource + x1 ) );
+#else
+						c = pixels[y0 * widthSource + x1];
+#endif
+						c2a = (byte)(c >> 24);
                         c2r = (byte)(c >> 16);
                         c2g = (byte)(c >> 8);
                         c2b = (byte)(c);
 
-                        c = pixels[y1 * widthSource + x0];
-                        c3a = (byte)(c >> 24);
+#if WPF
+						c = Marshal.ReadInt32( pixels.Add<Int32>( y1 * widthSource + x0 ) );
+#else
+						c = pixels[y1 * widthSource + x0];
+#endif
+						c3a = (byte)(c >> 24);
                         c3r = (byte)(c >> 16);
                         c3g = (byte)(c >> 8);
                         c3b = (byte)(c);
 
-                        c = pixels[y1 * widthSource + x1];
-                        c4a = (byte)(c >> 24);
+#if WPF
+						c = Marshal.ReadInt32( pixels.Add<Int32>( y1 * widthSource + x1 ) );
+#else
+						c = pixels[y1 * widthSource + x1];
+#endif
+						c4a = (byte)(c >> 24);
                         c4r = (byte)(c >> 16);
                         c4g = (byte)(c >> 8);
                         c4b = (byte)(c);
@@ -337,8 +353,9 @@ namespace System.Windows.Media.Imaging
                             for (var y = h - 1; y >= 0; y--)
                             {
                                 var srcInd = y * w + x;
-                                rp[i] = p[srcInd];
-                                i++;
+								//rp[i] = p[srcInd];
+								Marshal.WriteInt32( rp.Add<Int32>( i ), Marshal.ReadInt32( p.Add<Int32>( srcInd ) ) );
+								i++;
                             }
                         }
                     }
@@ -354,8 +371,9 @@ namespace System.Windows.Media.Imaging
                             for (var x = w - 1; x >= 0; x--)
                             {
                                 var srcInd = y * w + x;
-                                rp[i] = p[srcInd];
-                                i++;
+								// rp[i] = p[srcInd];
+								Marshal.WriteInt32( rp.Add<Int32>( i ), Marshal.ReadInt32( p.Add<Int32>( srcInd ) ) );
+								i++;
                             }
                         }
                     }
@@ -371,8 +389,9 @@ namespace System.Windows.Media.Imaging
                             for (var y = 0; y < h; y++)
                             {
                                 var srcInd = y * w + x;
-                                rp[i] = p[srcInd];
-                                i++;
+                                //rp[i] = p[srcInd];
+								Marshal.WriteInt32( rp.Add<Int32>( i ), Marshal.ReadInt32( p.Add<Int32>( srcInd ) ) );
+								i++;
                             }
                         }
                     }
@@ -470,9 +489,10 @@ namespace System.Windows.Media.Imaging
                             {
                                 if (y == 0)
                                 {
-                                    // center of image, no rotation needed
-                                    newp[i * newWidth + j] = oldp[iCentreY * oldw + iCentreX];
-                                    continue;
+									// center of image, no rotation needed
+									//newp[i * newWidth + j] = oldp[iCentreY * oldw + iCentreX];
+									Marshal.WriteInt32( newp.Add<Int32>( i * newWidth + j ), Marshal.ReadInt32( oldp.Add<Int32>( iCentreY * oldw + iCentreX ) ) );
+									continue;
                                 }
                                 if (y < 0)
                                 {
@@ -512,12 +532,16 @@ namespace System.Windows.Media.Imaging
                             fDeltaX = fTrueX - iFloorX;
                             fDeltaY = fTrueY - iFloorY;
 
-                            var clrTopLeft = oldp[iFloorY * oldw + iFloorX];
-                            var clrTopRight = oldp[iFloorY * oldw + iCeilingX];
-                            var clrBottomLeft = oldp[iCeilingY * oldw + iFloorX];
-                            var clrBottomRight = oldp[iCeilingY * oldw + iCeilingX];
+							//var clrTopLeft = oldp[iFloorY * oldw + iFloorX];
+							var clrTopLeft = Marshal.ReadInt32( oldp.Add<Int32>( iFloorY * oldw + iFloorX ));
+							//var clrTopRight = oldp[iFloorY * oldw + iCeilingX];
+							var clrTopRight = Marshal.ReadInt32( oldp.Add<Int32>( iFloorY * oldw + iCeilingX ) );
+							//var clrBottomLeft = oldp[iCeilingY * oldw + iFloorX];
+							var clrBottomLeft = Marshal.ReadInt32( oldp.Add<Int32>( iCeilingY * oldw + iFloorX ) );
+							//var clrBottomRight = oldp[iCeilingY * oldw + iCeilingX];
+							var clrBottomRight = Marshal.ReadInt32( oldp.Add<Int32>( iCeilingY * oldw + iCeilingX ) );
 
-                            fTopAlpha = (1 - fDeltaX) * ((clrTopLeft >> 24) & 0xFF) + fDeltaX * ((clrTopRight >> 24) & 0xFF);
+							fTopAlpha = (1 - fDeltaX) * ((clrTopLeft >> 24) & 0xFF) + fDeltaX * ((clrTopRight >> 24) & 0xFF);
                             fTopRed = (1 - fDeltaX) * ((clrTopLeft >> 16) & 0xFF) + fDeltaX * ((clrTopRight >> 16) & 0xFF);
                             fTopGreen = (1 - fDeltaX) * ((clrTopLeft >> 8) & 0xFF) + fDeltaX * ((clrTopRight >> 8) & 0xFF);
                             fTopBlue = (1 - fDeltaX) * (clrTopLeft & 0xFF) + fDeltaX * (clrTopRight & 0xFF);
@@ -545,11 +569,15 @@ namespace System.Windows.Media.Imaging
                             if (iAlpha > 255) iAlpha = 255;
 
                             var a = iAlpha + 1;
-                            newp[i * newWidth + j] = (iAlpha << 24)
-                                                   | ((byte)((iRed * a) >> 8) << 16)
-                                                   | ((byte)((iGreen * a) >> 8) << 8)
-                                                   | ((byte)((iBlue * a) >> 8));
-                        }
+							//newp[i * newWidth + j] = (iAlpha << 24)
+							//                       | ((byte)((iRed * a) >> 8) << 16)
+							//                       | ((byte)((iGreen * a) >> 8) << 8)
+							//                       | ((byte)((iBlue * a) >> 8));
+							Marshal.WriteInt32( newp.Add<Int32>( i * newWidth + j), ( iAlpha << 24 )
+												   | ( (byte)( ( iRed * a ) >> 8 ) << 16 )
+												   | ( (byte)( ( iGreen * a ) >> 8 ) << 8 )
+												   | ( (byte)( ( iBlue * a ) >> 8 ) ));
+						}
                     }
                     return bmBilinearInterpolation;
                 }
@@ -588,8 +616,9 @@ namespace System.Windows.Media.Imaging
                             for (var x = 0; x < w; x++)
                             {
                                 var srcInd = y * w + x;
-                                rp[i] = p[srcInd];
-                                i++;
+								//rp[i] = p[srcInd];
+								Marshal.WriteInt32( rp.Add<Int32>( i ), Marshal.ReadInt32( p.Add<Int32>(srcInd) ));
+								i++;
                             }
                         }
                     }
@@ -605,8 +634,9 @@ namespace System.Windows.Media.Imaging
                             for (var x = w - 1; x >= 0; x--)
                             {
                                 var srcInd = y * w + x;
-                                rp[i] = p[srcInd];
-                                i++;
+								//rp[i] = p[srcInd];
+								Marshal.WriteInt32( rp.Add<Int32>( i ), Marshal.ReadInt32( p.Add<Int32>( srcInd ) ) );
+								i++;
                             }
                         }
                     }

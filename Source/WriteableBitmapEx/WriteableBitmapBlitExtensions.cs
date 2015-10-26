@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Runtime.InteropServices;
 
 #if NETFX_CORE
 using Windows.Foundation;
@@ -29,11 +30,7 @@ namespace System.Windows.Media.Imaging
     /// <summary>
     /// Collection of blit (copy) extension methods for the WriteableBitmap class.
     /// </summary>
-    public
-#if WPF
-    unsafe
-#endif
- static partial class WriteableBitmapExtensions
+    public static partial class WriteableBitmapExtensions
     {
         private const int WhiteR = 255;
         private const int WhiteG = 255;
@@ -204,11 +201,12 @@ namespace System.Windows.Media.Imaging
                             ii = sourceStartX;
                             idx = px + y * dpw;
                             x = px;
-                            sourcePixel = sourcePixels[0];
+                            //sourcePixel = sourcePixels[0];
+							sourcePixel = Marshal.ReadInt32( sourcePixels );
 
-                            // Scanline BlockCopy is much faster (3.5x) if no tinting and blending is needed,
-                            // even for smaller sprites like the 32x32 particles. 
-                            if (blendMode == BlendMode.None && !tinted)
+							// Scanline BlockCopy is much faster (3.5x) if no tinting and blending is needed,
+							// even for smaller sprites like the 32x32 particles. 
+							if( blendMode == BlendMode.None && !tinted)
                             {
                                 sourceIdx = (int)ii + (int)jj * sourceWidth;
                                 var offset = x < 0 ? -x : 0;
@@ -232,8 +230,9 @@ namespace System.Windows.Media.Imaging
                                             sourceIdx = (int)ii + (int)jj * sourceWidth;
                                             if (sourceIdx >= 0 && sourceIdx < sourceLength)
                                             {
-                                                sourcePixel = sourcePixels[sourceIdx];
-                                                sa = ((sourcePixel >> 24) & 0xff);
+												//sourcePixel = sourcePixels[sourceIdx];
+												sourcePixel = Marshal.ReadInt32( sourcePixels.Add<Int32>( sourceIdx ) );
+												sa = ((sourcePixel >> 24) & 0xff);
                                                 sr = ((sourcePixel >> 16) & 0xff);
                                                 sg = ((sourcePixel >> 8) & 0xff);
                                                 sb = ((sourcePixel) & 0xff);
@@ -253,9 +252,10 @@ namespace System.Windows.Media.Imaging
                                         }
                                         if (blendMode == BlendMode.None)
                                         {
-                                            destPixels[idx] = sourcePixel;
-                                        }
-                                        else if (blendMode == BlendMode.ColorKeying)
+											//destPixels[idx] = sourcePixel;
+											Marshal.WriteInt32( destPixels.Add<Int32>( idx ), sourcePixel );
+										}
+										else if (blendMode == BlendMode.ColorKeying)
                                         {
                                             sr = ((sourcePixel >> 16) & 0xff);
                                             sg = ((sourcePixel >> 8) & 0xff);
@@ -263,14 +263,16 @@ namespace System.Windows.Media.Imaging
 
                                             if (sr != color.R || sg != color.G || sb != color.B)
                                             {
-                                                destPixels[idx] = sourcePixel;
-                                            }
+												//destPixels[idx] = sourcePixel;
+												Marshal.WriteInt32( destPixels.Add<Int32>( idx ), sourcePixel );
+											}
 
-                                        }
+										}
                                         else if (blendMode == BlendMode.Mask)
                                         {
-                                            int destPixel = destPixels[idx];
-                                            da = ((destPixel >> 24) & 0xff);
+											//int destPixel = destPixels[idx];
+											Int32 destPixel = Marshal.ReadInt32( destPixels.Add<Int32>( idx ) );
+											da = ((destPixel >> 24) & 0xff);
                                             dr = ((destPixel >> 16) & 0xff);
                                             dg = ((destPixel >> 8) & 0xff);
                                             db = ((destPixel) & 0xff);
@@ -278,21 +280,24 @@ namespace System.Windows.Media.Imaging
                                                         ((((dr * sa) * 0x8081) >> 23) << 16) |
                                                         ((((dg * sa) * 0x8081) >> 23) << 8) |
                                                         ((((db * sa) * 0x8081) >> 23));
-                                            destPixels[idx] = destPixel;
-                                        }
-                                        else if (sa > 0)
+                                            //destPixels[idx] = destPixel;
+											Marshal.WriteInt32( destPixels.Add<Int32>( idx ), destPixel );
+										}
+										else if (sa > 0)
                                         {
-                                            int destPixel = destPixels[idx];
-                                            da = ((destPixel >> 24) & 0xff);
+											//int destPixel = destPixels[idx];
+											Int32 destPixel = Marshal.ReadInt32( destPixels.Add<Int32>( idx ) );
+											da = ((destPixel >> 24) & 0xff);
                                             if ((sa == 255 || da == 0) &&
                                                            blendMode != BlendMode.Additive
                                                            && blendMode != BlendMode.Subtractive
                                                            && blendMode != BlendMode.Multiply
                                                )
                                             {
-                                                destPixels[idx] = sourcePixel;
-                                            }
-                                            else
+                                                //destPixels[idx] = sourcePixel;
+												Marshal.WriteInt32( destPixels.Add<Int32>( idx ), sourcePixel );
+											}
+											else
                                             {
                                                 dr = ((destPixel >> 16) & 0xff);
                                                 dg = ((destPixel >> 8) & 0xff);
@@ -363,9 +368,10 @@ namespace System.Windows.Media.Imaging
                                                                 ((ba <= bb ? ba : bb));
                                                 }
 
-                                                destPixels[idx] = destPixel;
-                                            }
-                                        }
+                                                //destPixels[idx] = destPixel;
+												Marshal.WriteInt32( destPixels.Add<Int32>( idx ), destPixel );
+											}
+										}
                                     }
                                     x++;
                                     idx++;
@@ -382,8 +388,6 @@ namespace System.Windows.Media.Imaging
 
         public static void Blit(BitmapContext destContext, int dpw, int dph, Rect destRect, BitmapContext srcContext, Rect sourceRect, int sourceWidth)
         {
-            const BlendMode blendMode = BlendMode.Alpha;
-
             int dw = (int)destRect.Width;
             int dh = (int)destRect.Height;
 
@@ -433,10 +437,11 @@ namespace System.Windows.Media.Imaging
                     ii = sourceStartX;
                     idx = px + y * dpw;
                     x = px;
-                    sourcePixel = sourcePixels[0];
+                    //sourcePixel = sourcePixels[0];
+					sourcePixel = Marshal.ReadInt32( sourcePixels );
 
-                    // Pixel by pixel copying
-                    for (var i = 0; i < dw; i++)
+					// Pixel by pixel copying
+					for( var i = 0; i < dw; i++)
                     {
                         if (x >= 0 && x < dpw)
                         {
@@ -445,8 +450,9 @@ namespace System.Windows.Media.Imaging
                                 sourceIdx = (int)ii + (int)jj * sourceWidth;
                                 if (sourceIdx >= 0 && sourceIdx < sourceLength)
                                 {
-                                    sourcePixel = sourcePixels[sourceIdx];
-                                    sa = ((sourcePixel >> 24) & 0xff);
+									//sourcePixel = sourcePixels[sourceIdx];
+									sourcePixel = Marshal.ReadInt32( sourcePixels.Add<Int32>( sourceIdx ) );
+									sa = ((sourcePixel >> 24) & 0xff);
                                     sr = ((sourcePixel >> 16) & 0xff);
                                     sg = ((sourcePixel >> 8) & 0xff);
                                     sb = ((sourcePixel) & 0xff);
@@ -459,13 +465,15 @@ namespace System.Windows.Media.Imaging
 
                             if (sa > 0)
                             {
-                                int destPixel = destPixels[idx];
-                                da = ((destPixel >> 24) & 0xff);
+                                //int destPixel = destPixels[idx];
+								Int32 destPixel = Marshal.ReadInt32( destPixels.Add<Int32>( idx ) );
+								da = ((destPixel >> 24) & 0xff);
                                 if ((sa == 255 || da == 0))
                                 {
-                                    destPixels[idx] = sourcePixel;
-                                }
-                                else
+									//destPixels[idx] = sourcePixel;
+									Marshal.WriteInt32( destPixels.Add<Int32>( idx ), sourcePixel );
+								}
+								else
                                 {
                                     dr = ((destPixel >> 16) & 0xff);
                                     dg = ((destPixel >> 8) & 0xff);
@@ -498,9 +506,10 @@ namespace System.Windows.Media.Imaging
                                                 (((((sg << 8) + isa * dg) >> 8) & 0xff) << 8) |
                                                  ((((sb << 8) + isa * db) >> 8) & 0xff);
 #endif
-                                    destPixels[idx] = destPixel;
-                                }
-                            }
+									//destPixels[idx] = destPixel;
+									Marshal.WriteInt32( destPixels.Add<Int32>( idx ), destPixel );
+								}
+							}
                         }
                         x++;
                         idx++;

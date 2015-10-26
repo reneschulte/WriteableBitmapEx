@@ -27,11 +27,7 @@ namespace System.Windows.Media.Imaging
     /// <summary>
     /// Collection of draw spline extension methods for the WriteableBitmap class.
     /// </summary>
-    public
-#if WPF
-    unsafe
-#endif
- static partial class WriteableBitmapExtensions
+    public static partial class WriteableBitmapExtensions
     {
         #region Fields
 

@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 #if NETFX_CORE
 namespace Windows.UI.Xaml.Media.Imaging
@@ -28,11 +29,7 @@ namespace System.Windows.Media.Imaging
     /// <summary>
     /// Collection of extension methods for the WriteableBitmap class.
     /// </summary>
-    public
-#if WPF
-    unsafe
-#endif
- static partial class WriteableBitmapExtensions
+    public static partial class WriteableBitmapExtensions
     {
         #region Methods
 
@@ -115,11 +112,12 @@ namespace System.Windows.Media.Imaging
                 var endOffset = startY + x2;
                 for (var idx = startYPlusX1; idx < endOffset; idx++)
                 {
-                    pixels[idx] = noBlending ? color : AlphaBlendColors(pixels[idx], sa, sr, sg, sb);
-                }
+					//pixels[idx] = noBlending ? color : AlphaBlendColors(pixels[idx], sa, sr, sg, sb);
+					Marshal.WriteInt32( pixels.Add<Int32>( idx ), noBlending ? color : AlphaBlendColors( Marshal.ReadInt32( pixels.Add<Int32>( idx ) ), sa, sr, sg, sb ) );
+				}
 
-                // Copy first line
-                var len = (x2 - x1);
+				// Copy first line
+				var len = (x2 - x1);
                 var srcOffsetBytes = startYPlusX1 * SizeOfArgb;
                 var offset2 = y2 * w + x1;
                 for (var y = startYPlusX1 + w; y < offset2; y += w)
@@ -134,9 +132,11 @@ namespace System.Windows.Media.Imaging
                     for (int i = 0; i < len; i++)
                     {
                         int idx = y + i;
-                        pixels[idx] = AlphaBlendColors(pixels[idx], sa, sr, sg, sb);
-                    }
-                }
+						//pixels[idx] = AlphaBlendColors(pixels[idx], sa, sr, sg, sb);
+						IntPtr dest = pixels.Add<Int32>( idx );
+						Marshal.WriteInt32( dest, AlphaBlendColors( Marshal.ReadInt32( dest ), sa, sr, sg, sb ) );
+					}
+				}
             }
         }
 
@@ -293,14 +293,16 @@ namespace System.Windows.Media.Imaging
                     // Draw line
                     for (int i = lx; i <= rx; i++)
                     {
-                        // Quadrant II to I (Actually two octants)
-                        pixels[i + uh] = noBlending ? color : AlphaBlendColors(pixels[i + uh], sa, sr, sg, sb);
+						// Quadrant II to I (Actually two octants)
+						// pixels[i + uh] = noBlending ? color : AlphaBlendColors(pixels[i + uh], sa, sr, sg, sb);
+						Marshal.WriteInt32( pixels.Add<Int32>( i + uh ), noBlending ? color : AlphaBlendColors( Marshal.ReadInt32( pixels.Add<Int32>( i + uh ) ), sa, sr, sg, sb ) );
 
-                        // Quadrant III to IV
-                        pixels[i + lh] = noBlending ? color : AlphaBlendColors(pixels[i + lh], sa, sr, sg, sb);
-                    }
+						// Quadrant III to IV
+						//pixels[i + lh] = noBlending ? color : AlphaBlendColors(pixels[i + lh], sa, sr, sg, sb);
+						Marshal.WriteInt32( pixels.Add<Int32>( i + lh ), noBlending ? color : AlphaBlendColors( Marshal.ReadInt32( pixels.Add<Int32>( i + lh ) ), sa, sr, sg, sb ) );
+					}
 
-                    y++;
+					y++;
                     yStopping += xrSqTwo;
                     err += yChg;
                     yChg += xrSqTwo;
@@ -355,11 +357,13 @@ namespace System.Windows.Media.Imaging
                     // Draw line
                     for (int i = lx; i <= rx; i++)
                     {
-                        pixels[i + uh] = color; // Quadrant II to I (Actually two octants)
-                        pixels[i + lh] = color; // Quadrant III to IV
-                    }
+						//pixels[i + uh] = color; // Quadrant II to I (Actually two octants)
+						Marshal.WriteInt32( pixels.Add<Int32>( i + uh ), color );
+						//pixels[i + lh] = color; // Quadrant III to IV
+						Marshal.WriteInt32( pixels.Add<Int32>( i + lh ), color );
+					}
 
-                    x++;
+					x++;
                     xStopping += yrSqTwo;
                     err += xChg;
                     xChg += yrSqTwo;
@@ -498,9 +502,10 @@ namespace System.Windows.Media.Imaging
                             {
                                 int idx = y * w + x;
 
-                                pixels[idx] = noBlending ? color : AlphaBlendColors(pixels[idx], sa, sr, sg, sb);
-                            }
-                        }
+								//pixels[idx] = noBlending ? color : AlphaBlendColors(pixels[idx], sa, sr, sg, sb);
+								Marshal.WriteInt32( pixels.Add<Int32>(idx), noBlending ? color : AlphaBlendColors( Marshal.ReadInt32( pixels.Add<Int32>( idx )), sa, sr, sg, sb ) );
+							}
+						}
                     }
                 }
             }
@@ -777,7 +782,8 @@ namespace System.Windows.Media.Imaging
                         int index = y * w + x0;
                         for (int x = x0; x <= x1; x++)
                         {
-                            pixels[index++] = color;
+							//pixels[index++] = color;
+							Marshal.WriteInt32( pixels.Add<Int32>( index++ ), color );
                         }
                     }
                 }
