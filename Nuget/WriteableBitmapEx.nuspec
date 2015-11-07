@@ -5,8 +5,8 @@
   <version>1.5.0.0</version>
   <authors>Schulte Software Development</authors>
   <owners>Schulte Software Development</owners>
-  <licenseUrl>http://writeablebitmapex.codeplex.com/license</licenseUrl>
-  <projectUrl>http://writeablebitmapex.codeplex.com</projectUrl>
+  <licenseUrl>https://github.com/teichgraf/WriteableBitmapEx/blob/master/LICENSE</licenseUrl>
+  <projectUrl>https://github.com/teichgraf/WriteableBitmapEx</projectUrl>
   <iconUrl>http://dl.dropbox.com/u/2681028/CodeplexData/WriteableBitmapEx/Nuget_Logo.png</iconUrl>
   <requireLicenseAcceptance>false</requireLicenseAcceptance>
   <summary>The WriteableBitmapEx library is a collection of extension methods for the WriteableBitmap. The WriteableBitmap class is available for Windows Phone, WPF, WinRT Windows Store XAML, UAP and Silverlight and allows the direct manipulation of a bitmap and could be used to generate fast procedural images by drawing directly to a bitmap.</summary>
