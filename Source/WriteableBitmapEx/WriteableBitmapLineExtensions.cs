@@ -393,7 +393,7 @@ namespace System.Windows.Media.Imaging
                 int previousY = y;
                 int index = x1 + y * pixelWidth;
                 int k = incy < 0 ? 1 - pixelWidth : 1 + pixelWidth;
-                for (int x = x1; x < x2; ++x)
+                for (int x = x1; x <= x2; ++x)
                 {
                     pixels[index] = color;
                     ys += incy;
