@@ -96,10 +96,10 @@ namespace System.Windows.Media.Imaging
                 if (y1 < 0) { y1 = 0; }
                 if (x2 < 0) { x2 = 0; }
                 if (y2 < 0) { y2 = 0; }
-                if (x1 >= w) { x1 = w - 1; }
-                if (y1 >= h) { y1 = h - 1; }
-                if (x2 > w) { x2 = w - 1; }
-                if (y2 > h) { y2 = h - 1; }
+                if (x1 > w) { x1 = w; }
+                if (y1 > h) { y1 = h; }
+                if (x2 > w) { x2 = w; }
+                if (y2 > h) { y2 = h; }
 
                 //swap values
                 if (y1 > y2)
