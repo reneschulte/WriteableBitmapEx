@@ -710,7 +710,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="color">The color for the line.</param>
         public static void DrawLineDotted(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, Color color) {
             var c = ConvertColor(color);
-            DrawLineDotted(bmp, x1, y1, x2, y1, dotSpace, dotLength, c);            
+            DrawLineDotted(bmp, x1, y1, x2, y2, dotSpace, dotLength, c);            
         }
         /// <summary>
         /// Draws a colored dotted line
@@ -724,36 +724,42 @@ namespace System.Windows.Media.Imaging
         /// <param name="dotLength">length of each line segment</param>
         /// <param name="color">The color for the line.</param>
         public static void DrawLineDotted(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, int color) {
-            if (x1 < 0 || x2 < 0 || y1 < 0 || y2 < 0 || dotSpace < 1 || dotLength < 1) {
-                throw new ArgumentOutOfRangeException("Value must larger or eqoal 0");
+            if (x1 < 1 || x2 < 1 || y1 < 1 || y2 < 1 || dotSpace < 1 || dotLength < 1) {
+                throw new ArgumentOutOfRangeException("Value must be larger than 0");
             }
             // vertically?
-            if (x1 == x2) {
-                SwapHorV(ref y1, ref y2);
-                DrawVertically(bmp, x1, y1, y2, dotSpace, dotLength, color);
-            }
-            // horizontally?
-            else if (y1 == y2) {
-                SwapHorV(ref x1, ref x2);
-                DrawHorizontally(bmp, x1, x2, y1, dotSpace, dotLength, color);
-            } else {
-                Draw(bmp, x1, y1, x2, y2, dotSpace, dotLength, color);
+            using (var context = bmp.GetBitmapContext()) {
+                if (x1 == x2) {
+                    SwapHorV(ref y1, ref y2);
+                    DrawVertically(context, x1, y1, y2, dotSpace, dotLength, color);
+                }
+                   // horizontally?
+                   else if (y1 == y2) {
+                    SwapHorV(ref x1, ref x2);
+                    DrawHorizontally(context, x1, x2, y1, dotSpace, dotLength, color);
+                } else {
+                    Draw(context, x1, y1, x2, y2, dotSpace, dotLength, color);
+                } 
             }
         }
 
-        private static void DrawVertically(WriteableBitmap bmp, int x, int y1, int y2, int dotSpace, int dotLength, int color) {
+        private static void DrawVertically(BitmapContext context, int x, int y1, int y2, int dotSpace, int dotLength, int color) {
+            int width = context.Width;
+            int height = context.Height;
             bool on = true;
             int spaceCnt = 0;
             for (int i = y1; i <= y2; i++) {
                 if (i < 1) {
                     continue;
                 }
-                if (i >= bmp.PixelHeight) {
+                if (i >= height) {
                     break;
                 }
 
                 if (on) {
-                    bmp.SetPixel(x, i, color);
+                    //bmp.SetPixel(x, i, color);
+                    var idx = GetIndex(x, i, width);
+                    context.Pixels[idx] = color;
                     on = i % dotLength != 0;
                     spaceCnt = 0;
                 } else {
@@ -764,22 +770,26 @@ namespace System.Windows.Media.Imaging
             }
         }
 
-        private static void DrawHorizontally(WriteableBitmap bmp, int x1, int x2, int y, int dotSpace, int dotLength, int color) {
+        private static void DrawHorizontally(BitmapContext context, int x1, int x2, int y, int dotSpace, int dotLength, int color) {
+            int width = context.Width;
+            int height = context.Height;
             bool on = true;
             int spaceCnt = 0;
             for (int i = x1; i <= x2; i++) {
                 if (i < 1) {
                     continue;
                 }
-                if (i >= bmp.PixelWidth) {
+                if (i >= width) {
                     break;
                 }
-                if (y >= bmp.PixelHeight) {
+                if (y >= height) {
                     break;
                 }
 
                 if (on) {
-                    bmp.SetPixel(i, y, color);
+                    //bmp.SetPixel(i, y, color);
+                    var idx = GetIndex(i, y, width);
+                    context.Pixels[idx] = color;
                     on = i % dotLength != 0;
                     spaceCnt = 0;
                 } else {
@@ -790,28 +800,32 @@ namespace System.Windows.Media.Imaging
             }
         }
 
-        private static void Draw(WriteableBitmap bmp, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, int color) {
+        private static void Draw(BitmapContext context, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, int color) {
             // y = m * x + n
             // y - m * x = n
             Swap(ref x1, ref x2, ref y1, ref y2);
             double m = (y2 - y1) / (double)(x2 - x1);
             double n = y1 - m * x1;
+            int width = context.Width;
+            int height = context.Height;
 
             bool on = true;
             int spaceCnt = 0;
-            for (int i = x1; i <= bmp.PixelWidth; i++) {
+            for (int i = x1; i <= width; i++) {
                 if (i == 0) {
                     continue;
                 }
-                int y = (int)Math.Round(m * i + n, 0, MidpointRounding.ToEven);
+                int y = Convert.ToInt32(m * i + n);
                 if (y <= 0) {
                     continue;
                 }
-                if (y >= bmp.PixelHeight || i >= x2) {
+                if (y >= height || i >= x2) {
                     break;
                 }
                 if (on) {
-                    bmp.SetPixel(i, y, color);
+                    //bmp.SetPixel(i, y, color);
+                    var idx = GetIndex(i, y, width);
+                    context.Pixels[idx] = color;
                     spaceCnt = 0;
                     on = i % dotLength != 0;
                 } else {
@@ -842,6 +856,11 @@ namespace System.Windows.Media.Imaging
             if (a2 < a1) {
                 Swap(ref x1, ref x2, ref a1, ref a2);
             }
+        }
+
+        private static int GetIndex(int x, int y, int width) {
+            var idx = (y - 1) * width + x;
+            return idx - 1;
         }
         #endregion
 
