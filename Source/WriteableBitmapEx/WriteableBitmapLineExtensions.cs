@@ -746,6 +746,7 @@ namespace System.Windows.Media.Imaging
         private static void DrawVertically(BitmapContext context, int x, int y1, int y2, int dotSpace, int dotLength, int color) {
             int width = context.Width;
             int height = context.Height;
+            var pixels = context.Pixels;
             bool on = true;
             int spaceCnt = 0;
             for (int i = y1; i <= y2; i++) {
@@ -758,8 +759,9 @@ namespace System.Windows.Media.Imaging
 
                 if (on) {
                     //bmp.SetPixel(x, i, color);
-                    var idx = GetIndex(x, i, width);
-                    context.Pixels[idx] = color;
+                    //var idx = GetIndex(x, i, width);
+                    var idx = (i - 1) * width + x - 1;
+                    pixels[idx] = color;
                     on = i % dotLength != 0;
                     spaceCnt = 0;
                 } else {
@@ -772,7 +774,8 @@ namespace System.Windows.Media.Imaging
 
         private static void DrawHorizontally(BitmapContext context, int x1, int x2, int y, int dotSpace, int dotLength, int color) {
             int width = context.Width;
-            int height = context.Height;
+            int height = context.Height;            
+            var pixels = context.Pixels;
             bool on = true;
             int spaceCnt = 0;
             for (int i = x1; i <= x2; i++) {
@@ -788,8 +791,9 @@ namespace System.Windows.Media.Imaging
 
                 if (on) {
                     //bmp.SetPixel(i, y, color);
-                    var idx = GetIndex(i, y, width);
-                    context.Pixels[idx] = color;
+                    //var idx = GetIndex(i, y, width);
+                    var idx = (y - 1) * width + i - 1;
+                    pixels[idx] = color;
                     on = i % dotLength != 0;
                     spaceCnt = 0;
                 } else {
@@ -804,10 +808,11 @@ namespace System.Windows.Media.Imaging
             // y = m * x + n
             // y - m * x = n
             Swap(ref x1, ref x2, ref y1, ref y2);
-            double m = (y2 - y1) / (double)(x2 - x1);
-            double n = y1 - m * x1;
+            float m = (y2 - y1) / (float)(x2 - x1);
+            float n = y1 - m * x1;
             int width = context.Width;
             int height = context.Height;
+            var pixels = context.Pixels;
 
             bool on = true;
             int spaceCnt = 0;
@@ -815,7 +820,7 @@ namespace System.Windows.Media.Imaging
                 if (i == 0) {
                     continue;
                 }
-                int y = Convert.ToInt32(m * i + n);
+                int y = (int)(m * i + n);
                 if (y <= 0) {
                     continue;
                 }
@@ -824,8 +829,9 @@ namespace System.Windows.Media.Imaging
                 }
                 if (on) {
                     //bmp.SetPixel(i, y, color);
-                    var idx = GetIndex(i, y, width);
-                    context.Pixels[idx] = color;
+                    //var idx = GetIndex(i, y, width);
+                    var idx = (y - 1) * width + i - 1;
+                    pixels[idx] = color;
                     spaceCnt = 0;
                     on = i % dotLength != 0;
                 } else {
@@ -858,10 +864,11 @@ namespace System.Windows.Media.Imaging
             }
         }
 
-        private static int GetIndex(int x, int y, int width) {
-            var idx = (y - 1) * width + x;
-            return idx - 1;
-        }
+        // inlined
+        //private static int GetIndex(int x, int y, int width) {
+        //    var idx = (y - 1) * width + x;
+        //    return idx - 1;
+        //}
         #endregion
 
         #region Anti-alias line
