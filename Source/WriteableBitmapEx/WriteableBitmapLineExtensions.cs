@@ -724,9 +724,23 @@ namespace System.Windows.Media.Imaging
         /// <param name="dotLength">length of each line segment</param>
         /// <param name="color">The color for the line.</param>
         public static void DrawLineDotted(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, int color) {
-            if (x1 < 1 || x2 < 1 || y1 < 1 || y2 < 1 || dotSpace < 1 || dotLength < 1) {
-                throw new ArgumentOutOfRangeException("Value must be larger than 0");
-            }
+            //if (x1 == 0) {
+            //    x1 = 1;
+            //}
+            //if (x2 == 0) {
+            //    x2 = 1;
+            //}
+            //if (y1 == 0) {
+            //    y1 = 1;
+            //}
+            //if (y2 == 0) {
+            //    y2 = 1;
+            //}
+            //if (x1 < 1 || x2 < 1 || y1 < 1 || y2 < 1 || dotSpace < 1 || dotLength < 1) {
+            //    throw new ArgumentOutOfRangeException("Value must be larger than 0");
+            //}
+            // vertically and horizontally checks by themselves if coords are out of bounds, otherwise CohenSutherlandCLip is used
+            
             // vertically?
             using (var context = bmp.GetBitmapContext()) {
                 if (x1 == x2) {
@@ -746,6 +760,11 @@ namespace System.Windows.Media.Imaging
         private static void DrawVertically(BitmapContext context, int x, int y1, int y2, int dotSpace, int dotLength, int color) {
             int width = context.Width;
             int height = context.Height;
+
+            if (x < 0 || x > width) {
+                return;
+            }
+
             var pixels = context.Pixels;
             bool on = true;
             int spaceCnt = 0;
@@ -807,11 +826,17 @@ namespace System.Windows.Media.Imaging
         private static void Draw(BitmapContext context, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, int color) {
             // y = m * x + n
             // y - m * x = n
+            
+            int width = context.Width;
+            int height = context.Height;
+
+            // Perform cohen-sutherland clipping if either point is out of the viewport
+            if (!CohenSutherlandLineClip(new Rect(0, 0, width, height), ref x1, ref y1, ref x2, ref y2)) {
+                return;
+            }
             Swap(ref x1, ref x2, ref y1, ref y2);
             float m = (y2 - y1) / (float)(x2 - x1);
             float n = y1 - m * x1;
-            int width = context.Width;
-            int height = context.Height;
             var pixels = context.Pixels;
 
             bool on = true;
@@ -825,7 +850,7 @@ namespace System.Windows.Media.Imaging
                     continue;
                 }
                 if (y >= height || i >= x2) {
-                    break;
+                    continue;
                 }
                 if (on) {
                     //bmp.SetPixel(i, y, color);
