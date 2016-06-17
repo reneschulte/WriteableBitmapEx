@@ -30,7 +30,7 @@ namespace System.Windows.Media.Imaging
     /// </summary>
     public
 #if WPF
-    unsafe
+ unsafe
 #endif
  static partial class WriteableBitmapExtensions
     {
@@ -268,7 +268,7 @@ namespace System.Windows.Media.Imaging
                     // Upper half
                     uy = yc + y;
                     // Lower half
-                    ly = yc - y;
+                    ly = yc - y - 1;
 
                     // Clip
                     if (uy < 0) uy = 0;
@@ -291,14 +291,26 @@ namespace System.Windows.Media.Imaging
                     if (lx >= w) lx = w - 1;
 
                     // Draw line
-                    for (int i = lx; i <= rx; i++)
+                    if (noBlending)
                     {
-                        // Quadrant II to I (Actually two octants)
-                        pixels[i + uh] = noBlending ? color : AlphaBlendColors(pixels[i + uh], sa, sr, sg, sb);
-
-                        // Quadrant III to IV
-                        pixels[i + lh] = noBlending ? color : AlphaBlendColors(pixels[i + lh], sa, sr, sg, sb);
+                        for (int i = lx; i <= rx; i++)
+                        {
+                            pixels[i + uh] = color; // Quadrant II to I (Actually two octants)
+                            pixels[i + lh] = color; // Quadrant III to IV
+                        }
                     }
+                    else
+                    {
+                        for (int i = lx; i <= rx; i++)
+                        {
+                            // Quadrant II to I (Actually two octants)
+                            pixels[i + uh] = AlphaBlendColors(pixels[i + uh], sa, sr, sg, sb);
+
+                            // Quadrant III to IV
+                            pixels[i + lh] = AlphaBlendColors(pixels[i + lh], sa, sr, sg, sb);
+                        }
+                    }
+
 
                     y++;
                     yStopping += xrSqTwo;
@@ -353,10 +365,24 @@ namespace System.Windows.Media.Imaging
                     if (lx >= w) lx = w - 1;
 
                     // Draw line
-                    for (int i = lx; i <= rx; i++)
+                    if (noBlending)
                     {
-                        pixels[i + uh] = color; // Quadrant II to I (Actually two octants)
-                        pixels[i + lh] = color; // Quadrant III to IV
+                        for (int i = lx; i <= rx; i++)
+                        {
+                            pixels[i + uh] = color; // Quadrant II to I (Actually two octants)
+                            pixels[i + lh] = color; // Quadrant III to IV
+                        }
+                    }
+                    else
+                    {
+                        for (int i = lx; i <= rx; i++)
+                        {
+                            // Quadrant II to I (Actually two octants)
+                            pixels[i + uh] = AlphaBlendColors(pixels[i + uh], sa, sr, sg, sb);
+
+                            // Quadrant III to IV
+                            pixels[i + lh] = AlphaBlendColors(pixels[i + lh], sa, sr, sg, sb);
+                        }
                     }
 
                     x++;
