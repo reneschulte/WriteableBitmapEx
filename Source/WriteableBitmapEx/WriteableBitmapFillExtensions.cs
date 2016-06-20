@@ -242,6 +242,12 @@ namespace System.Windows.Media.Imaging
                     return;
                 }
 
+                // Skip completly outside objects
+                if (xc - xr >= w || xc + xr < 0 || yc - yr >= h || yc + yr < 0)
+                {
+                    return;
+                }
+
                 // Init vars
                 int uh, lh, uy, ly, lx, rx;
                 int x = xr;
