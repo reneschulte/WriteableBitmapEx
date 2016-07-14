@@ -513,6 +513,192 @@ namespace System.Windows.Media.Imaging
 
         }
 
+
+        /// <summary>
+        /// Renders a bitmap using any affine transformation and transparency into this bitmap
+        /// Unlike Silverlight's Render() method, this one uses 2-3 times less memory, and is the same or better quality
+        /// The algorithm is simple dx/dy (bresenham-like) step by step painting, optimized with fixed point and fast bilinear filtering
+        /// It's used in Fantasia Painter for drawing stickers and 3D objects on screen
+        /// </summary>
+        /// <param name="bmp">Destination bitmap.</param>
+        /// <param name="source">The source WriteableBitmap.</param>
+        /// <param name="shouldClear">If true, the the destination bitmap will be set to all clear (0) before rendering.</param>
+        /// <param name="opacity">opacity of the source bitmap to render, between 0 and 1 inclusive</param>
+        /// <param name="transform">Transformation to apply</param>
+        public static void BlitRender(this WriteableBitmap bmp, WriteableBitmap source, bool shouldClear = true, float opacity = 1f, GeneralTransform transform = null)
+        {
+            const int PRECISION_SHIFT = 10;
+            const int PRECISION_VALUE = (1 << PRECISION_SHIFT);
+            const int PRECISION_MASK = PRECISION_VALUE - 1;
+
+            using (BitmapContext destContext = bmp.GetBitmapContext())
+            {
+                if (transform == null) transform = new MatrixTransform();
+
+                var destPixels = destContext.Pixels;
+                int destWidth = destContext.Width;
+                int destHeight = destContext.Height;
+                var inverse = transform.Inverse;
+                if(shouldClear) destContext.Clear();
+
+                using (BitmapContext sourceContext = source.GetBitmapContext())
+                {
+                    var sourcePixels = sourceContext.Pixels;
+                    int sourceWidth = sourceContext.Width;
+                    int sourceHeight = sourceContext.Height;
+
+                    Rect sourceRect = new Rect(0, 0, sourceWidth, sourceHeight);
+                    Rect destRect = new Rect(0, 0, destWidth, destHeight);
+                    Rect bounds = transform.TransformBounds(sourceRect);
+                    bounds.Intersect(destRect);
+
+                    int startX = (int)bounds.Left;
+                    int startY = (int)bounds.Top;
+                    int endX = (int)bounds.Right;
+                    int endY = (int)bounds.Bottom;
+
+#if NETFX_CORE
+                    Point zeroZero = inverse.TransformPoint(new Point(startX, startY));
+                    Point oneZero = inverse.TransformPoint(new Point(startX + 1, startY));
+                    Point zeroOne = inverse.TransformPoint(new Point(startX, startY + 1));
+#else
+                    Point zeroZero = inverse.Transform(new Point(startX, startY));
+                    Point oneZero = inverse.Transform(new Point(startX + 1, startY));
+                    Point zeroOne = inverse.Transform(new Point(startX, startY + 1));
+#endif
+                    float sourceXf = ((float)zeroZero.X);
+                    float sourceYf = ((float)zeroZero.Y);
+                    int dxDx = (int)((((float)oneZero.X) - sourceXf) * PRECISION_VALUE); // for 1 unit in X coord, how much does X change in source texture?
+                    int dxDy = (int)((((float)oneZero.Y) - sourceYf) * PRECISION_VALUE); // for 1 unit in X coord, how much does Y change in source texture?
+                    int dyDx = (int)((((float)zeroOne.X) - sourceXf) * PRECISION_VALUE); // for 1 unit in Y coord, how much does X change in source texture?
+                    int dyDy = (int)((((float)zeroOne.Y) - sourceYf) * PRECISION_VALUE); // for 1 unit in Y coord, how much does Y change in source texture?
+
+                    int sourceX = (int)(((float)zeroZero.X) * PRECISION_VALUE);
+                    int sourceY = (int)(((float)zeroZero.Y) * PRECISION_VALUE);
+                    int sourceWidthFixed = sourceWidth << PRECISION_SHIFT;
+                    int sourceHeightFixed = sourceHeight << PRECISION_SHIFT;
+
+                    int opacityInt = (int)(opacity * 255);
+
+                    int index = 0;
+                    for (int destY = startY; destY < endY; destY++)
+                    {
+                        index = destY * destWidth + startX;
+                        int savedSourceX = sourceX;
+                        int savedSourceY = sourceY;
+
+                        for (int destX = startX; destX < endX; destX++)
+                        {
+                            if ((sourceX >= 0) && (sourceX < sourceWidthFixed) && (sourceY >= 0) && (sourceY < sourceHeightFixed))
+                            {
+                                // bilinear filtering
+                                int xFloor = sourceX >> PRECISION_SHIFT;
+                                int yFloor = sourceY >> PRECISION_SHIFT;
+
+                                if (xFloor < 0) xFloor = 0;
+                                if (yFloor < 0) yFloor = 0;
+
+                                int xCeil = xFloor + 1;
+                                int yCeil = yFloor + 1;
+
+                                if (xCeil >= sourceWidth)
+                                {
+                                    xFloor = sourceWidth - 1;
+                                    xCeil = 0;
+                                }
+                                else
+                                {
+                                    xCeil = 1;
+                                }
+
+                                if (yCeil >= sourceHeight)
+                                {
+                                    yFloor = sourceHeight - 1;
+                                    yCeil = 0;
+                                }
+                                else
+                                {
+                                    yCeil = sourceWidth;
+                                }
+
+                                int i1 = yFloor * sourceWidth + xFloor;
+                                int p1 = sourcePixels[i1];
+                                int p2 = sourcePixels[i1 + xCeil];
+                                int p3 = sourcePixels[i1 + yCeil];
+                                int p4 = sourcePixels[i1 + yCeil + xCeil];
+
+                                int xFrac = sourceX & PRECISION_MASK;
+                                int yFrac = sourceY & PRECISION_MASK;
+
+                                // alpha
+                                byte a1 = (byte)(p1 >> 24);
+                                byte a2 = (byte)(p2 >> 24);
+                                byte a3 = (byte)(p3 >> 24);
+                                byte a4 = (byte)(p4 >> 24);
+
+                                int comp1, comp2;
+                                byte a;
+
+                                if ((a1 == a2) && (a1 == a3) && (a1 == a4))
+                                {
+                                    if (a1 == 0)
+                                    {
+                                        destPixels[index] = 0;
+
+                                        sourceX += dxDx;
+                                        sourceY += dxDy;
+                                        index++;
+                                        continue;
+                                    }
+
+                                    a = a1;
+                                }
+                                else
+                                {
+                                    comp1 = a1 + ((xFrac * (a2 - a1)) >> PRECISION_SHIFT);
+                                    comp2 = a3 + ((xFrac * (a4 - a3)) >> PRECISION_SHIFT);
+                                    a = (byte)(comp1 + ((yFrac * (comp2 - comp1)) >> PRECISION_SHIFT));
+                                }
+
+                                // red
+                                comp1 = ((byte)(p1 >> 16)) + ((xFrac * (((byte)(p2 >> 16)) - ((byte)(p1 >> 16)))) >> PRECISION_SHIFT);
+                                comp2 = ((byte)(p3 >> 16)) + ((xFrac * (((byte)(p4 >> 16)) - ((byte)(p3 >> 16)))) >> PRECISION_SHIFT);
+                                byte r = (byte)(comp1 + ((yFrac * (comp2 - comp1)) >> PRECISION_SHIFT));
+
+                                // green
+                                comp1 = ((byte)(p1 >> 8)) + ((xFrac * (((byte)(p2 >> 8)) - ((byte)(p1 >> 8)))) >> PRECISION_SHIFT);
+                                comp2 = ((byte)(p3 >> 8)) + ((xFrac * (((byte)(p4 >> 8)) - ((byte)(p3 >> 8)))) >> PRECISION_SHIFT);
+                                byte g = (byte)(comp1 + ((yFrac * (comp2 - comp1)) >> PRECISION_SHIFT));
+
+                                // blue
+                                comp1 = ((byte)p1) + ((xFrac * (((byte)p2) - ((byte)p1))) >> PRECISION_SHIFT);
+                                comp2 = ((byte)p3) + ((xFrac * (((byte)p4) - ((byte)p3))) >> PRECISION_SHIFT);
+                                byte b = (byte)(comp1 + ((yFrac * (comp2 - comp1)) >> PRECISION_SHIFT));
+
+                                // save updated pixel
+                                if (opacityInt != 255)
+                                {
+                                    a = (byte)((a * opacityInt) >> 8);
+                                    r = (byte)((r * opacityInt) >> 8);
+                                    g = (byte)((g * opacityInt) >> 8);
+                                    b = (byte)((b * opacityInt) >> 8);
+                                }
+                                destPixels[index] = (a << 24) | (r << 16) | (g << 8) | b;
+                            }
+
+                            sourceX += dxDx;
+                            sourceY += dxDy;
+                            index++;
+                        }
+
+                        sourceX = savedSourceX + dyDx;
+                        sourceY = savedSourceY + dyDy;
+                    }
+                }
+            }
+        }
+
+
         #endregion
     }
 }
