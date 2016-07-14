@@ -40,6 +40,7 @@ Support for Windows Phone Silverlight, Windows Phone WinRT, desktop Silverlight,
 *   Blitting
     *   Different blend modes including alpha, additive, subtractive, multiply, mask and none
     *   Optimized fast path for non blended blitting
+    *   Special BlitRender to apply affine transformation with bi-linear interpolation
 *   Filtering
     *   Convolution, Blur
     *   Brightness, contrast, gamma adjustments
