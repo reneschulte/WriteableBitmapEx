@@ -39,10 +39,10 @@ namespace System.Windows.Media.Imaging
         private static readonly int[] leftEdgeX = new int[8192];
         private static readonly int[] rightEdgeX = new int[8192];
 
-        private static void AAWidthLine(int width, int height, BitmapContext context, float x1, float y1, float x2, float y2, float lineWidth, Int32 color)
+        private static void AAWidthLine(int width, int height, BitmapContext context, float x1, float y1, float x2, float y2, float lineWidth, Int32 color, Rect? clipRect = null)
         {
             // Perform cohen-sutherland clipping if either point is out of the viewport
-            if (!CohenSutherlandLineClip(new Rect(0, 0, width, height), ref x1, ref y1, ref x2, ref y2)) return;
+            if (!CohenSutherlandLineClip(clipRect ?? new Rect(0, 0, width, height), ref x1, ref y1, ref x2, ref y2)) return;
 
             if (lineWidth <= 0) return;
 
