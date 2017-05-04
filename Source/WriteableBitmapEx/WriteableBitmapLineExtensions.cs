@@ -1159,7 +1159,7 @@ namespace System.Windows.Media.Imaging
                 }
                 u++;
                 addr += uincr;
-            } while (u < uend);
+            } while (u <= uend);
         }
 
         /// <summary> 
