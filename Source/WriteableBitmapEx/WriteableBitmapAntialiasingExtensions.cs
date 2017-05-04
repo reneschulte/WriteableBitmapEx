@@ -122,7 +122,7 @@ namespace System.Windows.Media.Imaging
                 if (y2 < 0) return;
 
                 if (y1 >= height) return;
-                if (y2 >= height) x2 = height - 1;
+                if (y2 >= height) y2 = height - 1;
 
                 if (x1 >= width || y2 < 0) return;
 
