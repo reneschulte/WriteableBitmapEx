@@ -221,7 +221,7 @@ namespace System.Windows.Media.Imaging
         /// <returns>The color of the pixel at x, y.</returns>
         public static int GetPixeli(this WriteableBitmap bmp, int x, int y)
         {
-            using (var context = bmp.GetBitmapContext())
+            using (var context = bmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 return context.Pixels[y * context.Width + x];
             }
@@ -237,7 +237,7 @@ namespace System.Windows.Media.Imaging
         /// <returns>The color of the pixel at x, y as a Color struct.</returns>
         public static Color GetPixel(this WriteableBitmap bmp, int x, int y)
         {
-            using (var context = bmp.GetBitmapContext())
+            using (var context = bmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 var c = context.Pixels[y * context.Width + x];
                 var a = (byte)(c >> 24);

@@ -590,7 +590,7 @@ namespace System.Windows.Media.Imaging
         {
             using (var context = bmp.GetBitmapContext())
             {
-                using (var penContext = penBmp.GetBitmapContext())
+                using (var penContext = penBmp.GetBitmapContext(ReadWriteMode.ReadOnly))
                 {
                     DrawLinePenned(context, bmp.PixelWidth, bmp.PixelHeight, x1, y1, x2, y2, penContext, clipRect);
                 }

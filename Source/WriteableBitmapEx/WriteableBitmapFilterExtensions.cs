@@ -196,7 +196,7 @@ namespace System.Windows.Media.Imaging
         /// <returns>The new inverted WriteableBitmap.</returns>
         public static WriteableBitmap Invert(this WriteableBitmap bmp)
         {
-            using (var srcContext = bmp.GetBitmapContext())
+            using (var srcContext = bmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 var result = BitmapFactory.New(srcContext.Width, srcContext.Height);
                 using (var resultContext = result.GetBitmapContext())
@@ -239,7 +239,7 @@ namespace System.Windows.Media.Imaging
         /// <returns>The new gray WriteableBitmap.</returns>
         public static WriteableBitmap Gray(this WriteableBitmap bmp)
         {
-            using (var context = bmp.GetBitmapContext())
+            using (var context = bmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 var nWidth = context.Width;
                 var nHeight = context.Height;
@@ -282,7 +282,7 @@ namespace System.Windows.Media.Imaging
         {
             var factor = (int)((259.0 * (level + 255.0)) / (255.0 * (259.0 - level)) * 255.0);
 
-            using (var context = bmp.GetBitmapContext())
+            using (var context = bmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 var nWidth = context.Width;
                 var nHeight = context.Height;
@@ -329,7 +329,7 @@ namespace System.Windows.Media.Imaging
         /// <returns>The new WriteableBitmap.</returns>
         public static WriteableBitmap AdjustBrightness(this WriteableBitmap bmp, int nLevel)
         {
-            using (var context = bmp.GetBitmapContext())
+            using (var context = bmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 var nWidth = context.Width;
                 var nHeight = context.Height;
@@ -376,7 +376,7 @@ namespace System.Windows.Media.Imaging
         /// <returns>The new WriteableBitmap.</returns>
         public static WriteableBitmap AdjustGamma(this WriteableBitmap bmp, double value)
         {
-            using (var context = bmp.GetBitmapContext())
+            using (var context = bmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 var nWidth = context.Width;
                 var nHeight = context.Height;

@@ -86,7 +86,7 @@ namespace System.Windows.Media.Imaging
         /// <returns>A new WriteableBitmap that is a cropped version of the input.</returns>
         public static WriteableBitmap Crop(this WriteableBitmap bmp, int x, int y, int width, int height)
         {
-            using (var srcContext = bmp.GetBitmapContext())
+            using (var srcContext = bmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 var srcWidth = srcContext.Width;
                 var srcHeight = srcContext.Height;
@@ -143,7 +143,7 @@ namespace System.Windows.Media.Imaging
         /// <returns>A new WriteableBitmap that is a resized version of the input.</returns>
         public static WriteableBitmap Resize(this WriteableBitmap bmp, int width, int height, Interpolation interpolation)
         {
-            using (var srcContext = bmp.GetBitmapContext())
+            using (var srcContext = bmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 var pd = Resize(srcContext, srcContext.Width, srcContext.Height, width, height, interpolation);
 
@@ -316,7 +316,7 @@ namespace System.Windows.Media.Imaging
         /// <returns>A new WriteableBitmap that is a rotated version of the input.</returns>
         public static WriteableBitmap Rotate(this WriteableBitmap bmp, int angle)
         {
-            using (var context = bmp.GetBitmapContext())
+            using (var context = bmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 // Use refs for faster access (really important!) speeds up a lot!
                 var w = context.Width;
@@ -421,7 +421,7 @@ namespace System.Windows.Media.Imaging
             int iCentreX, iCentreY;
             int iDestCentreX, iDestCentreY;
             int iWidth, iHeight, newWidth, newHeight;
-            using (var bmpContext = bmp.GetBitmapContext())
+            using (var bmpContext = bmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
 
                 iWidth = bmpContext.Width;
@@ -568,7 +568,7 @@ namespace System.Windows.Media.Imaging
         /// <returns>A new WriteableBitmap that is a flipped version of the input.</returns>
         public static WriteableBitmap Flip(this WriteableBitmap bmp, FlipMode flipMode)
         {
-            using (var context = bmp.GetBitmapContext())
+            using (var context = bmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 // Use refs for faster access (really important!) speeds up a lot!
                 var w = context.Width;
