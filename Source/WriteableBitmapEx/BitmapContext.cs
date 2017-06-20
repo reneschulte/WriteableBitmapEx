@@ -232,7 +232,10 @@ namespace System.Windows.Media.Imaging
       public void Dispose()
       {
          // For silverlight, do nothing except redraw
-          _writeableBitmap.Invalidate();
+          if (_mode == ReadWriteMode.ReadWrite)
+          {
+              _writeableBitmap.Invalidate();
+          }
       }
 
 #elif NETFX_CORE

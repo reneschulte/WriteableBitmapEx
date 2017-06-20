@@ -55,7 +55,7 @@ namespace System.Windows.Media.Imaging
         /// <returns>The color buffer as byte ARGB values.</returns>
         public static byte[] ToByteArray(this WriteableBitmap bmp, int offset, int count)
         {
-            using (var context = bmp.GetBitmapContext())
+            using (var context = bmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 if (count == -1)
                 {
@@ -143,7 +143,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="destination">The destination stream.</param>
         public static void WriteTga(this WriteableBitmap bmp, Stream destination)
         {
-            using (var context = bmp.GetBitmapContext())
+            using (var context = bmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 int width = context.Width;
                 int height = context.Height;

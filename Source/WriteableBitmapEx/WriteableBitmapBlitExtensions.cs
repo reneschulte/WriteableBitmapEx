@@ -541,7 +541,7 @@ namespace System.Windows.Media.Imaging
                 var inverse = transform.Inverse;
                 if(shouldClear) destContext.Clear();
 
-                using (BitmapContext sourceContext = source.GetBitmapContext())
+                using (BitmapContext sourceContext = source.GetBitmapContext(ReadWriteMode.ReadOnly))
                 {
                     var sourcePixels = sourceContext.Pixels;
                     int sourceWidth = sourceContext.Width;

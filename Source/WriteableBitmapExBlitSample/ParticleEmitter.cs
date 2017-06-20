@@ -93,7 +93,7 @@ namespace WriteableBitmapExBlitSample
           }
           using (TargetBitmap.GetBitmapContext())
           {
-              using (ParticleBitmap.GetBitmapContext())
+              using (ParticleBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
               {
                   for (int i = 0; i < Particles.Count; i++)
                   {
