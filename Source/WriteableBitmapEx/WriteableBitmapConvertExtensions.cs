@@ -219,7 +219,7 @@ namespace System.Windows.Media.Imaging
       /// <param name="bmp">The WriteableBitmap.</param>
       /// <param name="relativePath">Only the relative path to the resource file. The assembly name is retrieved automatically.</param>
       /// <returns>A new WriteableBitmap containing the pixel data.</returns>
-      [Obsolete("Please use BitmapContext.FromResource instead of this FromResource method.")]
+      [Obsolete("Please use BitmapFactory.FromResource instead of this FromResource method.")]
       public static WriteableBitmap FromResource(this WriteableBitmap bmp, string relativePath)
       {
          return BitmapFactory.FromResource(relativePath);
@@ -234,7 +234,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="uri">The URI to the content file.</param>
         /// <param name="pixelFormat">The pixel format of the stream data. If Unknown is provided as param, the default format of the BitmapDecoder is used.</param>
         /// <returns>A new WriteableBitmap containing the pixel data.</returns>
-        [Obsolete("Please use BitmapContext.FromContent instead of this FromContent method.")]
+        [Obsolete("Please use BitmapFactory.FromContent instead of this FromContent method.")]
         public static Task<WriteableBitmap> FromContent(this WriteableBitmap bmp, Uri uri, BitmapPixelFormat pixelFormat = BitmapPixelFormat.Unknown)
         {
             return BitmapFactory.FromContent(uri, pixelFormat);
@@ -247,7 +247,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="stream">The stream with the image data.</param>
         /// <param name="pixelFormat">The pixel format of the stream data. If Unknown is provided as param, the default format of the BitmapDecoder is used.</param>
         /// <returns>A new WriteableBitmap containing the pixel data.</returns>
-        [Obsolete("Please use BitmapContext.FromStream instead of this FromStream method.")]
+        [Obsolete("Please use BitmapFactory.FromStream instead of this FromStream method.")]
         public static Task<WriteableBitmap> FromStream(this WriteableBitmap bmp, Stream stream, BitmapPixelFormat pixelFormat = BitmapPixelFormat.Unknown)
         {
             return BitmapFactory.FromStream(stream, pixelFormat);
@@ -260,7 +260,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="stream">The stream with the image data.</param>
         /// <param name="pixelFormat">The pixel format of the stream data. If Unknown is provided as param, the default format of the BitmapDecoder is used.</param>
         /// <returns>A new WriteableBitmap containing the pixel data.</returns>
-        [Obsolete("Please use BitmapContext.FromStream instead of this FromStream method.")]
+        [Obsolete("Please use BitmapFactory.FromStream instead of this FromStream method.")]
         public static Task<WriteableBitmap> FromStream(this WriteableBitmap bmp, IRandomAccessStream stream, BitmapPixelFormat pixelFormat = BitmapPixelFormat.Unknown)
         {
             return BitmapFactory.FromStream(stream, pixelFormat);
@@ -306,7 +306,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="width">The width of the image data.</param>
         /// <param name="height">The height of the image data.</param>
         /// <returns>A new WriteableBitmap containing the pixel data.</returns>
-        [Obsolete("Please use BitmapContext.FromPixelBuffer instead of this FromPixelBuffer method.")]
+        [Obsolete("Please use BitmapFactory.FromPixelBuffer instead of this FromPixelBuffer method.")]
         public static Task<WriteableBitmap> FromPixelBuffer(this WriteableBitmap bmp, IBuffer pixelBuffer, int width, int height)
         {
             return BitmapFactory.FromPixelBuffer(pixelBuffer, width, height);
@@ -318,7 +318,7 @@ namespace System.Windows.Media.Imaging
       /// <param name="bmp">The WriteableBitmap.</param>
       /// <param name="relativePath">Only the relative path to the content file.</param>
       /// <returns>A new WriteableBitmap containing the pixel data.</returns>
-      [Obsolete("Please use BitmapContext.FromContent instead of this FromContent method.")]
+      [Obsolete("Please use BitmapFactory.FromContent instead of this FromContent method.")]
       public static WriteableBitmap FromContent(this WriteableBitmap bmp, string relativePath)
       {
          return BitmapFactory.FromContent(relativePath);
@@ -330,7 +330,7 @@ namespace System.Windows.Media.Imaging
       /// <param name="bmp">The WriteableBitmap.</param>
       /// <param name="stream">The stream with the image data.</param>
       /// <returns>A new WriteableBitmap containing the pixel data.</returns>
-      [Obsolete("Please use BitmapContext.FromStream instead of this FromStream method.")]
+      [Obsolete("Please use BitmapFactory.FromStream instead of this FromStream method.")]
       public static WriteableBitmap FromStream(this WriteableBitmap bmp, Stream stream)
       {
          return BitmapFactory.FromStream(stream);
