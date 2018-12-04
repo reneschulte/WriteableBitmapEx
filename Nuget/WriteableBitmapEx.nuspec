@@ -11,7 +11,7 @@
   <requireLicenseAcceptance>false</requireLicenseAcceptance>
   <summary>The WriteableBitmapEx library is a collection of extension methods for the WriteableBitmap. The WriteableBitmap class is available for Windows Phone, WPF, WinRT Windows Store XAML, UAP and Silverlight and allows the direct manipulation of a bitmap and could be used to generate fast procedural images by drawing directly to a bitmap.</summary>
   <description>The WriteableBitmapEx library extensions.</description>
-  <copyright>Copyright (c) 2009-2017 Schulte Software Development</copyright>
+  <copyright>Copyright (c) 2009-2019 Schulte Software Development</copyright>
   <tags>WriteableBitmap Bitmap Graphics Silverlight WP7 WP7Dev WindowsPhone wp8 wpdev WPF .NET WinRT Metro Windows Store UAP</tags>
 </metadata>
 <files>    
