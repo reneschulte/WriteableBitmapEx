@@ -8,7 +8,7 @@ The latest binaries are always available as [NuGet package](http://nuget.org/Lis
 
 See the [Codeplex Issue Tracker](http://writeablebitmapex.codeplex.com/WorkItem/List.aspx) for a list of features that will be added in the future. Please use the [GitHub Issues functionality](https://github.com/teichgraf/WriteableBitmapEx/issues) to add new issues which are not already reported. 
 
-![wbx_announcement.png](http://download-codeplex.sec.s-msft.com/Download?ProjectName=writeablebitmapex&DownloadId=96071 "wbx_announcement.png")
+![wbx_announcement.png](https://archive.codeplex.com/projects/WriteableBitmapEx/5562d7a6-468f-407e-948b-f932cdd83018 "wbx_announcement.png")
 
 # Features
 
@@ -171,4 +171,5 @@ The WriteableBitmapEx library has its origin in several blog posts that also des
 [Dr. Andrew Burnett-Thompson](http://www.linkedin.com/profile/view?id=54694225)and his team proposed the portability refactoring, provided the WPF port and much more beneficial functions.  
 [Nikola Mihaylov (Nokola)](http://nokola.com) made some optimizations on the DrawLine and DrawRectangle methods, provided the original TgaWrite and the anti-aliased line drawing function.  
 [Bill Reiss](http://blogs.silverarcade.com/silverlight-games-101) wrote the Blit methods. 
+
 And all the other amazing contributors you can see in the Contributors tab here on GitHub.
