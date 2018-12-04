@@ -30,7 +30,7 @@ Support for Windows Phone Silverlight, Windows Phone WinRT, desktop Silverlight,
     *   Flip vertical and horizontal
 *   Shapes
     *   Fast line drawing algorithms including various anti-aliased algorithm
-    *   Variable stroke thickness and penned / stamp lines
+    *   Variable stroke thickness, dotted and penned / stamp lines
     *   Ellipse, polyline, quad, rectangle and triangle
     *   Cubic Beziér, Cardinal spline and closed curves
 *   Filled shapes

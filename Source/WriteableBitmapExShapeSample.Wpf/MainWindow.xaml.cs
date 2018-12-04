@@ -141,10 +141,10 @@ namespace WriteableBitmapExShapeSample.Wpf
                 writeableBmp.DrawEllipseCentered(w - w6th, h - h6th, w6th >> 1, h6th >> 1, GetRandomColor());
 
                 // Draw Grid
-                writeableBmp.DrawLine(0, h3rd, w, h3rd, Colors.Black);
-                writeableBmp.DrawLine(0, 2*h3rd, w, 2*h3rd, Colors.Black);
-                writeableBmp.DrawLine(w3rd, 0, w3rd, h, Colors.Black);
-                writeableBmp.DrawLine(2*w3rd, 0, 2*w3rd, h, Colors.Black);
+                writeableBmp.DrawLineDotted(0, h3rd, w, h3rd, 2, 4, Colors.Black);
+                writeableBmp.DrawLineDotted(0, 2*h3rd, w, 2*h3rd, 2, 4, Colors.Black);
+                writeableBmp.DrawLineDotted(w3rd, 0, w3rd, h, 2, 4, Colors.Black);
+                writeableBmp.DrawLineDotted(2*w3rd, 0, 2*w3rd, h, 2, 4, Colors.Black);
 
                 // Invalidates on exit of using block
             }
