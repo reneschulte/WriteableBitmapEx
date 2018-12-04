@@ -13,7 +13,7 @@ See the [Codeplex Issue Tracker](http://writeablebitmapex.codeplex.com/WorkItem/
 # Features
 
 [GDI+](http://msdn.microsoft.com/en-us/library/ms533797(v=VS.85).aspx) like drawing functionality for the WriteableBitmap.
-Support for Windows Phone Silverlight, Windows Phone WinRT, desktop Silverlight, WPF, Windows 8/8.1 WinRT XAML and Windows 10 UWP.
+Support for WPF, Windows 10 UWP (, Windows 8/8.1 WinRT XAML, Windows Phone Silverlight, Windows Phone WinRT and desktop Silverlight).
 
 *   Base
     *   Support for the [Color structure](http://msdn.microsoft.com/en-us/library/system.windows.media.color(VS.95).aspx) (alpha premultiplication will be performed)
@@ -171,3 +171,4 @@ The WriteableBitmapEx library has its origin in several blog posts that also des
 [Dr. Andrew Burnett-Thompson](http://www.linkedin.com/profile/view?id=54694225)and his team proposed the portability refactoring, provided the WPF port and much more beneficial functions.  
 [Nikola Mihaylov (Nokola)](http://nokola.com) made some optimizations on the DrawLine and DrawRectangle methods, provided the original TgaWrite and the anti-aliased line drawing function.  
 [Bill Reiss](http://blogs.silverarcade.com/silverlight-games-101) wrote the Blit methods. 
+And all the other amazing contributors you can see in the Contributors tab here on GitHub.
