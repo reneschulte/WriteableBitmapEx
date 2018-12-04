@@ -8,7 +8,7 @@ The latest binaries are always available as [NuGet package](http://nuget.org/Lis
 
 See the [Codeplex Issue Tracker](http://writeablebitmapex.codeplex.com/WorkItem/List.aspx) for a list of features that will be added in the future. Please use the [GitHub Issues functionality](https://github.com/teichgraf/WriteableBitmapEx/issues) to add new issues which are not already reported. 
 
-![wbx_announcement.png](https://archive.codeplex.com/projects/WriteableBitmapEx/5562d7a6-468f-407e-948b-f932cdd83018 "wbx_announcement.png")
+![wbx_announcement.png](https://4.bp.blogspot.com/-kGQh1bS1qlk/Sx1KnIEhZ3I/AAAAAAAAAI0/z3P5rYjXuk8/s1600/wbx_announcement.png)
 
 # Features
 
