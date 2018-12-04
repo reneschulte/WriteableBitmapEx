@@ -745,6 +745,206 @@ namespace System.Windows.Media.Imaging
 
         #endregion
 
+        #region Dotted Line
+        /// <summary>
+        /// Draws a colored dotted line
+        /// </summary>
+        /// <param name="bmp">The WriteableBitmap</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="dotSpace">length of space between each line segment</param>
+        /// <param name="dotLength">length of each line segment</param>
+        /// <param name="color">The color for the line.</param>
+        public static void DrawLineDotted(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, Color color) {
+            var c = ConvertColor(color);
+            DrawLineDotted(bmp, x1, y1, x2, y2, dotSpace, dotLength, c);            
+        }
+        /// <summary>
+        /// Draws a colored dotted line
+        /// </summary>
+        /// <param name="bmp">The WriteableBitmap</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="dotSpace">length of space between each line segment</param>
+        /// <param name="dotLength">length of each line segment</param>
+        /// <param name="color">The color for the line.</param>
+        public static void DrawLineDotted(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, int color) {
+            //if (x1 == 0) {
+            //    x1 = 1;
+            //}
+            //if (x2 == 0) {
+            //    x2 = 1;
+            //}
+            //if (y1 == 0) {
+            //    y1 = 1;
+            //}
+            //if (y2 == 0) {
+            //    y2 = 1;
+            //}
+            //if (x1 < 1 || x2 < 1 || y1 < 1 || y2 < 1 || dotSpace < 1 || dotLength < 1) {
+            //    throw new ArgumentOutOfRangeException("Value must be larger than 0");
+            //}
+            // vertically and horizontally checks by themselves if coords are out of bounds, otherwise CohenSutherlandCLip is used
+            
+            // vertically?
+            using (var context = bmp.GetBitmapContext()) {
+                if (x1 == x2) {
+                    SwapHorV(ref y1, ref y2);
+                    DrawVertically(context, x1, y1, y2, dotSpace, dotLength, color);
+                }
+                   // horizontally?
+                   else if (y1 == y2) {
+                    SwapHorV(ref x1, ref x2);
+                    DrawHorizontally(context, x1, x2, y1, dotSpace, dotLength, color);
+                } else {
+                    Draw(context, x1, y1, x2, y2, dotSpace, dotLength, color);
+                } 
+            }
+        }
+
+        private static void DrawVertically(BitmapContext context, int x, int y1, int y2, int dotSpace, int dotLength, int color) {
+            int width = context.Width;
+            int height = context.Height;
+
+            if (x < 0 || x > width) {
+                return;
+            }
+
+            var pixels = context.Pixels;
+            bool on = true;
+            int spaceCnt = 0;
+            for (int i = y1; i <= y2; i++) {
+                if (i < 1) {
+                    continue;
+                }
+                if (i >= height) {
+                    break;
+                }
+
+                if (on) {
+                    //bmp.SetPixel(x, i, color);
+                    //var idx = GetIndex(x, i, width);
+                    var idx = (i - 1) * width + x - 1;
+                    pixels[idx] = color;
+                    on = i % dotLength != 0;
+                    spaceCnt = 0;
+                } else {
+                    spaceCnt++;
+                    on = spaceCnt % dotSpace == 0;
+                }
+                //System.Diagnostics.Debug.WriteLine($"{x},{i}, on = {on}");
+            }
+        }
+
+        private static void DrawHorizontally(BitmapContext context, int x1, int x2, int y, int dotSpace, int dotLength, int color) {
+            int width = context.Width;
+            int height = context.Height;            
+            var pixels = context.Pixels;
+            bool on = true;
+            int spaceCnt = 0;
+            for (int i = x1; i <= x2; i++) {
+                if (i < 1) {
+                    continue;
+                }
+                if (i >= width) {
+                    break;
+                }
+                if (y >= height) {
+                    break;
+                }
+
+                if (on) {
+                    //bmp.SetPixel(i, y, color);
+                    //var idx = GetIndex(i, y, width);
+                    var idx = (y - 1) * width + i - 1;
+                    pixels[idx] = color;
+                    on = i % dotLength != 0;
+                    spaceCnt = 0;
+                } else {
+                    spaceCnt++;
+                    on = spaceCnt % dotSpace == 0;
+                }
+                //System.Diagnostics.Debug.WriteLine($"{i},{y}, on = {on}");
+            }
+        }
+
+        private static void Draw(BitmapContext context, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, int color) {
+            // y = m * x + n
+            // y - m * x = n
+            
+            int width = context.Width;
+            int height = context.Height;
+
+            // Perform cohen-sutherland clipping if either point is out of the viewport
+            if (!CohenSutherlandLineClip(new Rect(0, 0, width, height), ref x1, ref y1, ref x2, ref y2)) {
+                return;
+            }
+            Swap(ref x1, ref x2, ref y1, ref y2);
+            float m = (y2 - y1) / (float)(x2 - x1);
+            float n = y1 - m * x1;
+            var pixels = context.Pixels;
+
+            bool on = true;
+            int spaceCnt = 0;
+            for (int i = x1; i <= width; i++) {
+                if (i == 0) {
+                    continue;
+                }
+                int y = (int)(m * i + n);
+                if (y <= 0) {
+                    continue;
+                }
+                if (y >= height || i >= x2) {
+                    continue;
+                }
+                if (on) {
+                    //bmp.SetPixel(i, y, color);
+                    //var idx = GetIndex(i, y, width);
+                    var idx = (y - 1) * width + i - 1;
+                    pixels[idx] = color;
+                    spaceCnt = 0;
+                    on = i % dotLength != 0;
+                } else {
+                    spaceCnt++;
+                    on = spaceCnt % dotSpace == 0;
+                }
+            }
+        }
+
+        private static void Swap(ref int x1, ref int x2, ref int y1, ref int y2) {
+            // always draw from left to right
+            // or from top to bottom
+            if (x2 < x1) {
+                int tmpx1 = x1;
+                int tmpx2 = x2;
+                int tmpy1 = y1;
+                int tmpy2 = y2;
+                x1 = tmpx2;
+                y1 = tmpy2;
+                x2 = tmpx1;
+                y2 = tmpy1;
+            }
+        }
+
+        private static void SwapHorV(ref int a1, ref int a2) {
+            int x1 = 0; // dummy
+            int x2 = -1; // dummy
+            if (a2 < a1) {
+                Swap(ref x1, ref x2, ref a1, ref a2);
+            }
+        }
+
+        // inlined
+        //private static int GetIndex(int x, int y, int width) {
+        //    var idx = (y - 1) * width + x;
+        //    return idx - 1;
+        //}
+        #endregion
+
         #region Anti-alias line
 
         /// <summary>
