@@ -1,12 +1,12 @@
 # WriteableBitmapEx
 
-The WriteableBitmapEx library is a collection of extension methods for the [WriteableBitmap](http://msdn.microsoft.com/en-us/library/system.windows.media.imaging.writeablebitmap%28VS.95%29.aspx). The WriteableBitmap class is available for all XAML flavors including Windows Phone, WPF, WinRT Windows Store XAML, (Windows 10) UWP and Silverlight. It was even ported to [Windows Embedded](http://wbexembedded.codeplex.com). WriteableBitmapEx allows the direct manipulation of a bitmap and can be used for image manipulation, to generate fast procedural images by drawing directly to a bitmap and more.  
+The WriteableBitmapEx library is a collection of extension methods for the [WriteableBitmap](http://msdn.microsoft.com/en-us/library/system.windows.media.imaging.writeablebitmap%28VS.95%29.aspx). The WriteableBitmap class is available for all XAML flavors including WPF, Windows 10 UWP, Windows Phone, WinRT Windows Store XAML and Silverlight. It was even ported to [Windows Embedded](http://wbexembedded.codeplex.com). WriteableBitmapEx allows the direct manipulation of a bitmap and can be used for image manipulation, to generate fast procedural images by drawing directly to a bitmap and more.  
 The WriteableBitmap API is very minimalistic and there's only the raw [Pixels](http://msdn.microsoft.com/en-us/library/system.windows.media.imaging.writeablebitmap.pixels(VS.95).aspx) array for such operations. The WriteableBitmapEx library tries to compensate that with extensions methods that are easy to use like built in methods and offer [GDI+](http://msdn.microsoft.com/en-us/library/ms533797(v=VS.85).aspx) like functionality. The library extends the WriteableBitmap class with elementary and fast (2D drawing) functionality, conversion methods and functions to combine (blit) WriteableBitmaps.  
 The extension methods are grouped into different C# files using a partial class approach. It is possible to include just a few methods by using the specific source code files directly or the full functionality via the built binaries.  
 
 The latest binaries are always available as [NuGet package](http://nuget.org/List/Packages/WriteableBitmapEx).
 
-See the [Codeplex Issue Tracker](http://writeablebitmapex.codeplex.com/WorkItem/List.aspx) for a list of features that will be added in the future. Please use the [GitHub Issues functionality](https://github.com/teichgraf/WriteableBitmapEx/issues) to add new issues which are not already reported. 
+Please use the [GitHub Issues functionality](https://github.com/teichgraf/WriteableBitmapEx/issues) to add new issues which are not already reported. 
 
 ![wbx_announcement.png](https://4.bp.blogspot.com/-kGQh1bS1qlk/Sx1KnIEhZ3I/AAAAAAAAAI0/z3P5rYjXuk8/s1600/wbx_announcement.png)
 
