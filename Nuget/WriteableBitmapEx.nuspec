@@ -18,9 +18,9 @@
   <file src="..\Build\Release\WriteableBitmapEx.xml" target="lib\sl4" /> 
   <file src="..\Build\Release\WriteableBitmapEx.dll" target="lib\sl4" /> 
   <file src="..\Build\Release\WriteableBitmapEx.pdb" target="lib\sl4" /> 
-  <file src="..\Build\Release\net40\WriteableBitmapEx.Wpf.xml" target="lib\net40" /> 
-  <file src="..\Build\Release\net40\WriteableBitmapEx.Wpf.dll" target="lib\net40" /> 
-  <file src="..\Build\Release\net40\WriteableBitmapEx.Wpf.pdb" target="lib\net40" /> 
+  <file src="..\Build\Release\WriteableBitmapEx.Wpf.xml" target="lib\net40" /> 
+  <file src="..\Build\Release\WriteableBitmapEx.Wpf.dll" target="lib\net40" /> 
+  <file src="..\Build\Release\WriteableBitmapEx.Wpf.pdb" target="lib\net40" /> 
   <file src="..\Build\Release\WriteableBitmapExWinPhone.xml" target="lib\sl4-wp71" /> 
   <file src="..\Build\Release\WriteableBitmapExWinPhone.dll" target="lib\sl4-wp71" /> 
   <file src="..\Build\Release\WriteableBitmapExWinPhone.pdb" target="lib\sl4-wp71" /> 
