@@ -31,6 +31,19 @@
     <DefineConstants>TRACE;DEBUG;WPF</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <OutputPath>..\..\Build\Release\</OutputPath>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <OutputPath>..\..\Build\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net40'">
+    <DocumentationFile>..\..\Build\Release\WriteableBitmapEx.Wpf.xml</DocumentationFile>
+  </PropertyGroup>
+
+
   <ItemGroup>
     <Compile Include="..\Common\GlobalAssemblyInfo.cs" Link="Properties\GlobalAssemblyInfo.cs" />
     <Compile Include="..\WriteableBitmapEx\BitmapContext.cs" Link="BitmapContext.cs" />
