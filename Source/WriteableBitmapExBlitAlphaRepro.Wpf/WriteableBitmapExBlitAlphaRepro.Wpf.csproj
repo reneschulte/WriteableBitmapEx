@@ -6,11 +6,6 @@
     <UseWPF>true</UseWPF>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-
-  <!-- Remove when resolved https://github.com/dotnet/cli/issues/10379 -->
-  <PropertyGroup>
-    <RunWorkingDirectory>bin\$(Configuration)\$(TargetFramework)</RunWorkingDirectory>
-  </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <OutputPath>..\..\Build\Release\</OutputPath>
