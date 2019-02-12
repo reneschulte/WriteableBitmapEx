@@ -161,7 +161,7 @@ The WriteableBitmapEx library has its origin in several blog posts that also des
 [Filled To The Bursting Point - WriteableBitmapEx 0.9.5.0](http://kodierer.blogspot.com/2010/06/filled-to-bursting-point.html) announced version 0.9.5.0, has some information about the new Fill methods and comes with a nice sample.  
 [One Bitmap to Rule Them All - WriteableBitmapEx for WinRT Metro Style](http://kodierer.blogspot.de/2012/05/one-bitmap-to-rule-them-all.html) announced version 1.0.0.0 and provides some background about the WinRT Metro Style version. 
 
-[Space Navigator](https://www.codeproject.com/Articles/1225848/Space-Navigator-A-Journey-into-WPFs-Display-Sub-Sy) is a great project on Code Project that compares the performance of the WriteableBitmapEx to other methods for visualizing large hierarchical data in a Tree Map.  
+[Space Navigator](https://www.codeproject.com/Articles/1225848/Space-Navigator-A-Journey-into-WPFs-Display-Sub-Sy) is a great project on Code Project that compares the performance of the WriteableBitmapEx to other methods in WPF for visualizing large hierarchical data in a Tree Map.  
 
 # Support it
 
