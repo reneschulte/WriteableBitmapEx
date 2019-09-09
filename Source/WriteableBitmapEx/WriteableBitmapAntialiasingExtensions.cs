@@ -206,6 +206,15 @@ namespace System.Windows.Media.Imaging
             var ix4 = (int)(x2 + sx);
             var iy4 = (int)(y2 + sy);
 
+            if(ix1 == ix2)
+            {
+                ix2++;
+            }
+            if (ix3 == ix4)
+            {
+                ix4++;
+            }
+
             if (lineWidth == 2)
             {
                 if (Math.Abs(dy) < Math.Abs(dx))
