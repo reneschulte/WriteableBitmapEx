@@ -842,7 +842,12 @@ namespace System.Windows.Media.Imaging
 
         private static void DrawHorizontally(BitmapContext context, int x1, int x2, int y, int dotSpace, int dotLength, int color) {
             int width = context.Width;
-            int height = context.Height;            
+            int height = context.Height;
+
+            if (y < 0 || y > height) {
+                return;
+            }
+
             var pixels = context.Pixels;
             bool on = true;
             int spaceCnt = 0;
