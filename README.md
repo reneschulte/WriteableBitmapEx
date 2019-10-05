@@ -1,7 +1,9 @@
 # WriteableBitmapEx
 
 The WriteableBitmapEx library is a collection of extension methods for the [WriteableBitmap](http://msdn.microsoft.com/en-us/library/system.windows.media.imaging.writeablebitmap%28VS.95%29.aspx). The WriteableBitmap class is available for all XAML flavors including WPF, Windows 10 UWP, Windows Phone, WinRT Windows Store XAML and Silverlight. It supports the .NET Framework and .NET Core 3 and was even ported to [Windows Embedded](http://wbexembedded.codeplex.com). WriteableBitmapEx allows the direct manipulation of a bitmap and can be used for image manipulation, to generate fast procedural images by drawing directly to a bitmap and more.  
+
 The WriteableBitmap API is very minimalistic and there's only the raw [Pixels](http://msdn.microsoft.com/en-us/library/system.windows.media.imaging.writeablebitmap.pixels(VS.95).aspx) array for such operations. The WriteableBitmapEx library tries to compensate that with extensions methods that are easy to use like built in methods and offer [GDI+](http://msdn.microsoft.com/en-us/library/ms533797(v=VS.85).aspx) like functionality. The library extends the WriteableBitmap class with elementary and fast (2D drawing) functionality, conversion methods and functions to combine (blit) WriteableBitmaps.  
+
 The extension methods are grouped into different C# files using a partial class approach. It is possible to include just a few methods by using the specific source code files directly or the full functionality via the built binaries.  
 
 The latest binaries are always available as [NuGet package](http://nuget.org/List/Packages/WriteableBitmapEx).
@@ -149,20 +151,19 @@ var resized = writeableBmp.Resize(200, 300, WriteableBitmapExtensions.Interpolat
 
 # Additional Information
 
-The WriteableBitmapEx library has its origin in several blog posts that also describe the implemenation and usage of some aspects in detail. The blog posts might be seen as the documentation.  
-[WriteableBitmap Extension Methods](http://kodierer.blogspot.com/2009/07/writeablebitmap-extension-methods.html) introduced the SetPixel methods.  
-[Drawing Lines - Silverlight WriteableBitmap Extensions II](http://kodierer.blogspot.com/2009/10/drawing-lines-silverlight.html) provided the DrawLine methods.   
-[Drawing Shapes - Silverlight WriteableBitmap Extensions III](http://kodierer.blogspot.com/2009/11/drawing-shapes-silverlight.html) brought the shape functionality (ellipse, polyline, quad, rectangle, triangle).  
-[Convert, Encode And Decode Silverlight WriteableBitmap Data](http://kodierer.blogspot.com/2009/11/convert-encode-and-decode-silverlight.html) came with the byte array conversion methods and hows how to encode / decode a WriteableBitmap to JPEG.  
-[Blitting and Blending with Silverlight’s WriteableBitmap](http://blogs.silverarcade.com/silverlight-games-101/15/silverlight-blitting-and-blending-with-silverlights-writeablebitmap/) provided the Blit functions.  
-[WriteableBitmapEx - WriteableBitmap extensions now on CodePlex](http://kodierer.blogspot.com/2009/12/writeablebitmapex-writeablebitmap.html) announced this project.  
-[Quick and Dirty Output of WriteableBitmap as TGA Image](http://nokola.com/blog/post/2010/01/21/Quick-and-Dirty-Output-of-WriteableBitmap-as-TGA-Image.aspx) provided the original TgaWrite function.  
-[Rounder, Faster, Better - WriteableBitmapEx 0.9.0.0](http://kodierer.blogspot.com/2010/01/rounder-faster-better-writeablebitmapex.html) announced version 0.9.0.0 and gives some further information about the curve sample.  
-[Let it ring - WriteableBitmapEx for Windows Phone](http://kodierer.blogspot.com/2010/03/let-it-ring-writeablebitmapex-for.html) introtuced the WriteableBitmapEx version for the Windows Phone and a sample.  
-[Filled To The Bursting Point - WriteableBitmapEx 0.9.5.0](http://kodierer.blogspot.com/2010/06/filled-to-bursting-point.html) announced version 0.9.5.0, has some information about the new Fill methods and comes with a nice sample.  
-[One Bitmap to Rule Them All - WriteableBitmapEx for WinRT Metro Style](http://kodierer.blogspot.de/2012/05/one-bitmap-to-rule-them-all.html) announced version 1.0.0.0 and provides some background about the WinRT Metro Style version. 
-
-[Space Navigator](https://www.codeproject.com/Articles/1225848/Space-Navigator-A-Journey-into-WPFs-Display-Sub-Sy) is a great project on Code Project that compares the performance of the WriteableBitmapEx to other methods in WPF for visualizing large hierarchical data in a Tree Map.  
+The WriteableBitmapEx library has its origin in several blog posts that also describe the implemenation and usage of some aspects in detail. The blog posts might be seen as the documentation:
+* [WriteableBitmap Extension Methods](http://kodierer.blogspot.com/2009/07/writeablebitmap-extension-methods.html) introduced the SetPixel methods.  
+* [Drawing Lines - Silverlight WriteableBitmap Extensions II](http://kodierer.blogspot.com/2009/10/drawing-lines-silverlight.html) provided the DrawLine methods.   
+* [Drawing Shapes - Silverlight WriteableBitmap Extensions III](http://kodierer.blogspot.com/2009/11/drawing-shapes-silverlight.html) brought the shape functionality (ellipse, polyline, quad, rectangle, triangle).  
+* [Convert, Encode And Decode Silverlight WriteableBitmap Data](http://kodierer.blogspot.com/2009/11/convert-encode-and-decode-silverlight.html) came with the byte array conversion methods and hows how to encode / decode a WriteableBitmap to JPEG.  
+* [Blitting and Blending with Silverlight’s WriteableBitmap](http://blogs.silverarcade.com/silverlight-games-101/15/silverlight-blitting-and-blending-with-silverlights-writeablebitmap/) provided the Blit functions.  
+* [WriteableBitmapEx - WriteableBitmap extensions now on CodePlex](http://kodierer.blogspot.com/2009/12/writeablebitmapex-writeablebitmap.html) announced this project.  
+* [Quick and Dirty Output of WriteableBitmap as TGA Image](http://nokola.com/blog/post/2010/01/21/Quick-and-Dirty-Output-of-WriteableBitmap-as-TGA-Image.aspx) provided the original TgaWrite function.  
+* [Rounder, Faster, Better - WriteableBitmapEx 0.9.0.0](http://kodierer.blogspot.com/2010/01/rounder-faster-better-writeablebitmapex.html) announced version 0.9.0.0 and gives some further information about the curve sample.  
+* [Let it ring - WriteableBitmapEx for Windows Phone](http://kodierer.blogspot.com/2010/03/let-it-ring-writeablebitmapex-for.html) introtuced the WriteableBitmapEx version for the Windows Phone and a sample.  
+* [Filled To The Bursting Point - WriteableBitmapEx 0.9.5.0](http://kodierer.blogspot.com/2010/06/filled-to-bursting-point.html) announced version 0.9.5.0, has some information about the new Fill methods and comes with a nice sample.  
+* [One Bitmap to Rule Them All - WriteableBitmapEx for WinRT Metro Style](http://kodierer.blogspot.de/2012/05/one-bitmap-to-rule-them-all.html) announced version 1.0.0.0 and provides some background about the WinRT Metro Style version. 
+* [Space Navigator](https://www.codeproject.com/Articles/1225848/Space-Navigator-A-Journey-into-WPFs-Display-Sub-Sy) is a great project on Code Project that compares the performance of the WriteableBitmapEx to other methods in WPF for visualizing large hierarchical data in a Tree Map.  
 
 # Support it
 
@@ -170,9 +171,9 @@ The WriteableBitmapEx library has its origin in several blog posts that also des
 
 # Credits
 
-[Rene Schulte](http://blog.rene-schulte.info) started this project, maintains it and provided most of the code.  
-[Dr. Andrew Burnett-Thompson](http://www.linkedin.com/profile/view?id=54694225)and his team proposed the portability refactoring, provided the WPF port and much more beneficial functions.  
-[Nikola Mihaylov (Nokola)](http://nokola.com) made some optimizations on the DrawLine and DrawRectangle methods, provided the original TgaWrite and the anti-aliased line drawing function.  
-[Bill Reiss](http://blogs.silverarcade.com/silverlight-games-101) wrote the Blit methods. 
+* [Rene Schulte](http://blog.rene-schulte.info) started this project, maintains it and provided most of the code.  
+* [Dr. Andrew Burnett-Thompson](http://www.linkedin.com/profile/view?id=54694225)and his team proposed the portability refactoring, provided the WPF port and much more beneficial functions.  
+* [Nikola Mihaylov (Nokola)](http://nokola.com) made some optimizations on the DrawLine and DrawRectangle methods, provided the original TgaWrite and the anti-aliased line drawing function.  
+* [Bill Reiss](http://blogs.silverarcade.com/silverlight-games-101) wrote the Blit methods. 
 
 And all the other amazing contributors you can see in the Contributors tab here on GitHub.
