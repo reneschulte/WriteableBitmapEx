@@ -6,7 +6,7 @@ The WriteableBitmap API is very minimalistic and there's only the raw [Pixels](h
 
 The extension methods are grouped into different C# files using a partial class approach. It is possible to include just a few methods by using the specific source code files directly or the full functionality via the built binaries.  
 
-The latest binaries are always available as [NuGet package](http://nuget.org/List/Packages/WriteableBitmapEx).
+The latest binaries are available as [NuGet package](http://nuget.org/List/Packages/WriteableBitmapEx).
 
 Please use the [GitHub Issues functionality](https://github.com/teichgraf/WriteableBitmapEx/issues) to add new issues which are not already reported. 
 
