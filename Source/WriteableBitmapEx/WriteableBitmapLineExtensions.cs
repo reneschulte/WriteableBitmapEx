@@ -828,7 +828,7 @@ namespace System.Windows.Media.Imaging
                 if (on) {
                     //bmp.SetPixel(x, i, color);
                     //var idx = GetIndex(x, i, width);
-                    var idx = (i - 1) * width + x - 1;
+                    var idx = (i - 1) * width + x;
                     pixels[idx] = color;
                     on = i % dotLength != 0;
                     spaceCnt = 0;
@@ -865,7 +865,7 @@ namespace System.Windows.Media.Imaging
                 if (on) {
                     //bmp.SetPixel(i, y, color);
                     //var idx = GetIndex(i, y, width);
-                    var idx = (y - 1) * width + i - 1;
+                    var idx = y * width + i - 1;
                     pixels[idx] = color;
                     on = i % dotLength != 0;
                     spaceCnt = 0;
