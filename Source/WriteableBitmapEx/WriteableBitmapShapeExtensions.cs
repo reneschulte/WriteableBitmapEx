@@ -394,23 +394,23 @@ namespace System.Windows.Media.Imaging
                     // Draw 4 quadrant points at once
                     uy = yc + y;                  // Upper half
                     ly = yc - y;                  // Lower half
-                    if (uy < 0) uy = 0;          // Clip
-                    if (uy >= h) uy = h - 1;      // ...
-                    if (ly < 0) ly = 0;
-                    if (ly >= h) ly = h - 1;
-                    uh = uy * w;                  // Upper half
-                    lh = ly * w;                  // Lower half
 
                     rx = xc + x;
                     lx = xc - x;
-                    if (rx < 0) rx = 0;          // Clip
-                    if (rx >= w) rx = w - 1;      // ...
-                    if (lx < 0) lx = 0;
-                    if (lx >= w) lx = w - 1;
-                    pixels[rx + uh] = color;      // Quadrant I (Actually an octant)
-                    pixels[lx + uh] = color;      // Quadrant II
-                    pixels[lx + lh] = color;      // Quadrant III
-                    pixels[rx + lh] = color;      // Quadrant IV
+
+                    if (0 <= uy && uy < h)
+                    {
+                        uh = uy * w;              // Upper half
+                        if (0 <= rx && rx < w) pixels[rx + uh] = color;      // Quadrant I (Actually an octant)
+                        if (0 <= lx && lx < w) pixels[lx + uh] = color;      // Quadrant II
+                    }
+
+                    if (0 <= ly && ly < h)
+                    {
+                        lh = ly * w;              // Lower half
+                        if (0 <= lx && lx < w) pixels[lx + lh] = color;      // Quadrant III
+                        if (0 <= rx && rx < w) pixels[rx + lh] = color;      // Quadrant IV
+                    }
 
                     y++;
                     yStopping += xrSqTwo;
@@ -430,10 +430,6 @@ namespace System.Windows.Media.Imaging
                 y = yr;
                 uy = yc + y;                  // Upper half
                 ly = yc - y;                  // Lower half
-                if (uy < 0) uy = 0;          // Clip
-                if (uy >= h) uy = h - 1;      // ...
-                if (ly < 0) ly = 0;
-                if (ly >= h) ly = h - 1;
                 uh = uy * w;                  // Upper half
                 lh = ly * w;                  // Lower half
                 xChg = yr * yr;
@@ -447,15 +443,18 @@ namespace System.Windows.Media.Imaging
                 {
                     // Draw 4 quadrant points at once
                     rx = xc + x;
+                    if (0 <= rx && rx < w)
+                    {
+                        if (0 <= uy && uy < h) pixels[rx + uh] = color;      // Quadrant I (Actually an octant)
+                        if (0 <= ly && ly < h) pixels[rx + lh] = color;      // Quadrant IV
+                    }
+
                     lx = xc - x;
-                    if (rx < 0) rx = 0;          // Clip
-                    if (rx >= w) rx = w - 1;      // ...
-                    if (lx < 0) lx = 0;
-                    if (lx >= w) lx = w - 1;
-                    pixels[rx + uh] = color;      // Quadrant I (Actually an octant)
-                    pixels[lx + uh] = color;      // Quadrant II
-                    pixels[lx + lh] = color;      // Quadrant III
-                    pixels[rx + lh] = color;      // Quadrant IV
+                    if (0 <= lx && lx < w)
+                    {
+                        if (0 <= uy && uy < h) pixels[lx + uh] = color;      // Quadrant II
+                        if (0 <= ly && ly < h) pixels[lx + lh] = color;      // Quadrant III
+                    }
 
                     x++;
                     xStopping += yrSqTwo;
@@ -466,10 +465,6 @@ namespace System.Windows.Media.Imaging
                         y--;
                         uy = yc + y;                  // Upper half
                         ly = yc - y;                  // Lower half
-                        if (uy < 0) uy = 0;          // Clip
-                        if (uy >= h) uy = h - 1;      // ...
-                        if (ly < 0) ly = 0;
-                        if (ly >= h) ly = h - 1;
                         uh = uy * w;                  // Upper half
                         lh = ly * w;                  // Lower half
                         yStopping -= xrSqTwo;
