@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyCompany("Schulte Software Development")]
 [assembly: AssemblyProduct("WriteableBitmapEx")]
-[assembly: AssemblyCopyright("Copyright © 2009-2019 Rene Schulte and WriteableBitmapEx Contributors")]
+[assembly: AssemblyCopyright("Copyright © 2009-2020 Rene Schulte and WriteableBitmapEx Contributors")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
