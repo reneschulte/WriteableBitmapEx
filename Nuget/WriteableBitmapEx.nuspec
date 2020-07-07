@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 <metadata>
   <id>WriteableBitmapEx</id>
-  <version>1.6.6</version>
+  <version>1.6.7</version>
   <authors>Schulte Software Development</authors>
   <owners>Schulte Software Development</owners>
   <license type="expression">MIT</license>
