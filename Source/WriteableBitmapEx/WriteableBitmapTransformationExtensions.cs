@@ -379,7 +379,7 @@ namespace System.Windows.Media.Imaging
                 }
                 else
                 {
-                    result = bmp.Clone();
+                    result = WriteableBitmapExtensions.Clone(bmp);
                 }
                 return result;
             }

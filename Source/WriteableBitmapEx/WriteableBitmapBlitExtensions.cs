@@ -141,14 +141,14 @@ namespace System.Windows.Media.Imaging
             {
                 return;
             }
-#if WPF
-            var isPrgba = source.Format == PixelFormats.Pbgra32 || source.Format == PixelFormats.Prgba64 || source.Format == PixelFormats.Prgba128Float;
-#endif
             var dw = (int)destRect.Width;
             var dh = (int)destRect.Height;
 
             using (var srcContext = source.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
+#if WPF
+                var isPrgba = srcContext.Format == PixelFormats.Pbgra32 || srcContext.Format == PixelFormats.Prgba64 || srcContext.Format == PixelFormats.Prgba128Float;
+#endif
                 using (var destContext = bmp.GetBitmapContext())
                 {
                     var sourceWidth = srcContext.Width;

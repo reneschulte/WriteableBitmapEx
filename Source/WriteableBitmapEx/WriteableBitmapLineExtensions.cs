@@ -592,7 +592,7 @@ namespace System.Windows.Media.Imaging
             {
                 using (var penContext = penBmp.GetBitmapContext(ReadWriteMode.ReadOnly))
                 {
-                    DrawLinePenned(context, bmp.PixelWidth, bmp.PixelHeight, x1, y1, x2, y2, penContext, clipRect);
+                    DrawLinePenned(context, context.Width, context.Height, x1, y1, x2, y2, penContext, clipRect);
                 }
             }
         }
@@ -620,7 +620,7 @@ namespace System.Windows.Media.Imaging
             // Perform cohen-sutherland clipping if either point is out of the viewport
             if (!CohenSutherlandLineClip(clipRect ?? new Rect(0, 0, w, h), ref x1, ref y1, ref x2, ref y2)) return;
 
-            int size = pen.WriteableBitmap.PixelWidth;
+            int size = pen.Width;
             int pw = size;
             var srcRect = new Rect(0, 0, size, size);
 
@@ -970,7 +970,7 @@ namespace System.Windows.Media.Imaging
         {
             using (var context = bmp.GetBitmapContext())
             {
-                DrawLineWu(context, bmp.PixelWidth, bmp.PixelHeight, x1, y1, x2, y2, sa, sr, sg, sb, clipRect);
+                DrawLineWu(context, context.Width, context.Height, x1, y1, x2, y2, sa, sr, sg, sb, clipRect);
             }
         }
 
@@ -1172,7 +1172,7 @@ namespace System.Windows.Media.Imaging
         {
             using (var context = bmp.GetBitmapContext())
             {
-                AAWidthLine(bmp.PixelWidth, bmp.PixelHeight, context, x1, y1, x2, y2, strokeThickness, color, clipRect);
+                AAWidthLine(context.Width, context.Height, context, x1, y1, x2, y2, strokeThickness, color, clipRect);
             }
         }
 
@@ -1207,7 +1207,7 @@ namespace System.Windows.Media.Imaging
             var col = ConvertColor(color);
             using (var context = bmp.GetBitmapContext())
             {
-                AAWidthLine(bmp.PixelWidth, bmp.PixelHeight, context, x1, y1, x2, y2, strokeThickness, col, clipRect);
+                AAWidthLine(context.Width, context.Height, context, x1, y1, x2, y2, strokeThickness, col, clipRect);
             }
         }
 
