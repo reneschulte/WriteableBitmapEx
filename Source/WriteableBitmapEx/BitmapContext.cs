@@ -62,9 +62,12 @@ namespace System.Windows.Media.Imaging
 
 #if WPF
       private readonly static IDictionary<WriteableBitmap, int> UpdateCountByBmp = new System.Collections.Concurrent.ConcurrentDictionary<WriteableBitmap, int>();
+      private readonly static IDictionary<WriteableBitmap, BitmapContextBitmapProperties> BitmapPropertiesByBmp = new System.Collections.Concurrent.ConcurrentDictionary<WriteableBitmap, BitmapContextBitmapProperties>();
 
       private readonly int _length;
       private readonly int* _backBuffer;
+      private readonly PixelFormat _format;
+      private readonly int _backBufferStride;
 #elif NETFX_CORE
         private readonly static IDictionary<WriteableBitmap, int> UpdateCountByBmp = new ConcurrentDictionary<WriteableBitmap, int>();
         private readonly static IDictionary<WriteableBitmap, int[]> PixelCacheByBmp = new ConcurrentDictionary<WriteableBitmap, int[]>();
@@ -80,12 +83,12 @@ namespace System.Windows.Media.Imaging
         /// <summary>
         /// Width of the bitmap
         /// </summary>
-        public int Width { get { return _writeableBitmap.PixelWidth; } }
+        public int Width { get { return _pixelWidth; } }
 
         /// <summary>
         /// Height of the bitmap
         /// </summary>
-        public int Height { get { return _writeableBitmap.PixelHeight; } }
+        public int Height { get { return _pixelHeight; } }
 
         /// <summary>
         /// Creates an instance of a BitmapContext, with default mode = ReadWrite
@@ -105,9 +108,10 @@ namespace System.Windows.Media.Imaging
         {
             _writeableBitmap = writeableBitmap;
             _mode = mode;
-
+#if !WPF
             _pixelWidth = _writeableBitmap.PixelWidth;
             _pixelHeight = _writeableBitmap.PixelHeight;
+#endif
 #if WPF
          //// Check if it's the Pbgra32 pixel format
          //if (writeableBitmap.Format != PixelFormats.Pbgra32)
@@ -115,28 +119,48 @@ namespace System.Windows.Media.Imaging
          //   throw new ArgumentException("The input WriteableBitmap needs to have the Pbgra32 pixel format. Use the BitmapFactory.ConvertToPbgra32Format method to automatically convert any input BitmapSource to the right format accepted by this class.", "writeableBitmap");
          //}
 
-            double width = _writeableBitmap.BackBufferStride / WriteableBitmapExtensions.SizeOfArgb;
-            _length = (int)(width * _pixelHeight);
+            BitmapContextBitmapProperties bitmapProperties;
 
             lock (UpdateCountByBmp)
-            {
-         // Ensure the bitmap is in the dictionary of mapped Instances
-         if (!UpdateCountByBmp.ContainsKey(writeableBitmap))
-         {
-            // Set UpdateCount to 1 for this bitmap 
-            UpdateCountByBmp.Add(writeableBitmap, 1);
+            { 
+                // Ensure the bitmap is in the dictionary of mapped Instances
+                if (!UpdateCountByBmp.ContainsKey(writeableBitmap))
+                {
+                   // Set UpdateCount to 1 for this bitmap 
+                   UpdateCountByBmp.Add(writeableBitmap, 1);
 
-            // Lock the bitmap
-            writeableBitmap.Lock();
-         }
-         else
-         {
-            // For previously contextualized bitmaps increment the update count
-            IncrementRefCount(writeableBitmap);
-         }
+                   // Lock the bitmap
+                   writeableBitmap.Lock();
+
+                   bitmapProperties = new BitmapContextBitmapProperties()
+                   {
+                       BackBufferStride = writeableBitmap.BackBufferStride,
+                       Pixels = (int*)writeableBitmap.BackBuffer,
+                       Width = writeableBitmap.PixelWidth,
+                       Height = writeableBitmap.PixelHeight,
+                       Format = writeableBitmap.Format
+                   };
+                   BitmapPropertiesByBmp.Add(
+                       writeableBitmap,
+                       bitmapProperties);
+                }
+                else
+                {
+                   // For previously contextualized bitmaps increment the update count
+                   IncrementRefCount(writeableBitmap);
+                   bitmapProperties = BitmapPropertiesByBmp[writeableBitmap];
+                }
+
+                _backBufferStride = bitmapProperties.BackBufferStride;
+                _pixelWidth = bitmapProperties.Width;
+                _pixelHeight = bitmapProperties.Height;
+                _format = bitmapProperties.Format;
+                _backBuffer = bitmapProperties.Pixels;
+
+                double width = _backBufferStride / WriteableBitmapExtensions.SizeOfArgb;
+                _length = (int)(width * _pixelHeight);
             }
 
-            _backBuffer = (int*)writeableBitmap.BackBuffer;
 #elif NETFX_CORE
             // Ensure the bitmap is in the dictionary of mapped Instances
             if (!UpdateCountByBmp.ContainsKey(_writeableBitmap))
@@ -339,7 +363,7 @@ namespace System.Windows.Media.Imaging
       public PixelFormat Format
       {
           [System.Runtime.TargetedPatchingOptOut("Candidate for inlining across NGen boundaries for performance reasons")]
-          get { return _writeableBitmap.Format; }
+          get { return _format; }
       }
 
 
@@ -423,7 +447,7 @@ namespace System.Windows.Media.Imaging
       [System.Runtime.TargetedPatchingOptOut("Candidate for inlining across NGen boundaries for performance reasons")]
       public void Clear()
       {
-         NativeMethods.SetUnmanagedMemory(_writeableBitmap.BackBuffer, 0, _writeableBitmap.BackBufferStride * _writeableBitmap.PixelHeight);
+         NativeMethods.SetUnmanagedMemory((IntPtr)_backBuffer, 0, _backBufferStride * _pixelHeight);
       }
 
       /// <summary>
@@ -436,11 +460,12 @@ namespace System.Windows.Media.Imaging
          {
             // Remove this bitmap from the update map 
             UpdateCountByBmp.Remove(_writeableBitmap);
+            BitmapPropertiesByBmp.Remove(_writeableBitmap);
 
             // Invalidate the bitmap if ReadWrite _mode
             if (_mode == ReadWriteMode.ReadWrite)
             {
-               _writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, _writeableBitmap.PixelWidth, _writeableBitmap.PixelHeight));
+               _writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, _pixelWidth, _pixelHeight));
             }
 
             // Unlock the bitmap
@@ -465,6 +490,17 @@ namespace System.Windows.Media.Imaging
             current--;
             UpdateCountByBmp[target] = current;
             return current;
+        }
+#endif
+
+#if WPF
+        private struct BitmapContextBitmapProperties
+        {
+            public int Width;
+            public int Height;
+            public int* Pixels;
+            public PixelFormat Format;
+            public int BackBufferStride;
         }
 #endif
     }
