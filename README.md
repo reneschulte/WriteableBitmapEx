@@ -57,7 +57,7 @@ Support for WPF, Windows 10 UWP (, Windows 8/8.1 WinRT XAML, Windows Phone Silve
 *   Windows Phone specific methods
     *   Save to media library and the camera roll
 *   External Code
-    *   [DrawString method implementation](https://writeablebitmapex.codeplex.com/discussions/579148)
+    *   [DrawString method implementation](https://archive.codeplex.com/?p=writeablebitmapex)
 
 
 # Performance!
