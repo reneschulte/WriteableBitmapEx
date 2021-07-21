@@ -550,7 +550,7 @@ namespace System.Windows.Media.Imaging
                     y2 = pixelHeight - 1;
                 }
 
-                int index = x1s;
+                long index = x1s;
                 int indexBaseValue = y1 * pixelWidth;
 
                 // Walk the line!
