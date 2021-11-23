@@ -36,13 +36,16 @@ namespace System.Windows.Media.Imaging
 #endif
  static partial class WriteableBitmapExtensions
     {
-        private static readonly int[] leftEdgeX = new int[8192];
-        private static readonly int[] rightEdgeX = new int[8192];
+        private static int[] leftEdgeX;
+        private static int[] rightEdgeX;
 
         private static void AAWidthLine(int width, int height, BitmapContext context, float x1, float y1, float x2, float y2, float lineWidth, Int32 color, Rect? clipRect = null)
         {
             // Perform cohen-sutherland clipping if either point is out of the viewport
             if (!CohenSutherlandLineClip(clipRect ?? new Rect(0, 0, width, height), ref x1, ref y1, ref x2, ref y2)) return;
+
+            leftEdgeX = new int[height];
+            rightEdgeX = new int[height];
 
             if (lineWidth <= 0) return;
 
