@@ -86,6 +86,11 @@ namespace System.Windows.Media.Imaging
         /// <returns>A new WriteableBitmap that is a cropped version of the input.</returns>
         public static WriteableBitmap Crop(this WriteableBitmap bmp, int x, int y, int width, int height)
         {
+            var numberOfChannels = bmp.BackBufferStride / bmp.PixelWidth;
+            if (numberOfChannels != SizeOfArgb)
+                throw new Exception("The format of this image is not supported, Consider calling BitmapFactory.ConvertToPbgra32Format()");
+
+
             using (var srcContext = bmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 var srcWidth = srcContext.Width;
