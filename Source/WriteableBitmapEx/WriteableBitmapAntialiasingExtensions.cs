@@ -89,8 +89,8 @@ namespace System.Windows.Media.Imaging
                         var g = (byte)((color & 0x0000ff00) >> 8);
                         var b = (byte)((color & 0x000000ff) >> 0);
 
-                        byte rs, gs, bs;
-                        byte rd, gd, bd;
+                        byte @as, rs, gs, bs;
+                        byte ad, rd, gd, bd;
 
                         int d;
 
@@ -100,15 +100,18 @@ namespace System.Windows.Media.Imaging
 
                         d = buffer[y * width + x];
 
+                        ad = (byte)((d & 0xff000000) >> 24);
                         rd = (byte)((d & 0x00ff0000) >> 16);
                         gd = (byte)((d & 0x0000ff00) >> 8);
                         bd = (byte)((d & 0x000000ff) >> 0);
 
+                        ad = (byte)Math.Min(255, ad + ta);
+                        
                         rd = (byte)((rs * a + rd * (0xff - a)) >> 8);
                         gd = (byte)((gs * a + gd * (0xff - a)) >> 8);
                         bd = (byte)((bs * a + bd * (0xff - a)) >> 8);
 
-                        buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
+                        buffer[y * width + x] = (ad << 24) | (rd << 16) | (gd << 8) | (bd << 0);
                     }
                 }
 
