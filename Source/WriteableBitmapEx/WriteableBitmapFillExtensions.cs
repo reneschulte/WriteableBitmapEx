@@ -50,10 +50,27 @@ namespace System.Windows.Media.Imaging
         /// <param name="x2">The x-coordinate of the bounding rectangle's right side.</param>
         /// <param name="y2">The y-coordinate of the bounding rectangle's bottom side.</param>
         /// <param name="color">The color.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillRectangle(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, Color color)
         {
             var col = ConvertColor(color);
             bmp.FillRectangle(x1, y1, x2, y2, col);
+        }
+
+        /// <summary>
+        /// Draws a filled rectangle.
+        /// x2 has to be greater than x1 and y2 has to be greater than y1.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="x1">The x-coordinate of the bounding rectangle's left side.</param>
+        /// <param name="y1">The y-coordinate of the bounding rectangle's top side.</param>
+        /// <param name="x2">The x-coordinate of the bounding rectangle's right side.</param>
+        /// <param name="y2">The y-coordinate of the bounding rectangle's bottom side.</param>
+        /// <param name="color">The color.</param>
+        public static void FillRectangle(this BitmapContext context, int x1, int y1, int x2, int y2, Color color)
+        {
+            var col = ConvertColor(color);
+            context.FillRectangle(x1, y1, x2, y2, col);
         }
 
         /// <summary>
@@ -67,75 +84,92 @@ namespace System.Windows.Media.Imaging
         /// <param name="y2">The y-coordinate of the bounding rectangle's bottom side.</param>
         /// <param name="color">The color.</param>
         /// <param name="doAlphaBlend">True if alpha blending should be performed or false if not.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillRectangle(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int color, bool doAlphaBlend = false)
         {
             using (var context = bmp.GetBitmapContext())
             {
-                // Use refs for faster access (really important!) speeds up a lot!
-                var w = context.Width;
-                var h = context.Height;
+                context.FillRectangle(x1, y1, x2, y2, color, doAlphaBlend);
+            }
+        }
 
-                int sa = ((color >> 24) & 0xff);
-                int sr = ((color >> 16) & 0xff);
-                int sg = ((color >> 8) & 0xff);
-                int sb = ((color) & 0xff);
+        /// <summary>
+        /// Draws a filled rectangle with or without alpha blending (default = false).
+        /// x2 has to be greater than x1 and y2 has to be greater than y1.
+        /// </summary>
+        /// <param name="context">The WriteableBitmap.</param>
+        /// <param name="x1">The x-coordinate of the bounding rectangle's left side.</param>
+        /// <param name="y1">The y-coordinate of the bounding rectangle's top side.</param>
+        /// <param name="x2">The x-coordinate of the bounding rectangle's right side.</param>
+        /// <param name="y2">The y-coordinate of the bounding rectangle's bottom side.</param>
+        /// <param name="color">The color.</param>
+        /// <param name="doAlphaBlend">True if alpha blending should be performed or false if not.</param>
+        public static void FillRectangle(this BitmapContext context, int x1, int y1, int x2, int y2, int color, bool doAlphaBlend = false)
+        {
+            // Use refs for faster access (really important!) speeds up a lot!
+            var w = context.Width;
+            var h = context.Height;
 
-                bool noBlending = !doAlphaBlend || sa == 255;
+            int sa = ((color >> 24) & 0xff);
+            int sr = ((color >> 16) & 0xff);
+            int sg = ((color >> 8) & 0xff);
+            int sb = ((color) & 0xff);
 
-                var pixels = context.Pixels;
+            bool noBlending = !doAlphaBlend || sa == 255;
 
-                // Check boundaries
-                if ((x1 < 0 && x2 < 0) || (y1 < 0 && y2 < 0)
-                 || (x1 >= w && x2 >= w) || (y1 >= h && y2 >= h))
+            var pixels = context.Pixels;
+
+            // Check boundaries
+            if ((x1 < 0 && x2 < 0) || (y1 < 0 && y2 < 0)
+             || (x1 >= w && x2 >= w) || (y1 >= h && y2 >= h))
+            {
+                return;
+            }
+
+            // Clamp boundaries
+            if (x1 < 0) { x1 = 0; }
+            if (y1 < 0) { y1 = 0; }
+            if (x2 < 0) { x2 = 0; }
+            if (y2 < 0) { y2 = 0; }
+            if (x1 > w) { x1 = w; }
+            if (y1 > h) { y1 = h; }
+            if (x2 > w) { x2 = w; }
+            if (y2 > h) { y2 = h; }
+
+            //swap values
+            if (y1 > y2)
+            {
+                y2 -= y1;
+                y1 += y2;
+                y2 = (y1 - y2);
+            }
+
+            // Fill first line
+            var startY = y1 * w;
+            var startYPlusX1 = startY + x1;
+            var endOffset = startY + x2;
+            for (var idx = startYPlusX1; idx < endOffset; idx++)
+            {
+                pixels[idx] = noBlending ? color : AlphaBlendColors(pixels[idx], sa, sr, sg, sb);
+            }
+
+            // Copy first line
+            var len = (x2 - x1);
+            var srcOffsetBytes = startYPlusX1 * SizeOfArgb;
+            var offset2 = y2 * w + x1;
+            for (var y = startYPlusX1 + w; y < offset2; y += w)
+            {
+                if (noBlending)
                 {
-                    return;
+                    BitmapContext.BlockCopy(context, srcOffsetBytes, context, y * SizeOfArgb, len * SizeOfArgb);
+                    continue;
                 }
 
-                // Clamp boundaries
-                if (x1 < 0) { x1 = 0; }
-                if (y1 < 0) { y1 = 0; }
-                if (x2 < 0) { x2 = 0; }
-                if (y2 < 0) { y2 = 0; }
-                if (x1 > w) { x1 = w; }
-                if (y1 > h) { y1 = h; }
-                if (x2 > w) { x2 = w; }
-                if (y2 > h) { y2 = h; }
-
-                //swap values
-                if (y1 > y2)
+                // Alpha blend line
+                for (int i = 0; i < len; i++)
                 {
-                    y2 -= y1;
-                    y1 += y2;
-                    y2 = (y1 - y2);
-                }
-
-                // Fill first line
-                var startY = y1 * w;
-                var startYPlusX1 = startY + x1;
-                var endOffset = startY + x2;
-                for (var idx = startYPlusX1; idx < endOffset; idx++)
-                {
-                    pixels[idx] = noBlending ? color : AlphaBlendColors(pixels[idx], sa, sr, sg, sb);
-                }
-
-                // Copy first line
-                var len = (x2 - x1);
-                var srcOffsetBytes = startYPlusX1 * SizeOfArgb;
-                var offset2 = y2 * w + x1;
-                for (var y = startYPlusX1 + w; y < offset2; y += w)
-                {
-                    if (noBlending)
-                    {
-                        BitmapContext.BlockCopy(context, srcOffsetBytes, context, y * SizeOfArgb, len * SizeOfArgb);
-                        continue;
-                    }
-
-                    // Alpha blend line
-                    for (int i = 0; i < len; i++)
-                    {
-                        int idx = y + i;
-                        pixels[idx] = AlphaBlendColors(pixels[idx], sa, sr, sg, sb);
-                    }
+                    int idx = y + i;
+                    pixels[idx] = AlphaBlendColors(pixels[idx], sa, sr, sg, sb);
                 }
             }
         }
@@ -172,10 +206,27 @@ namespace System.Windows.Media.Imaging
         /// <param name="x2">The x-coordinate of the bounding rectangle's right side.</param>
         /// <param name="y2">The y-coordinate of the bounding rectangle's bottom side.</param>
         /// <param name="color">The color for the line.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillEllipse(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, Color color)
         {
             var col = ConvertColor(color);
             bmp.FillEllipse(x1, y1, x2, y2, col);
+        }
+
+        /// <summary>
+        /// A Fast Bresenham Type Algorithm For Drawing filled ellipses http://homepage.smc.edu/kennedy_john/belipse.pdf 
+        /// x2 has to be greater than x1 and y2 has to be greater than y1.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="x1">The x-coordinate of the bounding rectangle's left side.</param>
+        /// <param name="y1">The y-coordinate of the bounding rectangle's top side.</param>
+        /// <param name="x2">The x-coordinate of the bounding rectangle's right side.</param>
+        /// <param name="y2">The y-coordinate of the bounding rectangle's bottom side.</param>
+        /// <param name="color">The color for the line.</param>
+        public static void FillEllipse(this BitmapContext context, int x1, int y1, int x2, int y2, Color color)
+        {
+            var col = ConvertColor(color);
+            context.FillEllipse(x1, y1, x2, y2, col);
         }
 
         /// <summary>
@@ -188,6 +239,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="x2">The x-coordinate of the bounding rectangle's right side.</param>
         /// <param name="y2">The y-coordinate of the bounding rectangle's bottom side.</param>
         /// <param name="color">The color for the line.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillEllipse(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int color)
         {
             // Calc center and radius
@@ -200,6 +252,26 @@ namespace System.Windows.Media.Imaging
 
         /// <summary>
         /// A Fast Bresenham Type Algorithm For Drawing filled ellipses http://homepage.smc.edu/kennedy_john/belipse.pdf 
+        /// x2 has to be greater than x1 and y2 has to be greater than y1.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="x1">The x-coordinate of the bounding rectangle's left side.</param>
+        /// <param name="y1">The y-coordinate of the bounding rectangle's top side.</param>
+        /// <param name="x2">The x-coordinate of the bounding rectangle's right side.</param>
+        /// <param name="y2">The y-coordinate of the bounding rectangle's bottom side.</param>
+        /// <param name="color">The color for the line.</param>
+        public static void FillEllipse(this BitmapContext context, int x1, int y1, int x2, int y2, int color)
+        {
+            // Calc center and radius
+            int xr = (x2 - x1) >> 1;
+            int yr = (y2 - y1) >> 1;
+            int xc = x1 + xr;
+            int yc = y1 + yr;
+            context.FillEllipseCentered(xc, yc, xr, yr, color);
+        }
+
+        /// <summary>
+        /// A Fast Bresenham Type Algorithm For Drawing filled ellipses http://homepage.smc.edu/kennedy_john/belipse.pdf 
         /// Uses a different parameter representation than DrawEllipse().
         /// </summary>
         /// <param name="bmp">The WriteableBitmap.</param>
@@ -208,12 +280,28 @@ namespace System.Windows.Media.Imaging
         /// <param name="xr">The radius of the ellipse in x-direction.</param>
         /// <param name="yr">The radius of the ellipse in y-direction.</param>
         /// <param name="color">The color for the line.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillEllipseCentered(this WriteableBitmap bmp, int xc, int yc, int xr, int yr, Color color)
         {
             var col = ConvertColor(color);
             bmp.FillEllipseCentered(xc, yc, xr, yr, col);
         }
 
+        /// <summary>
+        /// A Fast Bresenham Type Algorithm For Drawing filled ellipses http://homepage.smc.edu/kennedy_john/belipse.pdf 
+        /// Uses a different parameter representation than DrawEllipse().
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="xc">The x-coordinate of the ellipses center.</param>
+        /// <param name="yc">The y-coordinate of the ellipses center.</param>
+        /// <param name="xr">The radius of the ellipse in x-direction.</param>
+        /// <param name="yr">The radius of the ellipse in y-direction.</param>
+        /// <param name="color">The color for the line.</param>
+        public static void FillEllipseCentered(this BitmapContext context, int xc, int yc, int xr, int yr, Color color)
+        {
+            var col = ConvertColor(color);
+            context.FillEllipseCentered(xc, yc, xr, yr, col);
+        }
 
         /// <summary>
         /// A Fast Bresenham Type Algorithm For Drawing filled ellipses http://homepage.smc.edu/kennedy_john/belipse.pdf  
@@ -227,118 +315,73 @@ namespace System.Windows.Media.Imaging
         /// <param name="yr">The radius of the ellipse in y-direction.</param>
         /// <param name="color">The color for the line.</param>
         /// <param name="doAlphaBlend">True if alpha blending should be performed or false if not.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillEllipseCentered(this WriteableBitmap bmp, int xc, int yc, int xr, int yr, int color, bool doAlphaBlend = false)
         {
-            // Use refs for faster access (really important!) speeds up a lot!
             using (var context = bmp.GetBitmapContext())
             {
-                var pixels = context.Pixels;
-                int w = context.Width;
-                int h = context.Height;
+                context.FillEllipseCentered(xc, yc, xr, yr, color, doAlphaBlend);
+            }
+        }
 
-                // Avoid endless loop
-                if (xr < 1 || yr < 1)
-                {
-                    return;
-                }
+        /// <summary>
+        /// A Fast Bresenham Type Algorithm For Drawing filled ellipses http://homepage.smc.edu/kennedy_john/belipse.pdf  
+        /// With or without alpha blending (default = false).
+        /// Uses a different parameter representation than DrawEllipse().
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="xc">The x-coordinate of the ellipses center.</param>
+        /// <param name="yc">The y-coordinate of the ellipses center.</param>
+        /// <param name="xr">The radius of the ellipse in x-direction.</param>
+        /// <param name="yr">The radius of the ellipse in y-direction.</param>
+        /// <param name="color">The color for the line.</param>
+        /// <param name="doAlphaBlend">True if alpha blending should be performed or false if not.</param>
+        public static void FillEllipseCentered(this BitmapContext context, int xc, int yc, int xr, int yr, int color, bool doAlphaBlend = false)
+        {
+            // Use refs for faster access (really important!) speeds up a lot!
+            var pixels = context.Pixels;
+            int w = context.Width;
+            int h = context.Height;
 
-                // Skip completly outside objects
-                if (xc - xr >= w || xc + xr < 0 || yc - yr >= h || yc + yr < 0)
-                {
-                    return;
-                }
+            // Avoid endless loop
+            if (xr < 1 || yr < 1)
+            {
+                return;
+            }
 
-                // Init vars
-                int uh, lh, uy, ly, lx, rx;
-                int x = xr;
-                int y = 0;
-                int xrSqTwo = (xr * xr) << 1;
-                int yrSqTwo = (yr * yr) << 1;
-                int xChg = yr * yr * (1 - (xr << 1));
-                int yChg = xr * xr;
-                int err = 0;
-                int xStopping = yrSqTwo * xr;
-                int yStopping = 0;
+            // Skip completly outside objects
+            if (xc - xr >= w || xc + xr < 0 || yc - yr >= h || yc + yr < 0)
+            {
+                return;
+            }
 
-                int sa = ((color >> 24) & 0xff);
-                int sr = ((color >> 16) & 0xff);
-                int sg = ((color >> 8) & 0xff);
-                int sb = ((color) & 0xff);
+            // Init vars
+            int uh, lh, uy, ly, lx, rx;
+            int x = xr;
+            int y = 0;
+            int xrSqTwo = (xr * xr) << 1;
+            int yrSqTwo = (yr * yr) << 1;
+            int xChg = yr * yr * (1 - (xr << 1));
+            int yChg = xr * xr;
+            int err = 0;
+            int xStopping = yrSqTwo * xr;
+            int yStopping = 0;
 
-                bool noBlending = !doAlphaBlend || sa == 255;
+            int sa = ((color >> 24) & 0xff);
+            int sr = ((color >> 16) & 0xff);
+            int sg = ((color >> 8) & 0xff);
+            int sb = ((color) & 0xff);
 
-                // Draw first set of points counter clockwise where tangent line slope > -1.
-                while (xStopping >= yStopping)
-                {
-                    // Draw 4 quadrant points at once
-                    // Upper half
-                    uy = yc + y;
-                    // Lower half
-                    ly = yc - y - 1;
+            bool noBlending = !doAlphaBlend || sa == 255;
 
-                    // Clip
-                    if (uy < 0) uy = 0;
-                    if (uy >= h) uy = h - 1;
-                    if (ly < 0) ly = 0;
-                    if (ly >= h) ly = h - 1;
-
-                    // Upper half
-                    uh = uy * w;
-                    // Lower half
-                    lh = ly * w;
-
-                    rx = xc + x;
-                    lx = xc - x;
-
-                    // Clip
-                    if (rx < 0) rx = 0;
-                    if (rx >= w) rx = w - 1;
-                    if (lx < 0) lx = 0;
-                    if (lx >= w) lx = w - 1;
-
-                    // Draw line
-                    if (noBlending)
-                    {
-                        for (int i = lx; i <= rx; i++)
-                        {
-                            pixels[i + uh] = color; // Quadrant II to I (Actually two octants)
-                            pixels[i + lh] = color; // Quadrant III to IV
-                        }
-                    }
-                    else
-                    {
-                        for (int i = lx; i <= rx; i++)
-                        {
-                            // Quadrant II to I (Actually two octants)
-                            pixels[i + uh] = AlphaBlendColors(pixels[i + uh], sa, sr, sg, sb);
-
-                            // Quadrant III to IV
-                            pixels[i + lh] = AlphaBlendColors(pixels[i + lh], sa, sr, sg, sb);
-                        }
-                    }
-
-
-                    y++;
-                    yStopping += xrSqTwo;
-                    err += yChg;
-                    yChg += xrSqTwo;
-                    if ((xChg + (err << 1)) > 0)
-                    {
-                        x--;
-                        xStopping -= yrSqTwo;
-                        err += xChg;
-                        xChg += yrSqTwo;
-                    }
-                }
-
-                // ReInit vars
-                x = 0;
-                y = yr;
-
+            // Draw first set of points counter clockwise where tangent line slope > -1.
+            while (xStopping >= yStopping)
+            {
+                // Draw 4 quadrant points at once
                 // Upper half
                 uy = yc + y;
                 // Lower half
-                ly = yc - y;
+                ly = yc - y - 1;
 
                 // Clip
                 if (uy < 0) uy = 0;
@@ -351,65 +394,128 @@ namespace System.Windows.Media.Imaging
                 // Lower half
                 lh = ly * w;
 
-                xChg = yr * yr;
-                yChg = xr * xr * (1 - (yr << 1));
-                err = 0;
-                xStopping = 0;
-                yStopping = xrSqTwo * yr;
+                rx = xc + x;
+                lx = xc - x;
 
-                // Draw second set of points clockwise where tangent line slope < -1.
-                while (xStopping <= yStopping)
+                // Clip
+                if (rx < 0) rx = 0;
+                if (rx >= w) rx = w - 1;
+                if (lx < 0) lx = 0;
+                if (lx >= w) lx = w - 1;
+
+                // Draw line
+                if (noBlending)
                 {
-                    // Draw 4 quadrant points at once
-                    rx = xc + x;
-                    lx = xc - x;
-
-                    // Clip
-                    if (rx < 0) rx = 0;
-                    if (rx >= w) rx = w - 1;
-                    if (lx < 0) lx = 0;
-                    if (lx >= w) lx = w - 1;
-
-                    // Draw line
-                    if (noBlending)
+                    for (int i = lx; i <= rx; i++)
                     {
-                        for (int i = lx; i <= rx; i++)
-                        {
-                            pixels[i + uh] = color; // Quadrant II to I (Actually two octants)
-                            pixels[i + lh] = color; // Quadrant III to IV
-                        }
+                        pixels[i + uh] = color; // Quadrant II to I (Actually two octants)
+                        pixels[i + lh] = color; // Quadrant III to IV
                     }
-                    else
+                }
+                else
+                {
+                    for (int i = lx; i <= rx; i++)
                     {
-                        for (int i = lx; i <= rx; i++)
-                        {
-                            // Quadrant II to I (Actually two octants)
-                            pixels[i + uh] = AlphaBlendColors(pixels[i + uh], sa, sr, sg, sb);
+                        // Quadrant II to I (Actually two octants)
+                        pixels[i + uh] = AlphaBlendColors(pixels[i + uh], sa, sr, sg, sb);
 
-                            // Quadrant III to IV
-                            pixels[i + lh] = AlphaBlendColors(pixels[i + lh], sa, sr, sg, sb);
-                        }
+                        // Quadrant III to IV
+                        pixels[i + lh] = AlphaBlendColors(pixels[i + lh], sa, sr, sg, sb);
                     }
+                }
 
-                    x++;
-                    xStopping += yrSqTwo;
+
+                y++;
+                yStopping += xrSqTwo;
+                err += yChg;
+                yChg += xrSqTwo;
+                if ((xChg + (err << 1)) > 0)
+                {
+                    x--;
+                    xStopping -= yrSqTwo;
                     err += xChg;
                     xChg += yrSqTwo;
-                    if ((yChg + (err << 1)) > 0)
+                }
+            }
+
+            // ReInit vars
+            x = 0;
+            y = yr;
+
+            // Upper half
+            uy = yc + y;
+            // Lower half
+            ly = yc - y;
+
+            // Clip
+            if (uy < 0) uy = 0;
+            if (uy >= h) uy = h - 1;
+            if (ly < 0) ly = 0;
+            if (ly >= h) ly = h - 1;
+
+            // Upper half
+            uh = uy * w;
+            // Lower half
+            lh = ly * w;
+
+            xChg = yr * yr;
+            yChg = xr * xr * (1 - (yr << 1));
+            err = 0;
+            xStopping = 0;
+            yStopping = xrSqTwo * yr;
+
+            // Draw second set of points clockwise where tangent line slope < -1.
+            while (xStopping <= yStopping)
+            {
+                // Draw 4 quadrant points at once
+                rx = xc + x;
+                lx = xc - x;
+
+                // Clip
+                if (rx < 0) rx = 0;
+                if (rx >= w) rx = w - 1;
+                if (lx < 0) lx = 0;
+                if (lx >= w) lx = w - 1;
+
+                // Draw line
+                if (noBlending)
+                {
+                    for (int i = lx; i <= rx; i++)
                     {
-                        y--;
-                        uy = yc + y; // Upper half
-                        ly = yc - y; // Lower half
-                        if (uy < 0) uy = 0; // Clip
-                        if (uy >= h) uy = h - 1; // ...
-                        if (ly < 0) ly = 0;
-                        if (ly >= h) ly = h - 1;
-                        uh = uy * w; // Upper half
-                        lh = ly * w; // Lower half
-                        yStopping -= xrSqTwo;
-                        err += yChg;
-                        yChg += xrSqTwo;
+                        pixels[i + uh] = color; // Quadrant II to I (Actually two octants)
+                        pixels[i + lh] = color; // Quadrant III to IV
                     }
+                }
+                else
+                {
+                    for (int i = lx; i <= rx; i++)
+                    {
+                        // Quadrant II to I (Actually two octants)
+                        pixels[i + uh] = AlphaBlendColors(pixels[i + uh], sa, sr, sg, sb);
+
+                        // Quadrant III to IV
+                        pixels[i + lh] = AlphaBlendColors(pixels[i + lh], sa, sr, sg, sb);
+                    }
+                }
+
+                x++;
+                xStopping += yrSqTwo;
+                err += xChg;
+                xChg += yrSqTwo;
+                if ((yChg + (err << 1)) > 0)
+                {
+                    y--;
+                    uy = yc + y; // Upper half
+                    ly = yc - y; // Lower half
+                    if (uy < 0) uy = 0; // Clip
+                    if (uy >= h) uy = h - 1; // ...
+                    if (ly < 0) ly = 0;
+                    if (ly >= h) ly = h - 1;
+                    uh = uy * w; // Upper half
+                    lh = ly * w; // Lower half
+                    yStopping -= xrSqTwo;
+                    err += yChg;
+                    yChg += xrSqTwo;
                 }
             }
         }
@@ -424,10 +530,23 @@ namespace System.Windows.Media.Imaging
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="points">The points of the polygon in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, ..., xn, yn).</param>
         /// <param name="color">The color for the line.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillPolygon(this WriteableBitmap bmp, int[] points, Color color)
         {
             var col = ConvertColor(color);
             bmp.FillPolygon(points, col);
+        }
+
+        /// <summary>
+        /// Draws a filled polygon. Add the first point also at the end of the array if the line should be closed.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="points">The points of the polygon in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, ..., xn, yn).</param>
+        /// <param name="color">The color for the line.</param>
+        public static void FillPolygon(this BitmapContext context, int[] points, Color color)
+        {
+            var col = ConvertColor(color);
+            context.FillPolygon(points, col);
         }
 
         /// <summary>
@@ -438,100 +557,114 @@ namespace System.Windows.Media.Imaging
         /// <param name="points">The points of the polygon in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, ..., xn, yn).</param>
         /// <param name="color">The color for the line.</param>
         /// <param name="doAlphaBlend">True if alpha blending should be performed or false if not.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillPolygon(this WriteableBitmap bmp, int[] points, int color, bool doAlphaBlend = false)
         {
             using (var context = bmp.GetBitmapContext())
             {
-                // Use refs for faster access (really important!) speeds up a lot!
-                int w = context.Width;
-                int h = context.Height;
+                context.FillPolygon(points, color, doAlphaBlend);
+            }
+        }
 
-                int sa = ((color >> 24) & 0xff);
-                int sr = ((color >> 16) & 0xff);
-                int sg = ((color >> 8) & 0xff);
-                int sb = ((color) & 0xff);
+        /// <summary>
+        /// Draws a filled polygon with or without alpha blending (default = false). 
+        /// Add the first point also at the end of the array if the line should be closed.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="points">The points of the polygon in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, ..., xn, yn).</param>
+        /// <param name="color">The color for the line.</param>
+        /// <param name="doAlphaBlend">True if alpha blending should be performed or false if not.</param>
+        public static void FillPolygon(this BitmapContext context, int[] points, int color, bool doAlphaBlend = false)
+        {
+            // Use refs for faster access (really important!) speeds up a lot!
+            int w = context.Width;
+            int h = context.Height;
 
-                bool noBlending = !doAlphaBlend || sa == 255;
+            int sa = ((color >> 24) & 0xff);
+            int sr = ((color >> 16) & 0xff);
+            int sg = ((color >> 8) & 0xff);
+            int sb = ((color) & 0xff);
 
-                var pixels = context.Pixels;
-                int pn = points.Length;
-                int pnh = points.Length >> 1;
-                int[] intersectionsX = new int[pnh];
+            bool noBlending = !doAlphaBlend || sa == 255;
 
-                // Find y min and max (slightly faster than scanning from 0 to height)
-                int yMin = h;
-                int yMax = 0;
-                for (int i = 1; i < pn; i += 2)
+            var pixels = context.Pixels;
+            int pn = points.Length;
+            int pnh = points.Length >> 1;
+            int[] intersectionsX = new int[pnh];
+
+            // Find y min and max (slightly faster than scanning from 0 to height)
+            int yMin = h;
+            int yMax = 0;
+            for (int i = 1; i < pn; i += 2)
+            {
+                int py = points[i];
+                if (py < yMin) yMin = py;
+                if (py > yMax) yMax = py;
+            }
+            if (yMin < 0) yMin = 0;
+            if (yMax >= h) yMax = h - 1;
+
+
+            // Scan line from min to max
+            for (int y = yMin; y <= yMax; y++)
+            {
+                // Initial point x, y
+                float vxi = points[0];
+                float vyi = points[1];
+
+                // Find all intersections
+                // Based on http://alienryderflex.com/polygon_fill/
+                int intersectionCount = 0;
+                for (int i = 2; i < pn; i += 2)
                 {
-                    int py = points[i];
-                    if (py < yMin) yMin = py;
-                    if (py > yMax) yMax = py;
+                    // Next point x, y
+                    float vxj = points[i];
+                    float vyj = points[i + 1];
+
+                    // Is the scanline between the two points
+                    if (vyi < y && vyj >= y
+                     || vyj < y && vyi >= y)
+                    {
+                        // Compute the intersection of the scanline with the edge (line between two points)
+                        intersectionsX[intersectionCount++] = (int)(vxi + (y - vyi) / (vyj - vyi) * (vxj - vxi));
+                    }
+                    vxi = vxj;
+                    vyi = vyj;
                 }
-                if (yMin < 0) yMin = 0;
-                if (yMax >= h) yMax = h - 1;
 
-
-                // Scan line from min to max
-                for (int y = yMin; y <= yMax; y++)
+                // Sort the intersections from left to right using Insertion sort 
+                // It's faster than Array.Sort for this small data set
+                int t, j;
+                for (int i = 1; i < intersectionCount; i++)
                 {
-                    // Initial point x, y
-                    float vxi = points[0];
-                    float vyi = points[1];
-
-                    // Find all intersections
-                    // Based on http://alienryderflex.com/polygon_fill/
-                    int intersectionCount = 0;
-                    for (int i = 2; i < pn; i += 2)
+                    t = intersectionsX[i];
+                    j = i;
+                    while (j > 0 && intersectionsX[j - 1] > t)
                     {
-                        // Next point x, y
-                        float vxj = points[i];
-                        float vyj = points[i + 1];
-
-                        // Is the scanline between the two points
-                        if (vyi < y && vyj >= y
-                         || vyj < y && vyi >= y)
-                        {
-                            // Compute the intersection of the scanline with the edge (line between two points)
-                            intersectionsX[intersectionCount++] = (int)(vxi + (y - vyi) / (vyj - vyi) * (vxj - vxi));
-                        }
-                        vxi = vxj;
-                        vyi = vyj;
+                        intersectionsX[j] = intersectionsX[j - 1];
+                        j = j - 1;
                     }
+                    intersectionsX[j] = t;
+                }
 
-                    // Sort the intersections from left to right using Insertion sort 
-                    // It's faster than Array.Sort for this small data set
-                    int t, j;
-                    for (int i = 1; i < intersectionCount; i++)
+                // Fill the pixels between the intersections
+                for (int i = 0; i < intersectionCount - 1; i += 2)
+                {
+                    int x0 = intersectionsX[i];
+                    int x1 = intersectionsX[i + 1];
+
+                    // Check boundary
+                    if (x1 > 0 && x0 < w)
                     {
-                        t = intersectionsX[i];
-                        j = i;
-                        while (j > 0 && intersectionsX[j - 1] > t)
+                        if (x0 < 0) x0 = 0;
+                        if (x1 >= w) x1 = w - 1;
+
+                        // Fill the pixels
+                        for (int x = x0; x <= x1; x++)
                         {
-                            intersectionsX[j] = intersectionsX[j - 1];
-                            j = j - 1;
-                        }
-                        intersectionsX[j] = t;
-                    }
+                            int idx = y * w + x;
 
-                    // Fill the pixels between the intersections
-                    for (int i = 0; i < intersectionCount - 1; i += 2)
-                    {
-                        int x0 = intersectionsX[i];
-                        int x1 = intersectionsX[i + 1];
-
-                        // Check boundary
-                        if (x1 > 0 && x0 < w)
-                        {
-                            if (x0 < 0) x0 = 0;
-                            if (x1 >= w) x1 = w - 1;
-
-                            // Fill the pixels
-                            for (int x = x0; x <= x1; x++)
-                            {
-                                int idx = y * w + x;
-
-                                pixels[idx] = noBlending ? color : AlphaBlendColors(pixels[idx], sa, sr, sg, sb);
-                            }
+                            pixels[idx] = noBlending ? color : AlphaBlendColors(pixels[idx], sa, sr, sg, sb);
                         }
                     }
                 }
@@ -628,10 +761,30 @@ namespace System.Windows.Media.Imaging
         /// therefore the array is interpreted as (x1, y1, x2, y2, ..., xn, yn).
         /// </param>
         /// <param name="color">The color for the polygon.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillPolygonsEvenOdd(this WriteableBitmap bmp, int[][] polygons, Color color)
         {
             var col = ConvertColor(color);
             FillPolygonsEvenOdd(bmp, polygons, col);
+        }
+
+        /// <summary>
+        /// Draws filled polygons using even-odd filling, therefore allowing for holes.
+        /// </summary>
+        /// <remarks>
+        /// Polygons are implicitly closed if necessary.
+        /// </remarks>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="polygons">Array of polygons. 
+        /// The different polygons are identified by the first index, 
+        /// while the points of each polygon are in x and y pairs indexed by the second index, 
+        /// therefore the array is interpreted as (x1, y1, x2, y2, ..., xn, yn).
+        /// </param>
+        /// <param name="color">The color for the polygon.</param>
+        public static void FillPolygonsEvenOdd(this BitmapContext context, int[][] polygons, Color color)
+        {
+            var col = ConvertColor(color);
+            FillPolygonsEvenOdd(context, polygons, col);
         }
 
         /// <summary>
@@ -647,7 +800,36 @@ namespace System.Windows.Media.Imaging
         /// therefore the array is interpreted as (x1, y1, x2, y2, ..., xn, yn).
         /// </param>
         /// <param name="color">The color for the polygon.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillPolygonsEvenOdd(this WriteableBitmap bmp, int[][] polygons, int color)
+        {
+            int polygonCount = polygons.Length;
+            if (polygonCount == 0)
+            {
+                return;
+            }
+            // could use single polygon fill if count is 1, but it the algorithm used there is slower (at least for larger polygons)
+
+            using (var context = bmp.GetBitmapContext())
+            {
+                context.FillPolygonsEvenOdd(polygons, color);
+            }
+        }
+
+        /// <summary>
+        /// Draws filled polygons using even-odd filling, therefore allowing for holes.
+        /// </summary>
+        /// <remarks>
+        /// Polygons are implicitly closed if necessary.
+        /// </remarks>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="polygons">Array of polygons. 
+        /// The different polygons are identified by the first index, 
+        /// while the points of each polygon are in x and y pairs indexed by the second index, 
+        /// therefore the array is interpreted as (x1, y1, x2, y2, ..., xn, yn).
+        /// </param>
+        /// <param name="color">The color for the polygon.</param>
+        public static void FillPolygonsEvenOdd(this BitmapContext context, int[][] polygons, int color)
         {
             #region Algorithm
 
@@ -678,139 +860,136 @@ namespace System.Windows.Media.Imaging
             // could use single polygon fill if count is 1, but it the algorithm used there is slower (at least for larger polygons)
 
 
-            using (var context = bmp.GetBitmapContext())
-            {
-                // Use refs for faster access (really important!) speeds up a lot!
-                int w = context.Width;
-                int h = context.Height;
-                var pixels = context.Pixels;
+            // Use refs for faster access (really important!) speeds up a lot!
+            int w = context.Width;
+            int h = context.Height;
+            var pixels = context.Pixels;
 
-                // Register edges, and find y max
-                List<Edge> edges = new List<Edge>();
-                int yMax = 0;
-                foreach (int[] points in polygons)
+            // Register edges, and find y max
+            List<Edge> edges = new List<Edge>();
+            int yMax = 0;
+            foreach (int[] points in polygons)
+            {
+                int pn = points.Length;
+                if (pn < 6)
                 {
-                    int pn = points.Length;
-                    if (pn < 6)
+                    // sanity check: don't care for lines or points or empty polygons
+                    continue;
+                }
+                int lastX;
+                int lastY;
+                int start;
+                if (points[0] != points[pn - 2]
+                    || points[1] != points[pn - 1])
+                {
+                    start = 0;
+                    lastX = points[pn - 2];
+                    lastY = points[pn - 1];
+                }
+                else
+                {
+                    start = 2;
+                    lastX = points[0];
+                    lastY = points[1];
+                }
+                for (int i = start; i < pn; i += 2)
+                {
+                    int px = points[i];
+                    int py = points[i + 1];
+                    if (py != lastY)
                     {
-                        // sanity check: don't care for lines or points or empty polygons
+                        Edge edge = new Edge(lastX, lastY, px, py);
+                        if (edge.StartY < h && edge.EndY >= 0)
+                        {
+                            if (edge.EndY > yMax) yMax = edge.EndY;
+                            edges.Add(edge);
+                        }
+                    }
+                    lastX = px;
+                    lastY = py;
+                }
+            }
+            if (edges.Count == 0)
+            {
+                // sanity check
+                return;
+            }
+
+            if (yMax >= h) yMax = h - 1;
+
+            edges.Sort();
+            int yMin = edges[0].StartY;
+            if (yMin < 0) yMin = 0;
+
+            int[] intersectionsX = new int[edges.Count];
+
+            LinkedList<Edge> currentEdges = new LinkedList<Edge>();
+            int e = 0;
+
+            // Scan line from min to max
+            for (int y = yMin; y <= yMax; y++)
+            {
+                // Remove edges no longer intersecting
+                LinkedListNode<Edge> node = currentEdges.First;
+                while (node != null)
+                {
+                    LinkedListNode<Edge> nextNode = node.Next;
+                    Edge edge = node.Value;
+                    if (edge.EndY <= y)
+                    {
+                        // using = here because the connecting edge will be added next
+                        // remove edge
+                        currentEdges.Remove(node);
+                    }
+                    node = nextNode;
+                }
+                // Add edges starting to intersect
+                while (e < edges.Count &&
+                       edges[e].StartY <= y)
+                {
+                    currentEdges.AddLast(edges[e]);
+                    ++e;
+                }
+                // Calculate intersections
+                int intersectionCount = 0;
+                foreach (Edge currentEdge in currentEdges)
+                {
+                    intersectionsX[intersectionCount++] =
+                        (int)(currentEdge.StartX + (y - currentEdge.StartY) * currentEdge.Sloap);
+                }
+
+                // Sort the intersections from left to right using Insertion sort 
+                // It's faster than Array.Sort for this small data set
+                for (int i = 1; i < intersectionCount; i++)
+                {
+                    int t = intersectionsX[i];
+                    int j = i;
+                    while (j > 0 && intersectionsX[j - 1] > t)
+                    {
+                        intersectionsX[j] = intersectionsX[j - 1];
+                        j = j - 1;
+                    }
+                    intersectionsX[j] = t;
+                }
+
+                // Fill the pixels between the intersections
+                for (int i = 0; i < intersectionCount - 1; i += 2)
+                {
+                    int x0 = intersectionsX[i];
+                    int x1 = intersectionsX[i + 1];
+
+                    if (x0 < 0) x0 = 0;
+                    if (x1 >= w) x1 = w - 1;
+                    if (x1 < x0)
+                    {
                         continue;
                     }
-                    int lastX;
-                    int lastY;
-                    int start;
-                    if (points[0] != points[pn - 2]
-                        || points[1] != points[pn - 1])
+
+                    // Fill the pixels
+                    int index = y * w + x0;
+                    for (int x = x0; x <= x1; x++)
                     {
-                        start = 0;
-                        lastX = points[pn - 2];
-                        lastY = points[pn - 1];
-                    }
-                    else
-                    {
-                        start = 2;
-                        lastX = points[0];
-                        lastY = points[1];
-                    }
-                    for (int i = start; i < pn; i += 2)
-                    {
-                        int px = points[i];
-                        int py = points[i + 1];
-                        if (py != lastY)
-                        {
-                            Edge edge = new Edge(lastX, lastY, px, py);
-                            if (edge.StartY < h && edge.EndY >= 0)
-                            {
-                                if (edge.EndY > yMax) yMax = edge.EndY;
-                                edges.Add(edge);
-                            }
-                        }
-                        lastX = px;
-                        lastY = py;
-                    }
-                }
-                if (edges.Count == 0)
-                {
-                    // sanity check
-                    return;
-                }
-
-                if (yMax >= h) yMax = h - 1;
-
-                edges.Sort();
-                int yMin = edges[0].StartY;
-                if (yMin < 0) yMin = 0;
-
-                int[] intersectionsX = new int[edges.Count];
-
-                LinkedList<Edge> currentEdges = new LinkedList<Edge>();
-                int e = 0;
-
-                // Scan line from min to max
-                for (int y = yMin; y <= yMax; y++)
-                {
-                    // Remove edges no longer intersecting
-                    LinkedListNode<Edge> node = currentEdges.First;
-                    while (node != null)
-                    {
-                        LinkedListNode<Edge> nextNode = node.Next;
-                        Edge edge = node.Value;
-                        if (edge.EndY <= y)
-                        {
-                            // using = here because the connecting edge will be added next
-                            // remove edge
-                            currentEdges.Remove(node);
-                        }
-                        node = nextNode;
-                    }
-                    // Add edges starting to intersect
-                    while (e < edges.Count &&
-                           edges[e].StartY <= y)
-                    {
-                        currentEdges.AddLast(edges[e]);
-                        ++e;
-                    }
-                    // Calculate intersections
-                    int intersectionCount = 0;
-                    foreach (Edge currentEdge in currentEdges)
-                    {
-                        intersectionsX[intersectionCount++] =
-                            (int)(currentEdge.StartX + (y - currentEdge.StartY) * currentEdge.Sloap);
-                    }
-
-                    // Sort the intersections from left to right using Insertion sort 
-                    // It's faster than Array.Sort for this small data set
-                    for (int i = 1; i < intersectionCount; i++)
-                    {
-                        int t = intersectionsX[i];
-                        int j = i;
-                        while (j > 0 && intersectionsX[j - 1] > t)
-                        {
-                            intersectionsX[j] = intersectionsX[j - 1];
-                            j = j - 1;
-                        }
-                        intersectionsX[j] = t;
-                    }
-
-                    // Fill the pixels between the intersections
-                    for (int i = 0; i < intersectionCount - 1; i += 2)
-                    {
-                        int x0 = intersectionsX[i];
-                        int x1 = intersectionsX[i + 1];
-
-                        if (x0 < 0) x0 = 0;
-                        if (x1 >= w) x1 = w - 1;
-                        if (x1 < x0)
-                        {
-                            continue;
-                        }
-
-                        // Fill the pixels
-                        int index = y * w + x0;
-                        for (int x = x0; x <= x1; x++)
-                        {
-                            pixels[index++] = color;
-                        }
+                        pixels[index++] = color;
                     }
                 }
             }
@@ -831,10 +1010,30 @@ namespace System.Windows.Media.Imaging
         /// <param name="x4">The x-coordinate of the 4th point.</param>
         /// <param name="y4">The y-coordinate of the 4th point.</param>
         /// <param name="color">The color.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillQuad(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color color)
         {
             var col = ConvertColor(color);
             bmp.FillQuad(x1, y1, x2, y2, x3, y3, x4, y4, col);
+        }
+
+        /// <summary>
+        /// Draws a filled quad.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="x1">The x-coordinate of the 1st point.</param>
+        /// <param name="y1">The y-coordinate of the 1st point.</param>
+        /// <param name="x2">The x-coordinate of the 2nd point.</param>
+        /// <param name="y2">The y-coordinate of the 2nd point.</param>
+        /// <param name="x3">The x-coordinate of the 3rd point.</param>
+        /// <param name="y3">The y-coordinate of the 3rd point.</param>
+        /// <param name="x4">The x-coordinate of the 4th point.</param>
+        /// <param name="y4">The y-coordinate of the 4th point.</param>
+        /// <param name="color">The color.</param>
+        public static void FillQuad(this BitmapContext context, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color color)
+        {
+            var col = ConvertColor(color);
+            context.FillQuad(x1, y1, x2, y2, x3, y3, x4, y4, col);
         }
 
         /// <summary>
@@ -850,9 +1049,28 @@ namespace System.Windows.Media.Imaging
         /// <param name="x4">The x-coordinate of the 4th point.</param>
         /// <param name="y4">The y-coordinate of the 4th point.</param>
         /// <param name="color">The color.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillQuad(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, int color)
         {
             bmp.FillPolygon(new int[] { x1, y1, x2, y2, x3, y3, x4, y4, x1, y1 }, color);
+        }
+
+        /// <summary>
+        /// Draws a filled quad.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="x1">The x-coordinate of the 1st point.</param>
+        /// <param name="y1">The y-coordinate of the 1st point.</param>
+        /// <param name="x2">The x-coordinate of the 2nd point.</param>
+        /// <param name="y2">The y-coordinate of the 2nd point.</param>
+        /// <param name="x3">The x-coordinate of the 3rd point.</param>
+        /// <param name="y3">The y-coordinate of the 3rd point.</param>
+        /// <param name="x4">The x-coordinate of the 4th point.</param>
+        /// <param name="y4">The y-coordinate of the 4th point.</param>
+        /// <param name="color">The color.</param>
+        public static void FillQuad(this BitmapContext context, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, int color)
+        {
+            context.FillPolygon(new int[] { x1, y1, x2, y2, x3, y3, x4, y4, x1, y1 }, color);
         }
 
         /// <summary>
@@ -866,6 +1084,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="x3">The x-coordinate of the 3rd point.</param>
         /// <param name="y3">The y-coordinate of the 3rd point.</param>
         /// <param name="color">The color.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillTriangle(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int x3, int y3, Color color)
         {
             var col = ConvertColor(color);
@@ -875,6 +1094,23 @@ namespace System.Windows.Media.Imaging
         /// <summary>
         /// Draws a filled triangle.
         /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="x1">The x-coordinate of the 1st point.</param>
+        /// <param name="y1">The y-coordinate of the 1st point.</param>
+        /// <param name="x2">The x-coordinate of the 2nd point.</param>
+        /// <param name="y2">The y-coordinate of the 2nd point.</param>
+        /// <param name="x3">The x-coordinate of the 3rd point.</param>
+        /// <param name="y3">The y-coordinate of the 3rd point.</param>
+        /// <param name="color">The color.</param>
+        public static void FillTriangle(this BitmapContext context, int x1, int y1, int x2, int y2, int x3, int y3, Color color)
+        {
+            var col = ConvertColor(color);
+            context.FillTriangle(x1, y1, x2, y2, x3, y3, col);
+        }
+
+        /// <summary>
+        /// Draws a filled triangle.
+        /// </summary>
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="x1">The x-coordinate of the 1st point.</param>
         /// <param name="y1">The y-coordinate of the 1st point.</param>
@@ -883,9 +1119,26 @@ namespace System.Windows.Media.Imaging
         /// <param name="x3">The x-coordinate of the 3rd point.</param>
         /// <param name="y3">The y-coordinate of the 3rd point.</param>
         /// <param name="color">The color.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillTriangle(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color)
         {
             bmp.FillPolygon(new int[] { x1, y1, x2, y2, x3, y3, x1, y1 }, color);
+        }
+
+        /// <summary>
+        /// Draws a filled triangle.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="x1">The x-coordinate of the 1st point.</param>
+        /// <param name="y1">The y-coordinate of the 1st point.</param>
+        /// <param name="x2">The x-coordinate of the 2nd point.</param>
+        /// <param name="y2">The y-coordinate of the 2nd point.</param>
+        /// <param name="x3">The x-coordinate of the 3rd point.</param>
+        /// <param name="y3">The y-coordinate of the 3rd point.</param>
+        /// <param name="color">The color.</param>
+        public static void FillTriangle(this BitmapContext context, int x1, int y1, int x2, int y2, int x3, int y3, int color)
+        {
+            context.FillPolygon(new int[] { x1, y1, x2, y2, x3, y3, x1, y1 }, color);
         }
 
         #endregion
@@ -978,6 +1231,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, cx1, cy1, cx2, cy2, x2, y2, cx3, cx4 ..., xn, yn).</param>
         /// <param name="color">The color for the spline.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillBeziers(this WriteableBitmap bmp, int[] points, Color color)
         {
             var col = ConvertColor(color);
@@ -989,9 +1243,24 @@ namespace System.Windows.Media.Imaging
         /// The ending point of the previous curve is used as starting point for the next. 
         /// Therefore the initial curve needs four points and the subsequent 3 (2 control and 1 end point).
         /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, cx1, cy1, cx2, cy2, x2, y2, cx3, cx4 ..., xn, yn).</param>
+        /// <param name="color">The color for the spline.</param>
+        public static void FillBeziers(this BitmapContext context, int[] points, Color color)
+        {
+            var col = ConvertColor(color);
+            context.FillBeziers(points, col);
+        }
+
+        /// <summary>
+        /// Draws a series of filled, cubic Beziér splines each defined by start, end and two control points. 
+        /// The ending point of the previous curve is used as starting point for the next. 
+        /// Therefore the initial curve needs four points and the subsequent 3 (2 control and 1 end point).
+        /// </summary>
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, cx1, cy1, cx2, cy2, x2, y2, cx3, cx4 ..., xn, yn).</param>
         /// <param name="color">The color for the spline.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillBeziers(this WriteableBitmap bmp, int[] points, int color)
         {
             // Compute Bezier curve
@@ -1010,6 +1279,34 @@ namespace System.Windows.Media.Imaging
 
             // Fill
             bmp.FillPolygon(list.ToArray(), color);
+        }
+
+        /// <summary>
+        /// Draws a series of filled, cubic Beziér splines each defined by start, end and two control points. 
+        /// The ending point of the previous curve is used as starting point for the next. 
+        /// Therefore the initial curve needs four points and the subsequent 3 (2 control and 1 end point).
+        /// </summary>
+        /// <param name="context">The WriteableBitmap.</param>
+        /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, cx1, cy1, cx2, cy2, x2, y2, cx3, cx4 ..., xn, yn).</param>
+        /// <param name="color">The color for the spline.</param>
+        public static void FillBeziers(this BitmapContext context, int[] points, int color)
+        {
+            // Compute Bezier curve
+            int x1 = points[0];
+            int y1 = points[1];
+            int x2, y2;
+            var list = new List<int>();
+            for (int i = 2; i + 5 < points.Length; i += 6)
+            {
+                x2 = points[i + 4];
+                y2 = points[i + 5];
+                list.AddRange(ComputeBezierPoints(x1, y1, points[i], points[i + 1], points[i + 2], points[i + 3], x2, y2));
+                x1 = x2;
+                y1 = y2;
+            }
+
+            // Fill
+            context.FillPolygon(list.ToArray(), color);
         }
 
         #endregion
@@ -1110,6 +1407,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
         /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
         /// <param name="color">The color for the spline.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillCurve(this WriteableBitmap bmp, int[] points, float tension, Color color)
         {
             var col = ConvertColor(color);
@@ -1120,11 +1418,46 @@ namespace System.Windows.Media.Imaging
         /// Draws a filled Cardinal spline (cubic) defined by a point collection. 
         /// The cardinal spline passes through each point in the collection.
         /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
+        /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
+        /// <param name="color">The color for the spline.</param>
+        public static void FillCurve(this BitmapContext context, int[] points, float tension, Color color)
+        {
+            var col = ConvertColor(color);
+            context.FillCurve(points, tension, col);
+        }
+
+        /// <summary>
+        /// Draws a filled Cardinal spline (cubic) defined by a point collection. 
+        /// The cardinal spline passes through each point in the collection.
+        /// </summary>
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
         /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
         /// <param name="color">The color for the spline.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillCurve(this WriteableBitmap bmp, int[] points, float tension, int color)
+        {
+            // Fill
+            bmp.FillPolygon(GetFillCurvePoints(points, tension), color);
+        }
+
+        /// <summary>
+        /// Draws a filled Cardinal spline (cubic) defined by a point collection. 
+        /// The cardinal spline passes through each point in the collection.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
+        /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
+        /// <param name="color">The color for the spline.</param>
+        public static void FillCurve(this BitmapContext context, int[] points, float tension, int color)
+        {
+            // Fill
+            context.FillPolygon(GetFillCurvePoints(points, tension), color);
+        }
+
+        private static int[] GetFillCurvePoints(int[] points, float tension)
         {
             // First segment
             var list = ComputeSegmentPoints(points[0], points[1], points[0], points[1], points[2], points[3], points[4],
@@ -1142,8 +1475,7 @@ namespace System.Windows.Media.Imaging
             list.AddRange(ComputeSegmentPoints(points[i - 2], points[i - 1], points[i], points[i + 1], points[i + 2],
                 points[i + 3], points[i + 2], points[i + 3], tension));
 
-            // Fill
-            bmp.FillPolygon(list.ToArray(), color);
+            return list.ToArray();
         }
 
         /// <summary>
@@ -1154,6 +1486,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
         /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
         /// <param name="color">The color for the spline.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillCurveClosed(this WriteableBitmap bmp, int[] points, float tension, Color color)
         {
             var col = ConvertColor(color);
@@ -1164,11 +1497,46 @@ namespace System.Windows.Media.Imaging
         /// Draws a filled, closed Cardinal spline (cubic) defined by a point collection. 
         /// The cardinal spline passes through each point in the collection.
         /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
+        /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
+        /// <param name="color">The color for the spline.</param>
+        public static void FillCurveClosed(this BitmapContext context, int[] points, float tension, Color color)
+        {
+            var col = ConvertColor(color);
+            context.FillCurveClosed(points, tension, col);
+        }
+
+        /// <summary>
+        /// Draws a filled, closed Cardinal spline (cubic) defined by a point collection. 
+        /// The cardinal spline passes through each point in the collection.
+        /// </summary>
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
         /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
         /// <param name="color">The color for the spline.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void FillCurveClosed(this WriteableBitmap bmp, int[] points, float tension, int color)
+        {
+            // Fill
+            bmp.FillPolygon(GetFillCurveClosedPoints(points, tension), color);
+        }
+
+        /// <summary>
+        /// Draws a filled, closed Cardinal spline (cubic) defined by a point collection. 
+        /// The cardinal spline passes through each point in the collection.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
+        /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
+        /// <param name="color">The color for the spline.</param>
+        public static void FillCurveClosed(this BitmapContext context, int[] points, float tension, int color)
+        {
+            // Fill
+            context.FillPolygon(GetFillCurveClosedPoints(points, tension), color);
+        }
+
+        private static int[] GetFillCurveClosedPoints(int[] points, float tension)
         {
             int pn = points.Length;
 
@@ -1192,8 +1560,7 @@ namespace System.Windows.Media.Imaging
             list.AddRange(ComputeSegmentPoints(points[i], points[i + 1], points[i + 2], points[i + 3], points[0],
                 points[1], points[2], points[3], tension));
 
-            // Fill
-            bmp.FillPolygon(list.ToArray(), color);
+            return list.ToArray();
         }
 
         #endregion

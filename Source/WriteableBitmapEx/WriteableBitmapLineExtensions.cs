@@ -45,10 +45,27 @@ namespace System.Windows.Media.Imaging
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color for the line.</param>
         /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawLineBresenham(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, Color color, Rect? clipRect = null)
         {
             var col = ConvertColor(color);
             bmp.DrawLineBresenham(x1, y1, x2, y2, col, clipRect);
+        }
+
+        /// <summary>
+        /// Draws a colored line by connecting two points using the Bresenham algorithm.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="color">The color for the line.</param>
+        /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        public static void DrawLineBresenham(this BitmapContext context, int x1, int y1, int x2, int y2, Color color, Rect? clipRect = null)
+        {
+            var col = ConvertColor(color);
+            context.DrawLineBresenham(x1, y1, x2, y2, col, clipRect);
         }
 
         /// <summary>
@@ -61,111 +78,127 @@ namespace System.Windows.Media.Imaging
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color for the line.</param>
         /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawLineBresenham(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int color, Rect? clipRect = null)
         {
             using (var context = bmp.GetBitmapContext())
             {
-                // Use refs for faster access (really important!) speeds up a lot!
-                int w = context.Width;
-                int h = context.Height;
-                var pixels = context.Pixels;
+                context.DrawLineBresenham(x1, y1, x2, y2, color, clipRect);
+            }
+        }
 
-                // Get clip coordinates
-                int clipX1 = 0;
-                int clipX2 = w;
-                int clipY1 = 0;
-                int clipY2 = h;
-                if (clipRect.HasValue)
-                {
-                    var c = clipRect.Value;
-                    clipX1 = (int)c.X;
-                    clipX2 = (int)(c.X + c.Width);
-                    clipY1 = (int)c.Y;
-                    clipY2 = (int)(c.Y + c.Height);
-                }
+        /// <summary>
+        /// Draws a colored line by connecting two points using the Bresenham algorithm.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="color">The color for the line.</param>
+        /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        public static void DrawLineBresenham(this BitmapContext context, int x1, int y1, int x2, int y2, int color, Rect? clipRect = null)
+        {
+            // Use refs for faster access (really important!) speeds up a lot!
+            int w = context.Width;
+            int h = context.Height;
+            var pixels = context.Pixels;
 
-                // Distance start and end point
-                int dx = x2 - x1;
-                int dy = y2 - y1;
+            // Get clip coordinates
+            int clipX1 = 0;
+            int clipX2 = w;
+            int clipY1 = 0;
+            int clipY2 = h;
+            if (clipRect.HasValue)
+            {
+                var c = clipRect.Value;
+                clipX1 = (int)c.X;
+                clipX2 = (int)(c.X + c.Width);
+                clipY1 = (int)c.Y;
+                clipY2 = (int)(c.Y + c.Height);
+            }
 
-                // Determine sign for direction x
-                int incx = 0;
-                if (dx < 0)
-                {
-                    dx = -dx;
-                    incx = -1;
-                }
-                else if (dx > 0)
-                {
-                    incx = 1;
-                }
+            // Distance start and end point
+            int dx = x2 - x1;
+            int dy = y2 - y1;
 
-                // Determine sign for direction y
-                int incy = 0;
-                if (dy < 0)
-                {
-                    dy = -dy;
-                    incy = -1;
-                }
-                else if (dy > 0)
-                {
-                    incy = 1;
-                }
+            // Determine sign for direction x
+            int incx = 0;
+            if (dx < 0)
+            {
+                dx = -dx;
+                incx = -1;
+            }
+            else if (dx > 0)
+            {
+                incx = 1;
+            }
 
-                // Which gradient is larger
-                int pdx, pdy, odx, ody, es, el;
-                if (dx > dy)
+            // Determine sign for direction y
+            int incy = 0;
+            if (dy < 0)
+            {
+                dy = -dy;
+                incy = -1;
+            }
+            else if (dy > 0)
+            {
+                incy = 1;
+            }
+
+            // Which gradient is larger
+            int pdx, pdy, odx, ody, es, el;
+            if (dx > dy)
+            {
+                pdx = incx;
+                pdy = 0;
+                odx = incx;
+                ody = incy;
+                es = dy;
+                el = dx;
+            }
+            else
+            {
+                pdx = 0;
+                pdy = incy;
+                odx = incx;
+                ody = incy;
+                es = dx;
+                el = dy;
+            }
+
+            // Init start
+            int x = x1;
+            int y = y1;
+            int error = el >> 1;
+            if (y < clipY2 && y >= clipY1 && x < clipX2 && x >= clipX1)
+            {
+                pixels[y * w + x] = color;
+            }
+
+            // Walk the line!
+            for (int i = 0; i < el; i++)
+            {
+                // Update error term
+                error -= es;
+
+                // Decide which coord to use
+                if (error < 0)
                 {
-                    pdx = incx;
-                    pdy = 0;
-                    odx = incx;
-                    ody = incy;
-                    es = dy;
-                    el = dx;
+                    error += el;
+                    x += odx;
+                    y += ody;
                 }
                 else
                 {
-                    pdx = 0;
-                    pdy = incy;
-                    odx = incx;
-                    ody = incy;
-                    es = dx;
-                    el = dy;
+                    x += pdx;
+                    y += pdy;
                 }
 
-                // Init start
-                int x = x1;
-                int y = y1;
-                int error = el >> 1;
+                // Set pixel
                 if (y < clipY2 && y >= clipY1 && x < clipX2 && x >= clipX1)
                 {
                     pixels[y * w + x] = color;
-                }
-
-                // Walk the line!
-                for (int i = 0; i < el; i++)
-                {
-                    // Update error term
-                    error -= es;
-
-                    // Decide which coord to use
-                    if (error < 0)
-                    {
-                        error += el;
-                        x += odx;
-                        y += ody;
-                    }
-                    else
-                    {
-                        x += pdx;
-                        y += pdy;
-                    }
-
-                    // Set pixel
-                    if (y < clipY2 && y >= clipY1 && x < clipX2 && x >= clipX1)
-                    {
-                        pixels[y * w + x] = color;
-                    }
                 }
             }
         }
@@ -180,6 +213,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color for the line.</param>
         /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawLineDDA(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, Color color, Rect? clipRect = null)
         {
             var col = ConvertColor(color);
@@ -189,6 +223,22 @@ namespace System.Windows.Media.Imaging
         /// <summary>
         /// Draws a colored line by connecting two points using a DDA algorithm (Digital Differential Analyzer).
         /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="color">The color for the line.</param>
+        /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        public static void DrawLineDDA(this BitmapContext context, int x1, int y1, int x2, int y2, Color color, Rect? clipRect = null)
+        {
+            var col = ConvertColor(color);
+            context.DrawLineDDA(x1, y1, x2, y2, col, clipRect);
+        }
+
+        /// <summary>
+        /// Draws a colored line by connecting two points using a DDA algorithm (Digital Differential Analyzer).
+        /// </summary>
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="x1">The x-coordinate of the start point.</param>
         /// <param name="y1">The y-coordinate of the start point.</param>
@@ -196,60 +246,76 @@ namespace System.Windows.Media.Imaging
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color for the line.</param>
         /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawLineDDA(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int color, Rect? clipRect = null)
         {
             using (var context = bmp.GetBitmapContext())
             {
-                // Use refs for faster access (really important!) speeds up a lot!
-                int w = context.Width;
-                int h = context.Height;
-                var pixels = context.Pixels;
+                context.DrawLineDDA(x1, y1, x2, y2, color, clipRect);
+            }
+        }
 
-                // Get clip coordinates
-                int clipX1 = 0;
-                int clipX2 = w;
-                int clipY1 = 0;
-                int clipY2 = h;
-                if (clipRect.HasValue)
+        /// <summary>
+        /// Draws a colored line by connecting two points using a DDA algorithm (Digital Differential Analyzer).
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="color">The color for the line.</param>
+        /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        public static void DrawLineDDA(this BitmapContext context, int x1, int y1, int x2, int y2, int color, Rect? clipRect = null)
+        {
+            // Use refs for faster access (really important!) speeds up a lot!
+            int w = context.Width;
+            int h = context.Height;
+            var pixels = context.Pixels;
+
+            // Get clip coordinates
+            int clipX1 = 0;
+            int clipX2 = w;
+            int clipY1 = 0;
+            int clipY2 = h;
+            if (clipRect.HasValue)
+            {
+                var c = clipRect.Value;
+                clipX1 = (int)c.X;
+                clipX2 = (int)(c.X + c.Width);
+                clipY1 = (int)c.Y;
+                clipY2 = (int)(c.Y + c.Height);
+            }
+
+            // Distance start and end point
+            int dx = x2 - x1;
+            int dy = y2 - y1;
+
+            // Determine slope (absolute value)
+            int len = dy >= 0 ? dy : -dy;
+            int lenx = dx >= 0 ? dx : -dx;
+            if (lenx > len)
+            {
+                len = lenx;
+            }
+
+            // Prevent division by zero
+            if (len != 0)
+            {
+                // Init steps and start
+                float incx = dx / (float)len;
+                float incy = dy / (float)len;
+                float x = x1;
+                float y = y1;
+
+                // Walk the line!
+                for (int i = 0; i < len; i++)
                 {
-                    var c = clipRect.Value;
-                    clipX1 = (int)c.X;
-                    clipX2 = (int)(c.X + c.Width);
-                    clipY1 = (int)c.Y;
-                    clipY2 = (int)(c.Y + c.Height);
-                }
-
-                // Distance start and end point
-                int dx = x2 - x1;
-                int dy = y2 - y1;
-
-                // Determine slope (absolute value)
-                int len = dy >= 0 ? dy : -dy;
-                int lenx = dx >= 0 ? dx : -dx;
-                if (lenx > len)
-                {
-                    len = lenx;
-                }
-
-                // Prevent division by zero
-                if (len != 0)
-                {
-                    // Init steps and start
-                    float incx = dx / (float)len;
-                    float incy = dy / (float)len;
-                    float x = x1;
-                    float y = y1;
-
-                    // Walk the line!
-                    for (int i = 0; i < len; i++)
+                    if (y < clipY2 && y >= clipY1 && x < clipX2 && x >= clipX1)
                     {
-                        if (y < clipY2 && y >= clipY1 && x < clipX2 && x >= clipX1)
-                        {
-                            pixels[(int)y * w + (int)x] = color;
-                        }
-                        x += incx;
-                        y += incy;
+                        pixels[(int)y * w + (int)x] = color;
                     }
+                    x += incx;
+                    y += incy;
                 }
             }
         }
@@ -264,6 +330,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color for the line.</param>
         /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawLine(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, Color color, Rect? clipRect = null)
         {
             var col = ConvertColor(color);
@@ -273,6 +340,22 @@ namespace System.Windows.Media.Imaging
         /// <summary>
         /// Draws a colored line by connecting two points using an optimized DDA.
         /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="color">The color for the line.</param>
+        /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        public static void DrawLine(this BitmapContext context, int x1, int y1, int x2, int y2, Color color, Rect? clipRect = null)
+        {
+            var col = ConvertColor(color);
+            context.DrawLine(x1, y1, x2, y2, col, clipRect);
+        }
+
+        /// <summary>
+        /// Draws a colored line by connecting two points using an optimized DDA.
+        /// </summary>
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="x1">The x-coordinate of the start point.</param>
         /// <param name="y1">The y-coordinate of the start point.</param>
@@ -280,12 +363,29 @@ namespace System.Windows.Media.Imaging
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color for the line.</param>
         /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawLine(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int color, Rect? clipRect = null)
         {
             using (var context = bmp.GetBitmapContext())
             {
-                DrawLine(context, context.Width, context.Height, x1, y1, x2, y2, color, clipRect);
+                context.DrawLine(context.Width, context.Height, x1, y1, x2, y2, color, clipRect);
             }
+        }
+
+        /// <summary>
+        /// Draws a colored line by connecting two points using an optimized DDA. 
+        /// Uses the pixels array and the width directly for best performance.
+        /// </summary>
+        /// <param name="context">The context containing the pixels as int RGBA value.</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="color">The color for the line.</param>
+        /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        public static void DrawLine(this BitmapContext context, int x1, int y1, int x2, int y2, int color, Rect? clipRect = null)
+        {
+            context.DrawLine(context.Width, context.Height, x1, y1, x2, y2, color, clipRect);
         }
 
         /// <summary>
@@ -301,7 +401,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color for the line.</param>
         /// <param name="clipRect">The region in the image to restrict drawing to.</param>
-        public static void DrawLine(BitmapContext context, int pixelWidth, int pixelHeight, int x1, int y1, int x2, int y2, int color, Rect? clipRect = null)
+        public static void DrawLine(this BitmapContext context, int pixelWidth, int pixelHeight, int x1, int y1, int x2, int y2, int color, Rect? clipRect = null)
         {
             // Get clip coordinates
             int clipX1 = 0;
@@ -579,22 +679,35 @@ namespace System.Windows.Media.Imaging
         /// Draws a line using a pen / stamp for the line 
         /// </summary>
         /// <param name="bmp">The WriteableBitmap containing the pixels as int RGBA value.</param>
-        /// <param name="w">The width of one scanline in the pixels array.</param>
-        /// <param name="h">The height of the bitmap.</param>
         /// <param name="x1">The x-coordinate of the start point.</param>
         /// <param name="y1">The y-coordinate of the start point.</param>
         /// <param name="x2">The x-coordinate of the end point.</param>
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="penBmp">The pen bitmap.</param>
+        /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawLinePenned(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, WriteableBitmap penBmp, Rect? clipRect = null)
         {
             using (var context = bmp.GetBitmapContext())
+            using (var penContext = penBmp.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
-                using (var penContext = penBmp.GetBitmapContext(ReadWriteMode.ReadOnly))
-                {
-                    DrawLinePenned(context, context.Width, context.Height, x1, y1, x2, y2, penContext, clipRect);
-                }
+                DrawLinePenned(context, x1, y1, x2, y2, penContext, clipRect);
             }
+        }
+
+        /// <summary>
+        /// Draws a line using a pen / stamp for the line 
+        /// </summary>
+        /// <param name="context">The context containing the pixels as int RGBA value.</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="pen">The pen context.</param>
+        /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        public static void DrawLinePenned(BitmapContext context,int x1, int y1, int x2, int y2, BitmapContext pen, Rect? clipRect = null)
+        {
+            DrawLinePenned(context, context.Width, context.Height, x1, y1, x2, y2, pen, clipRect);
         }
 
         /// <summary>
@@ -608,7 +721,8 @@ namespace System.Windows.Media.Imaging
         /// <param name="x2">The x-coordinate of the end point.</param>
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="pen">The pen context.</param>
-        public static void DrawLinePenned(BitmapContext context, int w, int h, int x1, int y1, int x2, int y2, BitmapContext pen, Rect? clipRect = null)
+        /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        public static void DrawLinePenned(this BitmapContext context, int w, int h, int x1, int y1, int x2, int y2, BitmapContext pen, Rect? clipRect = null)
         {
             // Edge case where lines that went out of vertical bounds clipped instead of disappearing
             if((y1 < 0 && y2 < 0) || (y1 > h && y2 > h))
@@ -757,10 +871,30 @@ namespace System.Windows.Media.Imaging
         /// <param name="dotSpace">length of space between each line segment</param>
         /// <param name="dotLength">length of each line segment</param>
         /// <param name="color">The color for the line.</param>
-        public static void DrawLineDotted(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, Color color) {
+        [Obsolete("Use the same method on the BitmapContext")]
+        public static void DrawLineDotted(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, Color color)
+        {
             var c = ConvertColor(color);
             DrawLineDotted(bmp, x1, y1, x2, y2, dotSpace, dotLength, c);            
         }
+
+        /// <summary>
+        /// Draws a colored dotted line
+        /// </summary>
+        /// <param name="context">The BitmapContext</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="dotSpace">length of space between each line segment</param>
+        /// <param name="dotLength">length of each line segment</param>
+        /// <param name="color">The color for the line.</param>
+        public static void DrawLineDotted(this BitmapContext context, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, Color color)
+        {
+            var c = ConvertColor(color);
+            DrawLineDotted(context, x1, y1, x2, y2, dotSpace, dotLength, c);
+        }
+
         /// <summary>
         /// Draws a colored dotted line
         /// </summary>
@@ -772,7 +906,28 @@ namespace System.Windows.Media.Imaging
         /// <param name="dotSpace">length of space between each line segment</param>
         /// <param name="dotLength">length of each line segment</param>
         /// <param name="color">The color for the line.</param>
-        public static void DrawLineDotted(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, int color) {
+        [Obsolete("Use the same method on the BitmapContext")]
+        public static void DrawLineDotted(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, int color)
+        {
+            using (var context = bmp.GetBitmapContext())
+            {
+                context.DrawLineDotted(x1, y1, x2, y2, dotSpace, dotLength, color);
+            }
+        }
+
+        /// <summary>
+        /// Draws a colored dotted line
+        /// </summary>
+        /// <param name="context">The BitmapContext</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="dotSpace">length of space between each line segment</param>
+        /// <param name="dotLength">length of each line segment</param>
+        /// <param name="color">The color for the line.</param>
+        public static void DrawLineDotted(this BitmapContext context, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, int color)
+        {
             //if (x1 == 0) {
             //    x1 = 1;
             //}
@@ -789,24 +944,27 @@ namespace System.Windows.Media.Imaging
             //    throw new ArgumentOutOfRangeException("Value must be larger than 0");
             //}
             // vertically and horizontally checks by themselves if coords are out of bounds, otherwise CohenSutherlandCLip is used
-            
+
             // vertically?
-            using (var context = bmp.GetBitmapContext()) {
-                if (x1 == x2) {
-                    SwapHorV(ref y1, ref y2);
-                    DrawVertically(context, x1, y1, y2, dotSpace, dotLength, color);
-                }
-                   // horizontally?
-                   else if (y1 == y2) {
-                    SwapHorV(ref x1, ref x2);
-                    DrawHorizontally(context, x1, x2, y1, dotSpace, dotLength, color);
-                } else {
-                    Draw(context, x1, y1, x2, y2, dotSpace, dotLength, color);
-                } 
+            if (x1 == x2)
+            {
+                SwapHorV(ref y1, ref y2);
+                DrawVertically(context, x1, y1, y2, dotSpace, dotLength, color);
+            }
+            // horizontally?
+            else if (y1 == y2)
+            {
+                SwapHorV(ref x1, ref x2);
+                DrawHorizontally(context, x1, x2, y1, dotSpace, dotLength, color);
+            }
+            else
+            {
+                Draw(context, x1, y1, x2, y2, dotSpace, dotLength, color);
             }
         }
-
-        private static void DrawVertically(BitmapContext context, int x, int y1, int y2, int dotSpace, int dotLength, int color) {
+        
+        private static void DrawVertically(BitmapContext context, int x, int y1, int y2, int dotSpace, int dotLength, int color)
+        {
             int width = context.Width;
             int height = context.Height;
 
@@ -840,7 +998,8 @@ namespace System.Windows.Media.Imaging
             }
         }
 
-        private static void DrawHorizontally(BitmapContext context, int x1, int x2, int y, int dotSpace, int dotLength, int color) {
+        private static void DrawHorizontally(BitmapContext context, int x1, int x2, int y, int dotSpace, int dotLength, int color)
+        {
             int width = context.Width;
             int height = context.Height;
 
@@ -877,7 +1036,8 @@ namespace System.Windows.Media.Imaging
             }
         }
 
-        private static void Draw(BitmapContext context, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, int color) {
+        private static void Draw(BitmapContext context, int x1, int y1, int x2, int y2, int dotSpace, int dotLength, int color)
+        {
             // y = m * x + n
             // y - m * x = n
             
@@ -920,7 +1080,8 @@ namespace System.Windows.Media.Imaging
             }
         }
 
-        private static void Swap(ref int x1, ref int x2, ref int y1, ref int y2) {
+        private static void Swap(ref int x1, ref int x2, ref int y1, ref int y2)
+        {
             // always draw from left to right
             // or from top to bottom
             if (x2 < x1) {
@@ -935,7 +1096,8 @@ namespace System.Windows.Media.Imaging
             }
         }
 
-        private static void SwapHorV(ref int a1, ref int a2) {
+        private static void SwapHorV(ref int a1, ref int a2)
+        {
             int x1 = 0; // dummy
             int x2 = -1; // dummy
             if (a2 < a1) {
@@ -944,7 +1106,8 @@ namespace System.Windows.Media.Imaging
         }
 
         // inlined
-        //private static int GetIndex(int x, int y, int width) {
+        //private static int GetIndex(int x, int y, int width)
+        //{
         //    var idx = (y - 1) * width + x;
         //    return idx - 1;
         //}
@@ -966,6 +1129,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="sg">Premultiplied green color component</param>
         /// <param name="sb">Premultiplied blue color component</param>
         /// <param name="clipRect">The region in the image to restrict drawing to.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawLineWu(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int sa, int sr, int sg, int sb, Rect? clipRect = null)
         {
             using (var context = bmp.GetBitmapContext())
@@ -990,7 +1154,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="sg">Premultiplied green color component</param>
         /// <param name="sb">Premultiplied blue color component</param>
         /// <param name="clipRect">The region in the image to restrict drawing to.</param>
-        public static void DrawLineWu(BitmapContext context, int pixelWidth, int pixelHeight, int x1, int y1, int x2, int y2, int sa, int sr, int sg, int sb, Rect? clipRect = null)
+        public static void DrawLineWu(this BitmapContext context, int pixelWidth, int pixelHeight, int x1, int y1, int x2, int y2, int sa, int sr, int sg, int sb, Rect? clipRect = null)
         {
             // Perform cohen-sutherland clipping if either point is out of the viewport
             if (!CohenSutherlandLineClip(clipRect ?? new Rect(0, 0, pixelWidth, pixelHeight), ref x1, ref y1, ref x2, ref y2)) return;
@@ -1145,21 +1309,6 @@ namespace System.Windows.Media.Imaging
 
         /// <summary> 
         /// Draws an anti-aliased line with a desired stroke thickness
-        /// <param name="context">The context containing the pixels as int RGBA value.</param>
-        /// <param name="x1">The x-coordinate of the start point.</param>
-        /// <param name="y1">The y-coordinate of the start point.</param>
-        /// <param name="x2">The x-coordinate of the end point.</param>
-        /// <param name="y2">The y-coordinate of the end point.</param>
-        /// <param name="color">The color for the line.</param>
-        /// <param name="strokeThickness">The stroke thickness of the line.</param>
-        /// </summary>
-        public static void DrawLineAa(BitmapContext context, int pixelWidth, int pixelHeight, int x1, int y1, int x2, int y2, int color, int strokeThickness, Rect? clipRect = null)
-        {
-            AAWidthLine(pixelWidth, pixelHeight, context, x1, y1, x2, y2, strokeThickness, color, clipRect);
-        }
-
-        /// <summary> 
-        /// Draws an anti-aliased line with a desired stroke thickness
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="x1">The x-coordinate of the start point.</param>
         /// <param name="y1">The y-coordinate of the start point.</param>
@@ -1168,6 +1317,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="color">The color for the line.</param>
         /// <param name="strokeThickness">The stroke thickness of the line.</param>
         /// </summary>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawLineAa(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int color, int strokeThickness, Rect? clipRect = null)
         {
             using (var context = bmp.GetBitmapContext())
@@ -1186,7 +1336,37 @@ namespace System.Windows.Media.Imaging
         /// <param name="color">The color for the line.</param>
         /// <param name="strokeThickness">The stroke thickness of the line.</param>
         /// </summary>
-        public static void DrawLineAa(BitmapContext context, int pixelWidth, int pixelHeight, int x1, int y1, int x2, int y2, Color color, int strokeThickness, Rect? clipRect = null)
+        public static void DrawLineAa(this BitmapContext context, int x1, int y1, int x2, int y2, int color, int strokeThickness, Rect? clipRect = null)
+        {
+            context.DrawLineAa( x1, y1, x2, y2, strokeThickness, color, clipRect);
+        }
+
+        /// <summary> 
+        /// Draws an anti-aliased line with a desired stroke thickness
+        /// <param name="context">The context containing the pixels as int RGBA value.</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="color">The color for the line.</param>
+        /// <param name="strokeThickness">The stroke thickness of the line.</param>
+        /// </summary>
+        public static void DrawLineAa(this BitmapContext context, int pixelWidth, int pixelHeight, int x1, int y1, int x2, int y2, int color, int strokeThickness, Rect? clipRect = null)
+        {
+            AAWidthLine(pixelWidth, pixelHeight, context, x1, y1, x2, y2, strokeThickness, color, clipRect);
+        }
+
+        /// <summary> 
+        /// Draws an anti-aliased line with a desired stroke thickness
+        /// <param name="context">The context containing the pixels as int RGBA value.</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="color">The color for the line.</param>
+        /// <param name="strokeThickness">The stroke thickness of the line.</param>
+        /// </summary>
+        public static void DrawLineAa(this BitmapContext context, int pixelWidth, int pixelHeight, int x1, int y1, int x2, int y2, Color color, int strokeThickness, Rect? clipRect = null)
         {
             var col = ConvertColor(color);
             AAWidthLine(pixelWidth, pixelHeight, context, x1, y1, x2, y2, strokeThickness, col, clipRect);
@@ -1202,6 +1382,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="color">The color for the line.</param>
         /// <param name="strokeThickness">The stroke thickness of the line.</param>
         /// </summary>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawLineAa(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, Color color, int strokeThickness, Rect? clipRect = null)
         {
             var col = ConvertColor(color);
@@ -1212,19 +1393,19 @@ namespace System.Windows.Media.Imaging
         }
 
         /// <summary> 
-        /// Draws an anti-aliased line, using an optimized version of Gupta-Sproull algorithm 
-        /// From http://nokola.com/blog/post/2010/10/14/Anti-aliased-Lines-And-Optimizing-Code-for-Windows-Phone-7e28093First-Look.aspx
-        /// <param name="bmp">The WriteableBitmap.</param>
+        /// Draws an anti-aliased line with a desired stroke thickness
+        /// <param name="context">The BitmapContext.</param>
         /// <param name="x1">The x-coordinate of the start point.</param>
         /// <param name="y1">The y-coordinate of the start point.</param>
         /// <param name="x2">The x-coordinate of the end point.</param>
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color for the line.</param>
-        /// </summary> 
-        public static void DrawLineAa(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, Color color, Rect? clipRect = null)
+        /// <param name="strokeThickness">The stroke thickness of the line.</param>
+        /// </summary>
+        public static void DrawLineAa(this BitmapContext context, int x1, int y1, int x2, int y2, Color color, int strokeThickness, Rect? clipRect = null)
         {
             var col = ConvertColor(color);
-            bmp.DrawLineAa(x1, y1, x2, y2, col, clipRect);
+            context.DrawLineAa(x1, y1, x2, y2, strokeThickness, col, clipRect);
         }
 
         /// <summary> 
@@ -1237,12 +1418,61 @@ namespace System.Windows.Media.Imaging
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color for the line.</param>
         /// </summary> 
+        [Obsolete("Use the same method on the BitmapContext")]
+        public static void DrawLineAa(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, Color color, Rect? clipRect = null)
+        {
+            var col = ConvertColor(color);
+            bmp.DrawLineAa(x1, y1, x2, y2, col, clipRect);
+        }
+
+        /// <summary> 
+        /// Draws an anti-aliased line, using an optimized version of Gupta-Sproull algorithm 
+        /// From http://nokola.com/blog/post/2010/10/14/Anti-aliased-Lines-And-Optimizing-Code-for-Windows-Phone-7e28093First-Look.aspx
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="color">The color for the line.</param>
+        /// </summary> 
+        public static void DrawLineAa(this BitmapContext context, int x1, int y1, int x2, int y2, Color color, Rect? clipRect = null)
+        {
+            var col = ConvertColor(color);
+            context.DrawLineAa(x1, y1, x2, y2, col, clipRect);
+        }
+
+        /// <summary> 
+        /// Draws an anti-aliased line, using an optimized version of Gupta-Sproull algorithm 
+        /// From http://nokola.com/blog/post/2010/10/14/Anti-aliased-Lines-And-Optimizing-Code-for-Windows-Phone-7e28093First-Look.aspx
+        /// <param name="bmp">The WriteableBitmap.</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="color">The color for the line.</param>
+        /// </summary> 
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawLineAa(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, int color, Rect? clipRect = null)
         {
             using (var context = bmp.GetBitmapContext())
             {
                 DrawLineAa(context, context.Width, context.Height, x1, y1, x2, y2, color, clipRect);
             }
+        }
+
+        /// <summary> 
+        /// Draws an anti-aliased line, using an optimized version of Gupta-Sproull algorithm 
+        /// From http://nokola.com/blog/post/2010/10/14/Anti-aliased-Lines-And-Optimizing-Code-for-Windows-Phone-7e28093First-Look.aspx
+        /// <param name="context">The WriteableBitmap.</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="color">The color for the line.</param>
+        /// </summary> 
+        public static void DrawLineAa(this BitmapContext context, int x1, int y1, int x2, int y2, int color, Rect? clipRect = null)
+        {
+            context.DrawLineAa(context.Width, context.Height, x1, y1, x2, y2, color, clipRect);
         }
 
         /// <summary> 
@@ -1257,7 +1487,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color for the line.</param>
         /// </summary> 
-        public static void DrawLineAa(BitmapContext context, int pixelWidth, int pixelHeight, int x1, int y1, int x2, int y2, int color, Rect? clipRect = null)
+        public static void DrawLineAa(this BitmapContext context, int pixelWidth, int pixelHeight, int x1, int y1, int x2, int y2, int color, Rect? clipRect = null)
         {
             if ((x1 == x2) && (y1 == y2)) return; // edge case causing invDFloat to overflow, found by Shai Rubinshtein
 

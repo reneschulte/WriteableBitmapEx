@@ -54,7 +54,7 @@ namespace System.Windows.Media.Imaging
 #elif WPF
             return new WriteableBitmap(pixelWidth, pixelHeight, 96.0, 96.0, PixelFormats.Pbgra32, null);
 #elif NETFX_CORE
-         return new WriteableBitmap(pixelWidth, pixelHeight);
+            return new WriteableBitmap(pixelWidth, pixelHeight);
 #endif
         }
 

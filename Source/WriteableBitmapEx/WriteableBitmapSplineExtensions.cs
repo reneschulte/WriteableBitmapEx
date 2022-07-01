@@ -56,10 +56,30 @@ namespace System.Windows.Media.Imaging
         /// <param name="x2">The x-coordinate of the end point.</param>
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawBezier(this WriteableBitmap bmp, int x1, int y1, int cx1, int cy1, int cx2, int cy2, int x2, int y2, Color color)
         {
             var col = ConvertColor(color);
             bmp.DrawBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2, col);
+        }
+
+        /// <summary>
+        /// Draws a cubic Beziér spline defined by start, end and two control points.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="cx1">The x-coordinate of the 1st control point.</param>
+        /// <param name="cy1">The y-coordinate of the 1st control point.</param>
+        /// <param name="cx2">The x-coordinate of the 2nd control point.</param>
+        /// <param name="cy2">The y-coordinate of the 2nd control point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="color">The color.</param>
+        public static void DrawBezier(this BitmapContext context, int x1, int y1, int cx1, int cy1, int cx2, int cy2, int x2, int y2, Color color)
+        {
+            var col = ConvertColor(color);
+            context.DrawBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2, col);
         }
 
         /// <summary>
@@ -75,7 +95,29 @@ namespace System.Windows.Media.Imaging
         /// <param name="x2">The x-coordinate of the end point.</param>
         /// <param name="y2">The y-coordinate of the end point.</param>
         /// <param name="color">The color.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawBezier(this WriteableBitmap bmp, int x1, int y1, int cx1, int cy1, int cx2, int cy2, int x2, int y2, int color)
+        {
+            using (var context = bmp.GetBitmapContext())
+            {
+                context.DrawBezier(x1,y1, cx1, cy1, cx2, cy2, x2, y2, color);
+            }
+        }
+
+        /// <summary>
+        /// Draws a cubic Beziér spline defined by start, end and two control points.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="x1">The x-coordinate of the start point.</param>
+        /// <param name="y1">The y-coordinate of the start point.</param>
+        /// <param name="cx1">The x-coordinate of the 1st control point.</param>
+        /// <param name="cy1">The y-coordinate of the 1st control point.</param>
+        /// <param name="cx2">The x-coordinate of the 2nd control point.</param>
+        /// <param name="cy2">The y-coordinate of the 2nd control point.</param>
+        /// <param name="x2">The x-coordinate of the end point.</param>
+        /// <param name="y2">The y-coordinate of the end point.</param>
+        /// <param name="color">The color.</param>
+        public static void DrawBezier(this BitmapContext context, int x1, int y1, int cx1, int cy1, int cx2, int cy2, int x2, int y2, int color)
         {
             // Determine distances between controls points (bounding rect) to find the optimal stepsize
             var minX = Math.Min(x1, Math.Min(cx1, Math.Min(cx2, x2)));
@@ -94,37 +136,34 @@ namespace System.Windows.Media.Imaging
             // Prevent division by zero
             if (len != 0)
             {
-                using (var context = bmp.GetBitmapContext())
+                // Use refs for faster access (really important!) speeds up a lot!
+                int w = context.Width;
+                int h = context.Height;
+
+                // Init vars
+                var step = StepFactor / len;
+                int tx1 = x1;
+                int ty1 = y1;
+                int tx2, ty2;
+
+                // Interpolate
+                for (var t = step; t <= 1; t += step)
                 {
-                    // Use refs for faster access (really important!) speeds up a lot!
-                    int w = context.Width;
-                    int h = context.Height;
+                    var tSq = t * t;
+                    var t1 = 1 - t;
+                    var t1Sq = t1 * t1;
 
-                    // Init vars
-                    var step = StepFactor / len;
-                    int tx1 = x1;
-                    int ty1 = y1;
-                    int tx2, ty2;
+                    tx2 = (int)(t1 * t1Sq * x1 + 3 * t * t1Sq * cx1 + 3 * t1 * tSq * cx2 + t * tSq * x2);
+                    ty2 = (int)(t1 * t1Sq * y1 + 3 * t * t1Sq * cy1 + 3 * t1 * tSq * cy2 + t * tSq * y2);
 
-                    // Interpolate
-                    for (var t = step; t <= 1; t += step)
-                    {
-                        var tSq = t * t;
-                        var t1 = 1 - t;
-                        var t1Sq = t1 * t1;
-
-                        tx2 = (int)(t1 * t1Sq * x1 + 3 * t * t1Sq * cx1 + 3 * t1 * tSq * cx2 + t * tSq * x2);
-                        ty2 = (int)(t1 * t1Sq * y1 + 3 * t * t1Sq * cy1 + 3 * t1 * tSq * cy2 + t * tSq * y2);
-
-                        // Draw line
-                        DrawLine(context, w, h, tx1, ty1, tx2, ty2, color);
-                        tx1 = tx2;
-                        ty1 = ty2;
-                    }
-
-                    // Prevent rounding gap
-                    DrawLine(context, w, h, tx1, ty1, x2, y2, color);
+                    // Draw line
+                    DrawLine(context, w, h, tx1, ty1, tx2, ty2, color);
+                    tx1 = tx2;
+                    ty1 = ty2;
                 }
+
+                // Prevent rounding gap
+                DrawLine(context, w, h, tx1, ty1, x2, y2, color);
             }
         }
 
@@ -136,6 +175,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, cx1, cy1, cx2, cy2, x2, y2, cx3, cx4 ..., xn, yn).</param>
         /// <param name="color">The color for the spline.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawBeziers(this WriteableBitmap bmp, int[] points, Color color)
         {
             var col = ConvertColor(color);
@@ -147,10 +187,41 @@ namespace System.Windows.Media.Imaging
         /// The ending point of the previous curve is used as starting point for the next. 
         /// Therefore the initial curve needs four points and the subsequent 3 (2 control and 1 end point).
         /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, cx1, cy1, cx2, cy2, x2, y2, cx3, cx4 ..., xn, yn).</param>
+        /// <param name="color">The color for the spline.</param>
+        public static void DrawBeziers(this BitmapContext context, int[] points, Color color)
+        {
+            var col = ConvertColor(color);
+            context.DrawBeziers(points, col);
+        }
+
+        /// <summary>
+        /// Draws a series of cubic Beziér splines each defined by start, end and two control points. 
+        /// The ending point of the previous curve is used as starting point for the next. 
+        /// Therefore the initial curve needs four points and the subsequent 3 (2 control and 1 end point).
+        /// </summary>
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, cx1, cy1, cx2, cy2, x2, y2, cx3, cx4 ..., xn, yn).</param>
         /// <param name="color">The color for the spline.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawBeziers(this WriteableBitmap bmp, int[] points, int color)
+        {
+            using (var context = bmp.GetBitmapContext())
+            {
+                context.DrawBeziers(points, color);
+            }
+        }
+
+        /// <summary>
+        /// Draws a series of cubic Beziér splines each defined by start, end and two control points. 
+        /// The ending point of the previous curve is used as starting point for the next. 
+        /// Therefore the initial curve needs four points and the subsequent 3 (2 control and 1 end point).
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, cx1, cy1, cx2, cy2, x2, y2, cx3, cx4 ..., xn, yn).</param>
+        /// <param name="color">The color for the spline.</param>
+        public static void DrawBeziers(this BitmapContext context, int[] points, int color)
         {
             int x1 = points[0];
             int y1 = points[1];
@@ -159,7 +230,7 @@ namespace System.Windows.Media.Imaging
             {
                 x2 = points[i + 4];
                 y2 = points[i + 5];
-                bmp.DrawBezier(x1, y1, points[i], points[i + 1], points[i + 2], points[i + 3], x2, y2, color);
+                context.DrawBezier(x1, y1, points[i], points[i + 1], points[i + 2], points[i + 3], x2, y2, color);
                 x1 = x2;
                 y1 = y2;
             }
@@ -247,6 +318,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
         /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
         /// <param name="color">The color for the spline.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawCurve(this WriteableBitmap bmp, int[] points, float tension, Color color)
         {
             var col = ConvertColor(color);
@@ -257,31 +329,62 @@ namespace System.Windows.Media.Imaging
         /// Draws a Cardinal spline (cubic) defined by a point collection. 
         /// The cardinal spline passes through each point in the collection.
         /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
+        /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
+        /// <param name="color">The color for the spline.</param>
+        public static void DrawCurve(this BitmapContext context, int[] points, float tension, Color color)
+        {
+            var col = ConvertColor(color);
+            context.DrawCurve(points, tension, col);
+        }
+
+        /// <summary>
+        /// Draws a Cardinal spline (cubic) defined by a point collection. 
+        /// The cardinal spline passes through each point in the collection.
+        /// </summary>
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
         /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
         /// <param name="color">The color for the spline.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawCurve(this WriteableBitmap bmp, int[] points, float tension, int color)
         {
             using (var context = bmp.GetBitmapContext())
             {
-                // Use refs for faster access (really important!) speeds up a lot!
-                int w = context.Width;
-                int h = context.Height;
-
-                // First segment
-                DrawCurveSegment(points[0], points[1], points[0], points[1], points[2], points[3], points[4], points[5], tension, color, context, w, h);
-
-                // Middle segments
-                int i;
-                for (i = 2; i < points.Length - 4; i += 2)
-                {
-                    DrawCurveSegment(points[i - 2], points[i - 1], points[i], points[i + 1], points[i + 2], points[i + 3], points[i + 4], points[i + 5], tension, color, context, w, h);
-                }
-
-                // Last segment
-                DrawCurveSegment(points[i - 2], points[i - 1], points[i], points[i + 1], points[i + 2], points[i + 3], points[i + 2], points[i + 3], tension, color, context, w, h);
+                context.DrawCurve(points, tension, color);
             }
+        }
+
+        /// <summary>
+        /// Draws a Cardinal spline (cubic) defined by a point collection. 
+        /// The cardinal spline passes through each point in the collection.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
+        /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
+        /// <param name="color">The color for the spline.</param>
+        public static void DrawCurve(this BitmapContext context, int[] points, float tension, int color)
+        {
+            // Use refs for faster access (really important!) speeds up a lot!
+            int w = context.Width;
+            int h = context.Height;
+
+            // First segment
+            DrawCurveSegment(points[0], points[1], points[0], points[1], points[2], points[3], points[4], points[5],
+                tension, color, context, w, h);
+
+            // Middle segments
+            int i;
+            for (i = 2; i < points.Length - 4; i += 2)
+            {
+                DrawCurveSegment(points[i - 2], points[i - 1], points[i], points[i + 1], points[i + 2], points[i + 3],
+                    points[i + 4], points[i + 5], tension, color, context, w, h);
+            }
+
+            // Last segment
+            DrawCurveSegment(points[i - 2], points[i - 1], points[i], points[i + 1], points[i + 2], points[i + 3],
+                points[i + 2], points[i + 3], tension, color, context, w, h);
         }
 
         /// <summary>
@@ -292,6 +395,7 @@ namespace System.Windows.Media.Imaging
         /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
         /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
         /// <param name="color">The color for the spline.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawCurveClosed(this WriteableBitmap bmp, int[] points, float tension, Color color)
         {
             var col = ConvertColor(color);
@@ -302,36 +406,68 @@ namespace System.Windows.Media.Imaging
         /// Draws a closed Cardinal spline (cubic) defined by a point collection. 
         /// The cardinal spline passes through each point in the collection.
         /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
+        /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
+        /// <param name="color">The color for the spline.</param>
+        public static void DrawCurveClosed(this BitmapContext context, int[] points, float tension, Color color)
+        {
+            var col = ConvertColor(color);
+            context.DrawCurveClosed(points, tension, col);
+        }
+
+        /// <summary>
+        /// Draws a closed Cardinal spline (cubic) defined by a point collection. 
+        /// The cardinal spline passes through each point in the collection.
+        /// </summary>
         /// <param name="bmp">The WriteableBitmap.</param>
         /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
         /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
         /// <param name="color">The color for the spline.</param>
+        [Obsolete("Use the same method on the BitmapContext")]
         public static void DrawCurveClosed(this WriteableBitmap bmp, int[] points, float tension, int color)
         {
             using (var context = bmp.GetBitmapContext())
             {
-                // Use refs for faster access (really important!) speeds up a lot!
-                int w = context.Width;
-                int h = context.Height;
-
-                int pn = points.Length;
-
-                // First segment
-                DrawCurveSegment(points[pn - 2], points[pn - 1], points[0], points[1], points[2], points[3], points[4], points[5], tension, color, context, w, h);
-
-                // Middle segments
-                int i;
-                for (i = 2; i < pn - 4; i += 2)
-                {
-                    DrawCurveSegment(points[i - 2], points[i - 1], points[i], points[i + 1], points[i + 2], points[i + 3], points[i + 4], points[i + 5], tension, color, context, w, h);
-                }
-
-                // Last segment
-                DrawCurveSegment(points[i - 2], points[i - 1], points[i], points[i + 1], points[i + 2], points[i + 3], points[0], points[1], tension, color, context, w, h);
-
-                // Last-to-First segment
-                DrawCurveSegment(points[i], points[i + 1], points[i + 2], points[i + 3], points[0], points[1], points[2], points[3], tension, color, context, w, h);
+                context.DrawCurveClosed(points, tension, color);
             }
+        }
+
+        /// <summary>
+        /// Draws a closed Cardinal spline (cubic) defined by a point collection. 
+        /// The cardinal spline passes through each point in the collection.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="points">The points for the curve in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, x3, y3, x4, y4, x1, x2 ..., xn, yn).</param>
+        /// <param name="tension">The tension of the curve defines the shape. Usually between 0 and 1. 0 would be a straight line.</param>
+        /// <param name="color">The color for the spline.</param>
+        public static void DrawCurveClosed(this BitmapContext context, int[] points, float tension, int color)
+        {
+            // Use refs for faster access (really important!) speeds up a lot!
+            int w = context.Width;
+            int h = context.Height;
+
+            int pn = points.Length;
+
+            // First segment
+            DrawCurveSegment(points[pn - 2], points[pn - 1], points[0], points[1], points[2], points[3], points[4],
+                points[5], tension, color, context, w, h);
+
+            // Middle segments
+            int i;
+            for (i = 2; i < pn - 4; i += 2)
+            {
+                DrawCurveSegment(points[i - 2], points[i - 1], points[i], points[i + 1], points[i + 2], points[i + 3],
+                    points[i + 4], points[i + 5], tension, color, context, w, h);
+            }
+
+            // Last segment
+            DrawCurveSegment(points[i - 2], points[i - 1], points[i], points[i + 1], points[i + 2], points[i + 3],
+                points[0], points[1], tension, color, context, w, h);
+
+            // Last-to-First segment
+            DrawCurveSegment(points[i], points[i + 1], points[i + 2], points[i + 3], points[0], points[1], points[2],
+                points[3], tension, color, context, w, h);
         }
 
         #endregion
