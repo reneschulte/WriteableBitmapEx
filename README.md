@@ -12,6 +12,10 @@ Please use the [GitHub Issues functionality](https://github.com/teichgraf/Writea
 
 ![wbx_announcement.png](https://4.bp.blogspot.com/-kGQh1bS1qlk/Sx1KnIEhZ3I/AAAAAAAAAI0/z3P5rYjXuk8/s1600/wbx_announcement.png)
 
+
+# News 
+* now supports text rendering (outline and fill)
+
 # Features
 
 [GDI+](http://msdn.microsoft.com/en-us/library/ms533797(v=VS.85).aspx) like drawing functionality for the WriteableBitmap.
@@ -39,6 +43,8 @@ Support for WPF, Windows 10 UWP (, Windows 8/8.1 WinRT XAML, Windows Phone Silve
     *   Fast ellipse and rectangle fill method
     *   Triangle, quad, simple and complex polygons
     *   Beziér and Cardinal spline curves
+*	Text
+	*	Fill and draw outline of text strings. text is highly flexible, it is instance of `FormattedText` thus any text and characted which is supported by wpf, can be rendered (options like `FlowDirection`, `FontWeight` and ... can be changed).
 *   Blitting
     *   Different blend modes including alpha, additive, subtractive, multiply, mask and none
     *   Optimized fast path for non blended blitting
@@ -93,7 +99,11 @@ using(writeableBmp.GetBitmapContext())
 
    // Blue anti-aliased line from P1(10, 20) to P2(50, 70) with a stroke of 5
    writeableBmp.DrawLineAa(10, 20, 50, 70, Colors.Blue, 5);
-
+   
+   // Fills a text on the bitmap, Font, size, weight and almost any option is changable, all text supported with WPF is also supported here including Persian, Arabic, Chinese etc
+   var formattedText = new FormattedText("Test String", CultureInfo.GetCultureInfo("en-us"), FlowDirection.LeftToRight, new Typeface(new FontFamily("Sans MS"), FontStyles.Normal, FontWeights.Medium, FontStretches.Normal), 80.0, System.Windows.Media.Brushes.Black);
+   writeableBmp.FillTest(formattedText, 100, 100, Colors.Blue, 5);
+   
    // Black triangle with the points P1(10, 5), P2(20, 40) and P3(30, 10)
    writeableBmp.DrawTriangle(10, 5, 20, 40, 30, 10, Colors.Black);
 
