@@ -92,6 +92,19 @@ namespace System.Windows.Media.Imaging
         }
 
         /// <summary>
+        /// Draws a polyline. Add the first point also at the end of the array if the line should be closed.
+        /// </summary>
+        /// <param name="bmp">The WriteableBitmap.</param>
+        /// <param name="points">The points of the polyline in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, ..., xn, yn).</param>
+        /// <param name="color">The color for the line.</param>
+        /// <param name="thickness">The thickness for the line.</param>
+        public static void DrawPolylineAa(this WriteableBitmap bmp, int[] points, Color color,int thickness)
+        {
+            var col = ConvertColor(color);
+            bmp.DrawPolylineAa(points, col,thickness);
+        }
+
+        /// <summary>
         /// Draws a polyline anti-aliased. Add the first point also at the end of the array if the line should be closed.
         /// </summary>
         /// <param name="bmp">The WriteableBitmap.</param>
@@ -113,6 +126,36 @@ namespace System.Windows.Media.Imaging
                     var y2 = points[i + 1];
 
                     DrawLineAa(context, w, h, x1, y1, x2, y2, color);
+                    x1 = x2;
+                    y1 = y2;
+                }
+            }
+        }
+
+
+
+        /// <summary>
+        /// Draws a polyline anti-aliased. Add the first point also at the end of the array if the line should be closed.
+        /// </summary>
+        /// <param name="bmp">The WriteableBitmap.</param>
+        /// <param name="points">The points of the polyline in x and y pairs, therefore the array is interpreted as (x1, y1, x2, y2, ..., xn, yn).</param>
+        /// <param name="color">The color for the line.</param>
+        public static void DrawPolylineAa(this WriteableBitmap bmp, int[] points, int color, int thickness)
+        {
+            using (var context = bmp.GetBitmapContext())
+            {
+                // Use refs for faster access (really important!) speeds up a lot!
+                var w = context.Width;
+                var h = context.Height;
+                var x1 = points[0];
+                var y1 = points[1];
+
+                for (var i = 2; i < points.Length; i += 2)
+                {
+                    var x2 = points[i];
+                    var y2 = points[i + 1];
+
+                    DrawLineAa(context, w, h, x1, y1, x2, y2, color, thickness);
                     x1 = x2;
                     y1 = y2;
                 }
