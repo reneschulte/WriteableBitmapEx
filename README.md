@@ -102,7 +102,7 @@ using(writeableBmp.GetBitmapContext())
    
    // Fills a text on the bitmap, Font, size, weight and almost any option is changable, all text supported with WPF is also supported here including Persian, Arabic, Chinese etc
    var formattedText = new FormattedText("Test String", CultureInfo.GetCultureInfo("en-us"), FlowDirection.LeftToRight, new Typeface(new FontFamily("Sans MS"), FontStyles.Normal, FontWeights.Medium, FontStretches.Normal), 80.0, System.Windows.Media.Brushes.Black);
-   writeableBmp.FillTest(formattedText, 100, 100, Colors.Blue, 5);
+   writeableBmp.FillText(formattedText, 100, 100, Colors.Blue, 5);
    
    // Black triangle with the points P1(10, 5), P2(20, 40) and P3(30, 10)
    writeableBmp.DrawTriangle(10, 5, 20, 40, 30, 10, Colors.Black);
