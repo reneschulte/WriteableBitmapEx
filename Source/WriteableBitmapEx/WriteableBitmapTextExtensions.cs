@@ -3,11 +3,9 @@
 //   Project:           WriteableBitmapEx - WriteableBitmap extensions
 //   Description:       Collection of extension methods for the WriteableBitmap class.
 //
-//   Changed by:        $Author: unknown $
-//   Changed on:        $Date: 2015-03-05 21:21:11 +0100 (Do, 05 Mrz 2015) $
-//   Changed in:        $Revision: 113194 $
-//   Project:           $URL: https://writeablebitmapex.svn.codeplex.com/svn/trunk/Source/WriteableBitmapEx/WriteableBitmapFillExtensions.cs $
-//   Id:                $Id: WriteableBitmapFillExtensions.cs 113194 2015-03-05 20:21:11Z unknown $
+//   Changed by:        $Author: Ehsan M.A. $
+//   Changed on:        $Date: 2023-oct-16$
+//   Changed in:        $Revision:$
 //
 //
 //   Copyright © 2009-2015 Rene Schulte and WriteableBitmapEx Contributors
