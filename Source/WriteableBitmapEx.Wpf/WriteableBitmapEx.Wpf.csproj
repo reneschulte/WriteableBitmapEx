@@ -59,7 +59,8 @@
     <Compile Include="..\WriteableBitmapEx\WriteableBitmapFilterExtensions.cs" Link="WriteableBitmapFilterExtensions.cs" />
     <Compile Include="..\WriteableBitmapEx\WriteableBitmapLineExtensions.cs" Link="WriteableBitmapLineExtensions.cs" />
     <Compile Include="..\WriteableBitmapEx\WriteableBitmapShapeExtensions.cs" Link="WriteableBitmapShapeExtensions.cs" />
-    <Compile Include="..\WriteableBitmapEx\WriteableBitmapSplineExtensions.cs" Link="WriteableBitmapSplineExtensions.cs" />
+	<Compile Include="..\WriteableBitmapEx\WriteableBitmapSplineExtensions.cs" Link="WriteableBitmapSplineExtensions.cs" />
+	<Compile Include="..\WriteableBitmapEx\WriteableBitmapTextExtensions.cs" Link="WriteableBitmapTextExtensions.cs" />
     <Compile Include="..\WriteableBitmapEx\WriteableBitmapTransformationExtensions.cs" Link="WriteableBitmapTransformationExtensions.cs" />
   </ItemGroup>
 
