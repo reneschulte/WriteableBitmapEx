@@ -6,7 +6,7 @@
     <UseWPF>true</UseWPF>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <OutputPath>..\..\Build\Release\</OutputPath>
   </PropertyGroup>
@@ -16,16 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\WriteableBitmapExBlitAlphaRepro.WinPhone8\Assets\Overlays\19.JPG" Link="Assets\Overlays\19.JPG">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\WriteableBitmapExBlitAlphaRepro.WinPhone8\Assets\Overlays\nEW.png" Link="Assets\Overlays\nEW.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\WriteableBitmapEx.Wpf\WriteableBitmapEx.Wpf.csproj" />
+    <ProjectReference Include="..\..\Source\WriteableBitmapEx.Wpf\WriteableBitmapEx.Wpf.csproj" />
   </ItemGroup>
 
 </Project>

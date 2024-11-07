@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WriteableBitmapEx.Wpf\WriteableBitmapEx.Wpf.csproj" />
+    <ProjectReference Include="..\..\Source\WriteableBitmapEx.Wpf\WriteableBitmapEx.Wpf.csproj" />
   </ItemGroup>
 
 </Project>

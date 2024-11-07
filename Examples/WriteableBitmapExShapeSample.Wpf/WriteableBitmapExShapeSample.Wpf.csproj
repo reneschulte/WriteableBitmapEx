@@ -5,6 +5,7 @@
     <TargetFrameworks>netcoreapp3.0;net40</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -16,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WriteableBitmapEx.Wpf\WriteableBitmapEx.Wpf.csproj" />
+    <ProjectReference Include="..\..\Source\WriteableBitmapEx.Wpf\WriteableBitmapEx.Wpf.csproj" />
   </ItemGroup>
 
 </Project>
