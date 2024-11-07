@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFrameworks>netcoreapp3.0;net40</TargetFrameworks>
+    <UseWPF>true</UseWPF>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <OutputPath>..\..\Build\Release\</OutputPath>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <OutputPath>..\..\Build\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\WriteableBitmapExCurveSample\ControlPoint.cs" Link="ControlPoint.cs" />
+    <Compile Include="..\WriteableBitmapExCurveSample\Plant\Branch.cs" Link="Plant\Branch.cs" />
+    <Compile Include="..\WriteableBitmapExCurveSample\Plant\BranchPoint.cs" Link="Plant\BranchPoint.cs" />
+    <Compile Include="..\WriteableBitmapExCurveSample\Plant\Plant.cs" Link="Plant\Plant.cs" />
+    <Compile Include="..\WriteableBitmapExCurveSample\Plant\Vector.cs" Link="Plant\Vector.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\WriteableBitmapEx.Wpf\WriteableBitmapEx.Wpf.csproj" />
+  </ItemGroup>
+  
+</Project>
