@@ -387,7 +387,11 @@ namespace System.Windows.Media.Imaging
 
                     //
 
-                    ta = (byte)((a * (UInt16)(((((UInt16)(e >> 8))) ^ off))) >> 8);
+                    // Calculate transparency based on error term for anti-aliasing
+                    UInt16 errorValue = (UInt16)(e >> 8);
+                    if (off != 0)
+                        errorValue = (UInt16)(0xFF - errorValue);
+                    ta = (byte)((a * errorValue) >> 8);
 
                     rs = r;
                     gs = g;
@@ -410,7 +414,8 @@ namespace System.Windows.Media.Imaging
             }
             else
             {
-                off ^= 0xff;
+                // No need to invert off for vertical lines
+                // This ensures consistent anti-aliasing for all line angles
 
                 while (--deltay != 0)
                 {
@@ -429,7 +434,12 @@ namespace System.Windows.Media.Imaging
 
                     //
 
-                    ta = (byte)((a * (UInt16)(((((UInt16)(e >> 8))) ^ off))) >> 8);
+                    // Calculate transparency based on error term for anti-aliasing
+                    // Using same calculation as horizontal case for consistency
+                    UInt16 errorValue = (UInt16)(e >> 8);
+                    if (off != 0)
+                        errorValue = (UInt16)(0xFF - errorValue);
+                    ta = (byte)((a * errorValue) >> 8);
 
                     rs = r;
                     gs = g;
