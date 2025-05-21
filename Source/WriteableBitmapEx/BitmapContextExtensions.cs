@@ -802,5 +802,52 @@ namespace System.Windows.Media.Imaging
             Rect destRect = new Rect(destPosition, new Size(sourceRect.Width, sourceRect.Height));
             destContext.Blit(destRect, srcContext, sourceRect, sourceWidth);
         }
+
+        #region Transform Methods
+
+        /// <summary>
+        /// Flips (mirrors) the BitmapContext.
+        /// </summary>
+        /// <param name="context">The BitmapContext.</param>
+        /// <param name="flipMode">The flip mode.</param>
+        /// <returns>A new BitmapContext containing the flipped image data.</returns>
+        public static BitmapContext Flip(this BitmapContext context, FlipMode flipMode)
+        {
+            // Use refs for faster access (really important!) speeds up a lot!
+            var w = context.Width;
+            var h = context.Height;
+            var p = context.Pixels;
+            var result = new int[p.Length];
+            var i = 0;
+
+            if (flipMode == FlipMode.Horizontal)
+            {
+                for (var y = h - 1; y >= 0; y--)
+                {
+                    for (var x = 0; x < w; x++)
+                    {
+                        var srcInd = y * w + x;
+                        result[i] = p[srcInd];
+                        i++;
+                    }
+                }
+            }
+            else if (flipMode == FlipMode.Vertical)
+            {
+                for (var y = 0; y < h; y++)
+                {
+                    for (var x = w - 1; x >= 0; x--)
+                    {
+                        var srcInd = y * w + x;
+                        result[i] = p[srcInd];
+                        i++;
+                    }
+                }
+            }
+
+            return new BitmapContext(result, w, h, context.Format);
+        }
+
+        #endregion
     }
 }
