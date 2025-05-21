@@ -438,7 +438,7 @@ namespace System.Windows.Media.Imaging
             var endOffset = startY + x2;
             for (var idx = startYPlusX1; idx < endOffset; idx++)
             {
-                pixels[idx] = noBlending ? color : WriteableBitmapExtensions.AlphaBlendColors(pixels[idx], sa, sr, sg, sb);
+                pixels[idx] = noBlending ? color : AlphaBlendColors(pixels[idx], sa, sr, sg, sb);
             }
 
             // Copy first line
@@ -448,7 +448,7 @@ namespace System.Windows.Media.Imaging
                 var offset = y * w + x1;
                 for (var i = 0; i < len; i++)
                 {
-                    pixels[offset + i] = noBlending ? color : WriteableBitmapExtensions.AlphaBlendColors(pixels[offset + i], sa, sr, sg, sb);
+                    pixels[offset + i] = noBlending ? color : AlphaBlendColors(pixels[offset + i], sa, sr, sg, sb);
                 }
             }
         }
@@ -573,7 +573,7 @@ namespace System.Windows.Media.Imaging
                     // Draw horizontal line in upper half
                     for (var i = lx; i <= rx; i++)
                     {
-                        pixels[i + uh] = noBlending ? color : WriteableBitmapExtensions.AlphaBlendColors(pixels[i + uh], sa, sr, sg, sb);
+                        pixels[i + uh] = noBlending ? color : AlphaBlendColors(pixels[i + uh], sa, sr, sg, sb);
                     }
                 }
                 if (ly >= 0 && ly < h && ly != uy) // Don't overdraw horizontl lines if uy == ly
@@ -581,7 +581,7 @@ namespace System.Windows.Media.Imaging
                     // Draw horizontal line in lower half
                     for (var i = lx; i <= rx; i++)
                     {
-                        pixels[i + lh] = noBlending ? color : WriteableBitmapExtensions.AlphaBlendColors(pixels[i + lh], sa, sr, sg, sb);
+                        pixels[i + lh] = noBlending ? color : AlphaBlendColors(pixels[i + lh], sa, sr, sg, sb);
                     }
                 }
 
@@ -643,7 +643,7 @@ namespace System.Windows.Media.Imaging
                     // Draw horizontal line in upper half
                     for (var i = lx; i <= rx; i++)
                     {
-                        pixels[i + uh] = noBlending ? color : WriteableBitmapExtensions.AlphaBlendColors(pixels[i + uh], sa, sr, sg, sb);
+                        pixels[i + uh] = noBlending ? color : AlphaBlendColors(pixels[i + uh], sa, sr, sg, sb);
                     }
                 }
                 if (ly >= 0 && ly < h && ly != uy) // Don't overdraw horizontl lines if uy == ly
@@ -651,7 +651,7 @@ namespace System.Windows.Media.Imaging
                     // Draw horizontal line in lower half
                     for (var i = lx; i <= rx; i++)
                     {
-                        pixels[i + lh] = noBlending ? color : WriteableBitmapExtensions.AlphaBlendColors(pixels[i + lh], sa, sr, sg, sb);
+                        pixels[i + lh] = noBlending ? color : AlphaBlendColors(pixels[i + lh], sa, sr, sg, sb);
                     }
                 }
 
@@ -699,6 +699,108 @@ namespace System.Windows.Media.Imaging
         {
             var col = WriteableBitmapExtensions.ConvertColor(color);
             context.FillEllipseCentered(xc, yc, xr, yr, col, doAlphaBlend);
+        }
+
+        #endregion
+
+        #region Common Methods
+        
+        /// <summary>
+        /// Alpha blends the specified source color with the destination color.
+        /// </summary>
+        /// <param name="pixel">The destination color.</param>
+        /// <param name="sa">The source alpha value.</param>
+        /// <param name="sr">The source red value.</param>
+        /// <param name="sg">The source green value.</param>
+        /// <param name="sb">The source blue value.</param>
+        /// <returns>The alpha blended color.</returns>
+        private static int AlphaBlendColors(int pixel, int sa, int sr, int sg, int sb)
+        {
+            // Alpha blend
+            int destPixel = pixel;
+            int da = ((destPixel >> 24) & 0xff);
+            int dr = ((destPixel >> 16) & 0xff);
+            int dg = ((destPixel >> 8) & 0xff);
+            int db = ((destPixel) & 0xff);
+
+            destPixel = ((sa + (((da * (255 - sa)) * 0x8081) >> 23)) << 24) |
+                                 ((sr + (((dr * (255 - sa)) * 0x8081) >> 23)) << 16) |
+                                 ((sg + (((dg * (255 - sa)) * 0x8081) >> 23)) << 8) |
+                                 ((sb + (((db * (255 - sa)) * 0x8081) >> 23)));
+
+            return destPixel;
+        }
+
+        /// <summary>
+        /// Copies the specified region from the source BitmapContext to the destination BitmapContext.
+        /// </summary>
+        /// <param name="destContext">The destination context.</param>
+        /// <param name="destRect">The rectangle in the destination that should be filled with the source content.</param>
+        /// <param name="srcContext">The source context.</param>
+        /// <param name="sourceRect">The rectangle in the source that should be copied.</param>
+        /// <param name="sourceWidth">The width of the source bitmap.</param>
+        public static void Blit(this BitmapContext destContext, Rect destRect, BitmapContext srcContext, Rect sourceRect, int sourceWidth)
+        {
+            // Simple parameter validation
+            int dw = (int)destRect.Width;
+            int dh = (int)destRect.Height;
+            int sw = (int)sourceRect.Width;
+            int sh = (int)sourceRect.Height;
+            int dpw = destContext.Width;
+            int dph = destContext.Height;
+
+            // Calculate actual widths to copy
+            dw = Math.Min(dw, dpw - (int)destRect.X);
+            dh = Math.Min(dh, dph - (int)destRect.Y);
+            sw = Math.Min(sw, sourceWidth - (int)sourceRect.X);
+            sh = Math.Min(sh, srcContext.Length / sourceWidth - (int)sourceRect.Y);
+
+            // Check if nothing to do
+            if (sw <= 0 || sh <= 0 || dw <= 0 || dh <= 0) return;
+
+            // If width or height is different, use scaling
+            if (sw != dw || sh != dh)
+            {
+                WriteableBitmapExtensions.BlitScaled(destContext, dpw, dph, destRect, srcContext, sourceRect, sourceWidth);
+                return;
+            }
+
+            // Calculate start index in source and destination
+            int xs0 = (int)sourceRect.X;
+            int ys0 = (int)sourceRect.Y;
+            int xd0 = (int)destRect.X;
+            int yd0 = (int)destRect.Y;
+
+            var srcPixels = srcContext.Pixels;
+            var destPixels = destContext.Pixels;
+            int sd = sourceWidth;
+            int dd = dpw;
+
+            // Copy identical sized regions
+            for (int y = 0; y < dh; y++)
+            {
+                int srcIdx = ((ys0 + y) * sd) + xs0;
+                int destIdx = ((yd0 + y) * dd) + xd0;
+
+                for (int x = 0; x < dw; x++)
+                {
+                    destPixels[destIdx + x] = srcPixels[srcIdx + x];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Copies the specified region from the source BitmapContext to the destination BitmapContext.
+        /// </summary>
+        /// <param name="destContext">The destination context.</param>
+        /// <param name="destPosition">The position in the destination context where the source should be copied to.</param>
+        /// <param name="srcContext">The source context.</param>
+        /// <param name="sourceRect">The rectangle in the source that should be copied.</param>
+        /// <param name="sourceWidth">The width of the source bitmap.</param>
+        public static void Blit(this BitmapContext destContext, Point destPosition, BitmapContext srcContext, Rect sourceRect, int sourceWidth)
+        {
+            Rect destRect = new Rect(destPosition, new Size(sourceRect.Width, sourceRect.Height));
+            destContext.Blit(destRect, srcContext, sourceRect, sourceWidth);
         }
     }
 }
