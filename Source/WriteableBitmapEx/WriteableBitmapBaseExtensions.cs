@@ -71,6 +71,16 @@ namespace System.Windows.Media.Imaging
             return col;
         }
 
+        // same as ConvertColor() but takes care of the transparency
+        public static int ConvertColorT(Color color)
+        {
+            int col = 0;
+
+            col = color.A << 24 | color.R << 16 | color.G << 8 | color.B;
+
+            return col;
+        }
+
         /// <summary>
         /// Fills the whole WriteableBitmap with a color.
         /// </summary>
