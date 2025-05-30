@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Runtime.CompilerServices;
 
 #if NETFX_CORE
 namespace Windows.UI.Xaml.Media.Imaging
@@ -69,6 +70,41 @@ namespace System.Windows.Media.Imaging
             }
 
             return col;
+        }
+
+        // same as ConvertColor() but takes care of the transparency
+        public static int ConvertColorT(Color color)
+        {
+            int col = 0;
+
+            col = color.A << 24 | color.R << 16 | color.G << 8 | color.B;
+
+            return col;
+        }
+
+        /// <summary>
+        /// Blends two pixels regarding their alpha
+        /// </summary>
+        /// <returns>blended</returns>
+        [MethodImpl(256)]
+        public static int AlphaBlendArgbPixels(byte a1, byte r1, byte g1, byte b1, byte a2, byte r2, byte g2, byte b2)
+        {
+            //inlined
+            //blends two pixel and return ARGB result as int
+            //[MethodImpl(256)] equals to MethodImplOptions.AggressiveInlining, add support for net40, tested on net40 working
+            //https://stackoverflow.com/a/8746128
+            //https://stackoverflow.com/a/43060488
+            //s:1
+            //d:2
+
+            var a1not = (byte)(0xff - a1);
+
+            var ad = (byte)((a1 * a1 + a2 * a1not) >> 8);
+            var rd = (byte)((r1 * a1 + r2 * a1not) >> 8);
+            var gd = (byte)((g1 * a1 + g2 * a1not) >> 8);
+            var bd = (byte)((b1 * a1 + b2 * a1not) >> 8);
+
+            return ad << 24 | rd << 16 | gd << 8 | bd;
         }
 
         /// <summary>

@@ -57,6 +57,24 @@ namespace System.Windows.Media.Imaging
                 Swap(ref y1, ref y2);
             }
 
+            byte rs, gs, bs, @as;//input color components
+
+            {
+                @as = (byte)((color & 0xff000000) >> 24);
+                rs = (byte)((color & 0x00ff0000) >> 16);
+                gs = (byte)((color & 0x0000ff00) >> 8);
+                bs = (byte)((color & 0x000000ff) >> 0);
+            }
+
+            byte rd, gd, bd, ad;//ARGB components of each pixel
+            Int32 d;//combined ARGB component of each pixel, the destination pixel
+
+            if (y1 > y2)
+            {
+                Swap(ref x1, ref x2);
+                Swap(ref y1, ref y2);
+            }
+
             if (x1 == x2)
             {
                 x1 -= (int)lineWidth / 2;
@@ -84,31 +102,16 @@ namespace System.Windows.Media.Imaging
                 {
                     for (var y = (int)y1; y <= y2; y++)
                     {
-                        var a = (byte)((color & 0xff000000) >> 24);
-                        var r = (byte)((color & 0x00ff0000) >> 16);
-                        var g = (byte)((color & 0x0000ff00) >> 8);
-                        var b = (byte)((color & 0x000000ff) >> 0);
-
-                        byte rs, gs, bs;
-                        byte rd, gd, bd;
-
-                        int d;
-
-                        rs = r;
-                        gs = g;
-                        bs = b;
-
                         d = buffer[y * width + x];
 
+                        ad = (byte)((d & 0xff000000) >> 24);
                         rd = (byte)((d & 0x00ff0000) >> 16);
                         gd = (byte)((d & 0x0000ff00) >> 8);
                         bd = (byte)((d & 0x000000ff) >> 0);
 
-                        rd = (byte)((rs * a + rd * (0xff - a)) >> 8);
-                        gd = (byte)((gs * a + gd * (0xff - a)) >> 8);
-                        bd = (byte)((bs * a + bd * (0xff - a)) >> 8);
+                        d = AlphaBlendArgbPixels(@as, rs, gs, bs, ad, rd, gd, bd);
 
-                        buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
+                        buffer[y * width + x] = d;
                     }
                 }
 
@@ -136,31 +139,16 @@ namespace System.Windows.Media.Imaging
                 {
                     for (var y = (int)y1; y <= y2; y++)
                     {
-                        var a = (byte)((color & 0xff000000) >> 24);
-                        var r = (byte)((color & 0x00ff0000) >> 16);
-                        var g = (byte)((color & 0x0000ff00) >> 8);
-                        var b = (byte)((color & 0x000000ff) >> 0);
-
-                        Byte rs, gs, bs;
-                        Byte rd, gd, bd;
-
-                        Int32 d;
-
-                        rs = r;
-                        gs = g;
-                        bs = b;
-
                         d = buffer[y * width + x];
-
+                        
+                        ad = (byte)((d & 0xff000000) >> 24);
                         rd = (byte)((d & 0x00ff0000) >> 16);
                         gd = (byte)((d & 0x0000ff00) >> 8);
                         bd = (byte)((d & 0x000000ff) >> 0);
 
-                        rd = (byte)((rs * a + rd * (0xff - a)) >> 8);
-                        gd = (byte)((gs * a + gd * (0xff - a)) >> 8);
-                        bd = (byte)((bs * a + bd * (0xff - a)) >> 8);
+                        d = AlphaBlendArgbPixels(@as, rs, gs, bs, ad, rd, gd, bd);
 
-                        buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
+                        buffer[y * width + x] = d;
                     }
                 }
 
@@ -282,31 +270,16 @@ namespace System.Windows.Media.Imaging
 
                 for (int x = leftEdgeX[y]; x <= rightEdgeX[y]; x++)
                 {
-                    var a = (byte)((color & 0xff000000) >> 24);
-                    var r = (byte)((color & 0x00ff0000) >> 16);
-                    var g = (byte)((color & 0x0000ff00) >> 8);
-                    var b = (byte)((color & 0x000000ff) >> 0);
-
-                    Byte rs, gs, bs;
-                    Byte rd, gd, bd;
-
-                    Int32 d;
-
-                    rs = r;
-                    gs = g;
-                    bs = b;
-
                     d = buffer[y * width + x];
 
+                    ad = (byte)((d & 0xff000000) >> 24);
                     rd = (byte)((d & 0x00ff0000) >> 16);
                     gd = (byte)((d & 0x0000ff00) >> 8);
                     bd = (byte)((d & 0x000000ff) >> 0);
 
-                    rd = (byte)((rs * a + rd * (0xff - a)) >> 8);
-                    gd = (byte)((gs * a + gd * (0xff - a)) >> 8);
-                    bd = (byte)((bs * a + bd * (0xff - a)) >> 8);
+                    d = AlphaBlendArgbPixels(@as, rs, gs, bs, ad, rd, gd, bd);
 
-                    buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
+                    buffer[y * width + x] = d;
                 }
             }
         }
@@ -350,17 +323,20 @@ namespace System.Windows.Media.Imaging
 
             UInt16 e = 0;
 
-            var a = (byte)((color & 0xff000000) >> 24);
-            var r = (byte)((color & 0x00ff0000) >> 16);
-            var g = (byte)((color & 0x0000ff00) >> 8);
-            var b = (byte)((color & 0x000000ff) >> 0);
+            Byte rs, gs, bs, @as;
 
-            Byte rs, gs, bs;
-            Byte rd, gd, bd;
+            {
+                @as = (byte)((color & 0xff000000) >> 24);
+                rs = (byte)((color & 0x00ff0000) >> 16);
+                gs = (byte)((color & 0x0000ff00) >> 8);
+                bs = (byte)((color & 0x000000ff) >> 0);
+            }
+
+            Byte rd, gd, bd, ad;
 
             Int32 d;
 
-            Byte ta = a;
+            Byte ta = @as;
 
             e = 0;
 
@@ -387,25 +363,18 @@ namespace System.Windows.Media.Imaging
 
                     //
 
-                    ta = (byte)((a * (UInt16)(((((UInt16)(e >> 8))) ^ off))) >> 8);
-
-                    rs = r;
-                    gs = g;
-                    bs = b;
+                    ta = (byte)((@as * (UInt16)(((((UInt16)(e >> 8))) ^ off))) >> 8);//target alpha
 
                     d = buffer[y * width + x];
 
+                    ad = (byte)((d & 0xff000000) >> 24);
                     rd = (byte)((d & 0x00ff0000) >> 16);
                     gd = (byte)((d & 0x0000ff00) >> 8);
                     bd = (byte)((d & 0x000000ff) >> 0);
 
-                    rd = (byte)((rs * ta + rd * (0xff - ta)) >> 8);
-                    gd = (byte)((gs * ta + gd * (0xff - ta)) >> 8);
-                    bd = (byte)((bs * ta + bd * (0xff - ta)) >> 8);
+                    d = AlphaBlendArgbPixels(ta, rs, gs, bs, ad, rd, gd, bd);
 
-                    buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
-
-                    //
+                    buffer[y * width + x] = d;
                 }
             }
             else
@@ -429,23 +398,18 @@ namespace System.Windows.Media.Imaging
 
                     //
 
-                    ta = (byte)((a * (UInt16)(((((UInt16)(e >> 8))) ^ off))) >> 8);
-
-                    rs = r;
-                    gs = g;
-                    bs = b;
+                    ta = (byte)((@as * (UInt16)(((((UInt16)(e >> 8))) ^ off))) >> 8);
 
                     d = buffer[y * width + x];
 
+                    ad = (byte)((d & 0xff000000) >> 24);
                     rd = (byte)((d & 0x00ff0000) >> 16);
                     gd = (byte)((d & 0x0000ff00) >> 8);
                     bd = (byte)((d & 0x000000ff) >> 0);
 
-                    rd = (byte)((rs * ta + rd * (0xff - ta)) >> 8);
-                    gd = (byte)((gs * ta + gd * (0xff - ta)) >> 8);
-                    bd = (byte)((bs * ta + bd * (0xff - ta)) >> 8);
+                    d = AlphaBlendArgbPixels(ta, rs, gs, bs, ad, rd, gd, bd);
 
-                    buffer[y * width + x] = (0xff << 24) | (rd << 16) | (gd << 8) | (bd << 0);
+                    buffer[y * width + x] = d;
 
                     if (leftEdge) leftEdgeX[y] = x + 1;
                     else rightEdgeX[y] = x - 1;

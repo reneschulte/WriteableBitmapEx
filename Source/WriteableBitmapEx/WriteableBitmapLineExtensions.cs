@@ -1188,7 +1188,7 @@ namespace System.Windows.Media.Imaging
         /// </summary>
         public static void DrawLineAa(BitmapContext context, int pixelWidth, int pixelHeight, int x1, int y1, int x2, int y2, Color color, int strokeThickness, Rect? clipRect = null)
         {
-            var col = ConvertColor(color);
+            var col = ConvertColorT(color);
             AAWidthLine(pixelWidth, pixelHeight, context, x1, y1, x2, y2, strokeThickness, col, clipRect);
         }
 
@@ -1204,7 +1204,7 @@ namespace System.Windows.Media.Imaging
         /// </summary>
         public static void DrawLineAa(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, Color color, int strokeThickness, Rect? clipRect = null)
         {
-            var col = ConvertColor(color);
+            var col = ConvertColorT(color);
             using (var context = bmp.GetBitmapContext())
             {
                 AAWidthLine(context.Width, context.Height, context, x1, y1, x2, y2, strokeThickness, col, clipRect);
@@ -1223,7 +1223,7 @@ namespace System.Windows.Media.Imaging
         /// </summary> 
         public static void DrawLineAa(this WriteableBitmap bmp, int x1, int y1, int x2, int y2, Color color, Rect? clipRect = null)
         {
-            var col = ConvertColor(color);
+            var col = ConvertColorT(color);
             bmp.DrawLineAa(x1, y1, x2, y2, col, clipRect);
         }
 
