@@ -68,7 +68,7 @@ namespace System.Windows.Media.Imaging
             }
 
             byte rd, gd, bd, ad;//ARGB components of each pixel
-            Int32 d;//combined ARGB component of each pixel
+            Int32 d;//combined ARGB component of each pixel, the destination pixel
 
 
             if (x1 == x2)
@@ -105,6 +105,7 @@ namespace System.Windows.Media.Imaging
                         gd = (byte)((d & 0x0000ff00) >> 8);
                         bd = (byte)((d & 0x000000ff) >> 0);
 
+                        ad = (byte)((@as * @as + ad * (0xff - @as)) >> 8);
                         rd = (byte)((rs * @as + rd * (0xff - @as)) >> 8);
                         gd = (byte)((gs * @as + gd * (0xff - @as)) >> 8);
                         bd = (byte)((bs * @as + bd * (0xff - @as)) >> 8);
@@ -145,6 +146,7 @@ namespace System.Windows.Media.Imaging
                         gd = (byte)((d & 0x0000ff00) >> 8);
                         bd = (byte)((d & 0x000000ff) >> 0);
 
+                        ad = (byte)((@as * @as + ad * (0xff - @as)) >> 8);
                         rd = (byte)((rs * @as + rd * (0xff - @as)) >> 8);
                         gd = (byte)((gs * @as + gd * (0xff - @as)) >> 8);
                         bd = (byte)((bs * @as + bd * (0xff - @as)) >> 8);
@@ -241,7 +243,7 @@ namespace System.Windows.Media.Imaging
                 rightEdgeX[y] = 1 << 16 - 1;
             }
 
-
+            /**/
             AALineQ1(width, height, context, ix1, iy1, ix2, iy2, color, sy > 0, false);
             AALineQ1(width, height, context, ix3, iy3, ix4, iy4, color, sy < 0, true);
 
@@ -250,6 +252,7 @@ namespace System.Windows.Media.Imaging
                 AALineQ1(width, height, context, ix1, iy1, ix3, iy3, color, true, sy > 0);
                 AALineQ1(width, height, context, ix2, iy2, ix4, iy4, color, false, sy < 0);
             }
+            /**/
 
             if (x1 < x2)
             {
@@ -278,6 +281,7 @@ namespace System.Windows.Media.Imaging
                     gd = (byte)((d & 0x0000ff00) >> 8);
                     bd = (byte)((d & 0x000000ff) >> 0);
 
+                    ad = (byte)((@as * @as + ad * (0xff - @as)) >> 8);
                     rd = (byte)((rs * @as + rd * (0xff - @as)) >> 8);
                     gd = (byte)((gs * @as + gd * (0xff - @as)) >> 8);
                     bd = (byte)((bs * @as + bd * (0xff - @as)) >> 8);
