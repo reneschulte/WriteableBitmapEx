@@ -274,7 +274,7 @@ namespace System.Windows.Media.Imaging
                     // Upper half
                     uy = yc + y;
                     // Lower half
-                    ly = yc - y - 1;
+                    ly = yc - y;
 
                     // Clip
                     if (uy < 0) uy = 0;
