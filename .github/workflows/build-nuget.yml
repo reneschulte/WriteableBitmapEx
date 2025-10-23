@@ -30,12 +30,6 @@ jobs:
     - name: Build WPF Library
       run: dotnet build Source/WriteableBitmapEx.Wpf/WriteableBitmapEx.Wpf.csproj -c Release /p:EnableWindowsTargeting=true
       
-    - name: Build UWP Library
-      run: msbuild Source/WriteableBitmapEx.Uwp/WriteableBitmapEx.Uwp.csproj /p:Configuration=Release /p:Platform=AnyCPU
-      
-    - name: Build WinRT Library
-      run: msbuild Source/WriteableBitmapEx.WinRT/WriteableBitmapEx.WinRT.csproj /p:Configuration=Release /p:Platform=AnyCPU
-      
     - name: List Build outputs
       run: |
         echo "Build/Release directory contents:"
