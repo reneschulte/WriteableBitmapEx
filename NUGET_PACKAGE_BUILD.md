@@ -1,59 +1,64 @@
 # NuGet Package Build Instructions
 
-## Version Update Complete
+## Automated Versioning
 
-The version has been successfully updated from **1.6.8** to **1.6.9** in the following files:
+The NuGet package version is **automatically generated** during the GitHub Actions build process. The version follows the pattern **1.6.XXX** where XXX is the GitHub Actions run number, ensuring each build has a unique, incrementing version number.
 
-1. **Source/Common/GlobalAssemblyInfo.cs**
-   - AssemblyVersion: 1.6.9.0
-   - AssemblyFileVersion: 1.6.9.0
-   - Copyright year: 2025
+**Examples:**
+- Build run #100 → Version 1.6.100
+- Build run #101 → Version 1.6.101
+- Build run #150 → Version 1.6.150
 
-2. **Nuget/WriteableBitmapEx.nuspec**
-   - Version: 1.6.9
-   - Release notes: Minor fixes and improvements
-   - Copyright year: 2025
+The version is automatically updated in:
+1. **Source/Common/GlobalAssemblyInfo.cs** - Assembly version
+2. **Nuget/WriteableBitmapEx.nuspec** - NuGet package version
 
-3. **Nuget/push.cmd**
-   - VERSION: 1.6.9
+**Note:** You do NOT need to manually update version numbers in these files. The workflow handles this automatically.
 
 ## Building and Publishing the NuGet Package
 
-You have **two options** to build and publish the NuGet package:
+### Using GitHub Actions (Recommended - Cloud Build)
 
-### Option 1: Using GitHub Actions (Recommended - Cloud Build)
+A GitHub Actions workflow has been configured to automatically build, version, and publish the NuGet package using GitHub's cloud infrastructure (Windows runners).
 
-A GitHub Actions workflow has been configured to automatically build and package the NuGet package using GitHub's cloud infrastructure (Windows runners).
+**Setup (One-time):**
+1. Add your NuGet API key as a repository secret named `NUGET_API_KEY`
+   - Go to Settings → Secrets and variables → Actions → New repository secret
+   - Name: `NUGET_API_KEY`
+   - Value: Your NuGet.org API key
 
-**To build the package:**
+**To build and publish:**
 1. Go to the "Actions" tab in the GitHub repository
 2. Select the "Build and Pack NuGet" workflow
 3. Click "Run workflow" button
-4. The workflow will build all platform-specific libraries and create the NuGet package
-5. Download the package from the workflow artifacts
+4. The workflow will:
+   - Auto-generate version number (1.6.{run_number})
+   - Update version in GlobalAssemblyInfo.cs and WriteableBitmapEx.nuspec
+   - Build all platform-specific libraries
+   - Create the NuGet package
+   - Publish to NuGet.org automatically (if NUGET_API_KEY secret is configured)
+   - Upload package as artifact for manual download if needed
 
-**To publish to NuGet.org:**
-1. Add your NuGet API key as a repository secret named `NUGET_API_KEY`
-   - Go to Settings → Secrets and variables → Actions → New repository secret
-2. Create and push a git tag (e.g., `v1.6.9`)
-   ```bash
-   git tag v1.6.9
-   git push origin v1.6.9
-   ```
-3. The workflow will automatically build and publish to NuGet.org
+**Alternative triggers:**
+- The workflow also runs automatically when you push a tag starting with 'v' (e.g., `v1.6.100`)
+- You can manually trigger it from the Actions tab
 
 **Benefits of this approach:**
+- **Automatic version management** - No manual version updates needed
+- **Unique version numbers** - Each build gets a new version
+- **Automatic publishing** - Direct push to NuGet.org
 - No local Windows machine required
 - Consistent build environment
-- Automated process
 - Works in GitHub Codespaces or any environment
 
-### Option 2: Manual Build on Windows Machine
+### Manual Build on Windows Machine (Alternative)
 
 If you prefer to build locally, you need a **Windows machine** with the following tools installed:
 - Visual Studio 2017 or later
 - .NET Framework 4.0 SDK
 - .NET Core 3.0 SDK
+
+**Note:** When building manually, you will need to manually manage version numbers in the files mentioned above.
 
 ### Building the Libraries (Manual Option)
 
@@ -83,9 +88,11 @@ Once all libraries are built and placed in the `Build\Release\` directory:
 
 ### Publishing to NuGet.org (Manual Option)
 
-1. Update the API key in `push.cmd` (replace `[APIKEY]` with your actual NuGet API key)
+**Note:** When using GitHub Actions (recommended), publishing is automatic. This section is only for manual builds.
 
-2. Run the push command:
+1. Update the version in `Nuget/push.cmd` to match your build
+2. Update the API key in `push.cmd` (replace `[APIKEY]` with your actual NuGet API key)
+3. Run the push command:
    ```cmd
    push.cmd
    ```
@@ -101,19 +108,18 @@ The new version 1.6.9 should appear with the updated metadata.
 
 ## Summary
 
-✅ Version number updated in all necessary files
+✅ **Automated version management** - Version auto-increments with each build (1.6.{run_number})
+✅ **Automatic NuGet publishing** - Publishes to NuGet.org on every successful build
+✅ **No manual version updates needed** - Workflow handles everything
 ✅ Copyright year updated to 2025
-✅ Release notes updated
-✅ Assembly version updated
-✅ NuGet specification updated
-✅ **GitHub Actions workflow configured for cloud builds**
+✅ GitHub Actions workflow configured for cloud builds
 
 ## GitHub Codespaces Compatibility
 
-Yes! This project now works with GitHub Codespaces. While you cannot build the Windows-specific libraries directly in Codespaces (which runs on Linux), you can:
+Yes! This project fully works with GitHub Codespaces. While you cannot build the Windows-specific libraries directly in Codespaces (which runs on Linux), you can:
 
-1. **Edit and update version numbers** - Already done in this PR
-2. **Trigger cloud builds** - Use the GitHub Actions workflow to build on Windows runners
+1. **Make code changes** - Edit source files in Codespaces
+2. **Trigger cloud builds** - Use the GitHub Actions workflow to build on Windows runners with automatic versioning
 3. **Review and manage releases** - All from within Codespaces
 
-The GitHub Actions workflow runs on `windows-latest` runners, which have all the necessary SDKs and tools pre-installed, making it possible to build the complete NuGet package without needing a local Windows machine.
+The GitHub Actions workflow runs on `windows-latest` runners, which have all the necessary SDKs and tools pre-installed, making it possible to build and publish the complete NuGet package without needing a local Windows machine.
