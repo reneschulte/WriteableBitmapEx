@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 <metadata>
   <id>WriteableBitmapEx</id>
-  <version>1.6.8</version>
+  <version>1.6.9</version>
   <authors>Schulte Software Development</authors>
   <owners>Schulte Software Development</owners>
   <license type="expression">MIT</license>
@@ -11,8 +11,8 @@
   <requireLicenseAcceptance>false</requireLicenseAcceptance>
   <summary>The WriteableBitmapEx library is a collection of extension methods for the WriteableBitmap. he WriteableBitmap class is available for all XAML flavors including WPF, Windows 10 UWP, Windows Phone, WinRT Windows Store XAML and Silverlight. It supports the .NET Framework and .NET Core 3 and allows the direct manipulation of a bitmap and could be used to generate fast procedural images by drawing directly to a bitmap.</summary>
   <description>The WriteableBitmapEx library extensions.</description>
-  <releaseNotes>Smaller fixes and support for .NET Core 3.0 final and UWP</releaseNotes>
-  <copyright>Copyright (c) 2009-2021 Schulte Software Development</copyright>
+  <releaseNotes>Minor fixes and improvements</releaseNotes>
+  <copyright>Copyright (c) 2009-2025 Schulte Software Development</copyright>
   <tags>WriteableBitmap Bitmap Graphics Silverlight WP7 WP7Dev WindowsPhone wp8 wpdev WPF .NET WinRT Metro Windows Store UAP UWP Core NETCore</tags>
 </metadata>
 <files>    

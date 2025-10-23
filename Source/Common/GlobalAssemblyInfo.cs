@@ -10,7 +10,7 @@
 //   Id:                $Id: GlobalAssemblyInfo.cs 113259 2015-03-09 08:21:49Z unknown $
 //
 //
-//   Copyright © 2009-2015 Rene Schulte and WriteableBitmapEx Contributors
+//   Copyright ï¿½ 2009-2015 Rene Schulte and WriteableBitmapEx Contributors
 //
 //   This code is open source. Please read the License.txt for details. No worries, we won't sue you! ;)
 //
@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyCompany("Schulte Software Development")]
 [assembly: AssemblyProduct("WriteableBitmapEx")]
-[assembly: AssemblyCopyright("Copyright © 2009-2021 Rene Schulte and WriteableBitmapEx Contributors")]
+[assembly: AssemblyCopyright("Copyright ï¿½ 2009-2025 Rene Schulte and WriteableBitmapEx Contributors")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -42,5 +42,5 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("1.6.8.0")]
-[assembly: AssemblyFileVersion("1.6.8.0")]
+[assembly: AssemblyVersion("1.6.9.0")]
+[assembly: AssemblyFileVersion("1.6.9.0")]

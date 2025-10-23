@@ -1,0 +1,62 @@
+name: Build and Pack NuGet
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    tags:
+      - 'v*'  # Trigger on version tags like v1.6.9
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          3.1.x
+          6.0.x
+          
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+      
+    - name: Restore NuGet packages
+      run: nuget restore Solution/WriteableBitmapEx_All.sln
+      
+    - name: Build WPF Library
+      run: dotnet build Source/WriteableBitmapEx.Wpf/WriteableBitmapEx.Wpf.csproj -c Release /p:EnableWindowsTargeting=true
+      
+    - name: Build UWP Library
+      run: msbuild Source/WriteableBitmapEx.Uwp/WriteableBitmapEx.Uwp.csproj /p:Configuration=Release /p:Platform=AnyCPU
+      
+    - name: Build WinRT Library
+      run: msbuild Source/WriteableBitmapEx.WinRT/WriteableBitmapEx.WinRT.csproj /p:Configuration=Release /p:Platform=AnyCPU
+      
+    - name: List Build outputs
+      run: |
+        echo "Build/Release directory contents:"
+        dir Build\Release /s
+      shell: cmd
+      
+    - name: Pack NuGet package
+      run: |
+        cd Nuget
+        ..\3rdParty\nuget\nuget pack WriteableBitmapEx.nuspec -OutputDirectory ..\Build\nuget
+      shell: cmd
+      
+    - name: Upload NuGet package as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget-package
+        path: Build/nuget/*.nupkg
+        
+    - name: Publish to NuGet (on tag push only)
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
+        cd Nuget
+        ..\3rdParty\nuget\nuget push ..\Build\nuget\*.nupkg -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_API_KEY }} -SkipDuplicate
+      shell: cmd
