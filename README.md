@@ -1,6 +1,6 @@
 # WriteableBitmapEx
 
-The WriteableBitmapEx library is a collection of extension methods for the [WriteableBitmap](http://msdn.microsoft.com/en-us/library/system.windows.media.imaging.writeablebitmap%28VS.95%29.aspx). The WriteableBitmap class is available for all XAML flavors including WPF, Windows 10 UWP, Windows Phone, WinRT Windows Store XAML and Silverlight. It supports the .NET Framework and .NET Core 3 and was even ported to [Windows Embedded](http://wbexembedded.codeplex.com). WriteableBitmapEx allows the direct manipulation of a bitmap and can be used for image manipulation, to generate fast procedural images by drawing directly to a bitmap and more.  
+The WriteableBitmapEx library is a collection of extension methods for the [WriteableBitmap](http://msdn.microsoft.com/en-us/library/system.windows.media.imaging.writeablebitmap%28VS.95%29.aspx). The WriteableBitmap class is available for WPF. It supports the .NET Framework and .NET Core 3. WriteableBitmapEx allows the direct manipulation of a bitmap and can be used for image manipulation, to generate fast procedural images by drawing directly to a bitmap and more.  
 
 The WriteableBitmap API is very minimalistic and there's only the raw [Pixels](http://msdn.microsoft.com/en-us/library/system.windows.media.imaging.writeablebitmap.pixels(VS.95).aspx) array for such operations. The WriteableBitmapEx library tries to compensate that with extensions methods that are easy to use like built in methods and offer [GDI+](http://msdn.microsoft.com/en-us/library/ms533797(v=VS.85).aspx) like functionality. The library extends the WriteableBitmap class with elementary and fast (2D drawing) functionality, conversion methods and functions to combine (blit) WriteableBitmaps.  
 
@@ -19,7 +19,7 @@ Please use the [GitHub Issues functionality](https://github.com/teichgraf/Writea
 # Features
 
 [GDI+](http://msdn.microsoft.com/en-us/library/ms533797(v=VS.85).aspx) like drawing functionality for the WriteableBitmap.
-Support for WPF, Windows 10 UWP (, Windows 8/8.1 WinRT XAML, Windows Phone Silverlight, Windows Phone WinRT and desktop Silverlight).
+Support for WPF with .NET Framework and .NET Core 3.
 
 *   Base
     *   Support for the [Color structure](http://msdn.microsoft.com/en-us/library/system.windows.media.color(VS.95).aspx) (alpha premultiplication will be performed)

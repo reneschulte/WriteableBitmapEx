@@ -54,7 +54,6 @@ If you prefer to build locally, you need a **Windows machine** with the followin
 - Visual Studio 2017 or later
 - .NET Framework 4.0 SDK
 - .NET Core 3.0 SDK
-- Windows Phone SDK (for legacy targets, if needed)
 
 ### Building the Libraries (Manual Option)
 
@@ -66,10 +65,6 @@ If you prefer to build locally, you need a **Windows machine** with the followin
    This will create the following outputs in `Build\Release\`:
    - `net40\WriteableBitmapEx.Wpf.dll`
    - `netcoreapp3.0\WriteableBitmapEx.Wpf.dll`
-
-2. **Build Legacy Libraries** (if needed)
-   - Silverlight (WriteableBitmapEx.dll)
-   - Windows Phone (WriteableBitmapExWinPhone.dll)
 
 ### Creating the NuGet Package (Manual Option)
 
