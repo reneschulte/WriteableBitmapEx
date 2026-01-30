@@ -327,6 +327,7 @@ namespace System.Windows.Media.Imaging
             int dy = y2 - y1;
 
             const int PRECISION_SHIFT = 8;
+            const int EXTRA_PRECISION_SHIFT = 16; // Extra precision for slope calculation to avoid cumulative errors on large bitmaps
 
             // Determine slope (absolute value)
             int lenX, lenY;
@@ -361,11 +362,11 @@ namespace System.Windows.Media.Imaging
                 }
 
                 // Init steps and start
-                int incy = (dy << PRECISION_SHIFT) / dx;
+                long incy = ((long)dy << (PRECISION_SHIFT + EXTRA_PRECISION_SHIFT)) / dx;
 
-                int y1s = y1 << PRECISION_SHIFT;
-                int y2s = y2 << PRECISION_SHIFT;
-                int hs = pixelHeight << PRECISION_SHIFT;
+                long y1s = ((long)y1 << (PRECISION_SHIFT + EXTRA_PRECISION_SHIFT));
+                long y2s = ((long)y2 << (PRECISION_SHIFT + EXTRA_PRECISION_SHIFT));
+                long hs = ((long)pixelHeight << (PRECISION_SHIFT + EXTRA_PRECISION_SHIFT));
 
                 if (y1 < y2)
                 {
@@ -379,10 +380,10 @@ namespace System.Windows.Media.Imaging
                         {
                             return;
                         }
-                        int oldy1s = y1s;
+                        long oldy1s = y1s;
                         // Find lowest y1s that is greater or equal than 0.
                         y1s = incy - 1 + ((y1s + 1) % incy);
-                        x1 += (y1s - oldy1s) / incy;
+                        x1 += (int)((y1s - oldy1s) / incy);
                     }
                     if (y2s >= hs)
                     {
@@ -391,7 +392,7 @@ namespace System.Windows.Media.Imaging
                             // Find highest y2s that is less or equal than ws - 1.
                             // y2s = y1s + n * incy. Find n.
                             y2s = hs - 1 - (hs - 1 - y1s) % incy;
-                            x2 = x1 + (y2s - y1s) / incy;
+                            x2 = x1 + (int)((y2s - y1s) / incy);
                         }
                     }
                 }
@@ -407,11 +408,11 @@ namespace System.Windows.Media.Imaging
                         {
                             return;
                         }
-                        int oldy1s = y1s;
+                        long oldy1s = y1s;
                         // Find highest y1s that is less or equal than ws - 1.
                         // y1s = oldy1s + n * incy. Find n.
                         y1s = hs - 1 + (incy - (hs - 1 - oldy1s) % incy);
-                        x1 += (y1s - oldy1s) / incy;
+                        x1 += (int)((y1s - oldy1s) / incy);
                     }
                     if (y2s < 0)
                     {
@@ -420,7 +421,7 @@ namespace System.Windows.Media.Imaging
                             // Find lowest y2s that is greater or equal than 0.
                             // y2s = y1s + n * incy. Find n.
                             y2s = y1s % incy;
-                            x2 = x1 + (y2s - y1s) / incy;
+                            x2 = x1 + (int)((y2s - y1s) / incy);
                         }
                     }
                 }
@@ -435,10 +436,10 @@ namespace System.Windows.Media.Imaging
                     x2 = pixelWidth - 1;
                 }
 
-                int ys = y1s;
+                long ys = y1s;
 
                 // Walk the line!
-                int y = ys >> PRECISION_SHIFT;
+                int y = (int)(ys >> (PRECISION_SHIFT + EXTRA_PRECISION_SHIFT));
                 int previousY = y;
                 int index = x1 + y * pixelWidth;
                 int k = incy < 0 ? 1 - pixelWidth : 1 + pixelWidth;
@@ -446,7 +447,7 @@ namespace System.Windows.Media.Imaging
                 {
                     pixels[index] = color;
                     ys += incy;
-                    y = ys >> PRECISION_SHIFT;
+                    y = (int)(ys >> (PRECISION_SHIFT + EXTRA_PRECISION_SHIFT));
                     if (y != previousY)
                     {
                         previousY = y;
@@ -476,11 +477,11 @@ namespace System.Windows.Media.Imaging
                 }
 
                 // Init steps and start
-                int x1s = x1 << PRECISION_SHIFT;
-                int x2s = x2 << PRECISION_SHIFT;
-                int ws = pixelWidth << PRECISION_SHIFT;
+                long x1s = ((long)x1 << (PRECISION_SHIFT + EXTRA_PRECISION_SHIFT));
+                long x2s = ((long)x2 << (PRECISION_SHIFT + EXTRA_PRECISION_SHIFT));
+                long ws = ((long)pixelWidth << (PRECISION_SHIFT + EXTRA_PRECISION_SHIFT));
 
-                int incx = (dx << PRECISION_SHIFT) / dy;
+                long incx = ((long)dx << (PRECISION_SHIFT + EXTRA_PRECISION_SHIFT)) / dy;
 
                 if (x1 < x2)
                 {
@@ -494,10 +495,10 @@ namespace System.Windows.Media.Imaging
                         {
                             return;
                         }
-                        int oldx1s = x1s;
+                        long oldx1s = x1s;
                         // Find lowest x1s that is greater or equal than 0.
                         x1s = incx - 1 + ((x1s + 1) % incx);
-                        y1 += (x1s - oldx1s) / incx;
+                        y1 += (int)((x1s - oldx1s) / incx);
                     }
                     if (x2s >= ws)
                     {
@@ -506,7 +507,7 @@ namespace System.Windows.Media.Imaging
                             // Find highest x2s that is less or equal than ws - 1.
                             // x2s = x1s + n * incx. Find n.
                             x2s = ws - 1 - (ws - 1 - x1s) % incx;
-                            y2 = y1 + (x2s - x1s) / incx;
+                            y2 = y1 + (int)((x2s - x1s) / incx);
                         }
                     }
                 }
@@ -522,11 +523,11 @@ namespace System.Windows.Media.Imaging
                         {
                             return;
                         }
-                        int oldx1s = x1s;
+                        long oldx1s = x1s;
                         // Find highest x1s that is less or equal than ws - 1.
                         // x1s = oldx1s + n * incx. Find n.
                         x1s = ws - 1 + (incx - (ws - 1 - oldx1s) % incx);
-                        y1 += (x1s - oldx1s) / incx;
+                        y1 += (int)((x1s - oldx1s) / incx);
                     }
                     if (x2s < 0)
                     {
@@ -535,7 +536,7 @@ namespace System.Windows.Media.Imaging
                             // Find lowest x2s that is greater or equal than 0.
                             // x2s = x1s + n * incx. Find n.
                             x2s = x1s % incx;
-                            y2 = y1 + (x2s - x1s) / incx;
+                            y2 = y1 + (int)((x2s - x1s) / incx);
                         }
                     }
                 }
@@ -554,10 +555,10 @@ namespace System.Windows.Media.Imaging
                 int indexBaseValue = y1 * pixelWidth;
 
                 // Walk the line!
-                var inc = (pixelWidth << PRECISION_SHIFT) + incx;
+                long inc = ((long)pixelWidth << (PRECISION_SHIFT + EXTRA_PRECISION_SHIFT)) + incx;
                 for (int y = y1; y <= y2; ++y)
                 {
-                    pixels[indexBaseValue + (index >> PRECISION_SHIFT)] = color;
+                    pixels[indexBaseValue + (int)(index >> (PRECISION_SHIFT + EXTRA_PRECISION_SHIFT))] = color;
                     index += inc;
                 }
             }
@@ -1323,28 +1324,28 @@ namespace System.Windows.Media.Imaging
             var incrS = dv << 1;    // &#916;d for straight increments 
             var incrD = (dv - du) << 1;    // &#916;d for diagonal increments
 
-            var invDFloat = 1.0 / (4.0 * Math.Sqrt(du * du + dv * dv));   // Precomputed inverse denominator 
+            var invDFloat = 1.0 / (4.0 * Math.Sqrt((long)du * du + (long)dv * dv));   // Precomputed inverse denominator 
             var invD2DuFloat = 0.75 - 2.0 * (du * invDFloat);   // Precomputed constant
 
-            const int PRECISION_SHIFT = 10; // result distance should be from 0 to 1 << PRECISION_SHIFT, mapping to a range of 0..1 
+            const int PRECISION_SHIFT = 18; // result distance should be from 0 to 1 << PRECISION_SHIFT, mapping to a range of 0..1 
             const int PRECISION_MULTIPLIER = 1 << PRECISION_SHIFT;
             var invD = (int)(invDFloat * PRECISION_MULTIPLIER);
             var invD2Du = (int)(invD2DuFloat * PRECISION_MULTIPLIER * a);
             var zeroDot75 = (int)(0.75 * PRECISION_MULTIPLIER * a);
 
-            var invDMulAlpha = invD * a;
-            var duMulInvD = du * invDMulAlpha; // used to help optimize twovdu * invD 
-            var dMulInvD = d * invDMulAlpha; // used to help optimize twovdu * invD 
+            long invDMulAlpha = (long)invD * a;
+            long duMulInvD = (long)du * invDMulAlpha; // used to help optimize twovdu * invD 
+            long dMulInvD = (long)d * invDMulAlpha; // used to help optimize twovdu * invD 
             //int twovdu = 0;    // Numerator of distance; starts at 0 
-            var twovduMulInvD = 0; // since twovdu == 0 
-            var incrSMulInvD = incrS * invDMulAlpha;
-            var incrDMulInvD = incrD * invDMulAlpha;
+            long twovduMulInvD = 0; // since twovdu == 0 
+            long incrSMulInvD = (long)incrS * invDMulAlpha;
+            long incrDMulInvD = (long)incrD * invDMulAlpha;
 
             do
             {
-                AlphaBlendNormalOnPremultiplied(context, addr, (zeroDot75 - twovduMulInvD) >> PRECISION_SHIFT, srb, sg);
-                AlphaBlendNormalOnPremultiplied(context, addr + vincr, (invD2Du + twovduMulInvD) >> PRECISION_SHIFT, srb, sg);
-                AlphaBlendNormalOnPremultiplied(context, addr - vincr, (invD2Du - twovduMulInvD) >> PRECISION_SHIFT, srb, sg);
+                AlphaBlendNormalOnPremultiplied(context, addr, (int)((zeroDot75 - twovduMulInvD) >> PRECISION_SHIFT), srb, sg);
+                AlphaBlendNormalOnPremultiplied(context, addr + vincr, (int)((invD2Du + twovduMulInvD) >> PRECISION_SHIFT), srb, sg);
+                AlphaBlendNormalOnPremultiplied(context, addr - vincr, (int)((invD2Du - twovduMulInvD) >> PRECISION_SHIFT), srb, sg);
 
                 if (d < 0)
                 {
