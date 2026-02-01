@@ -455,7 +455,7 @@ namespace System.Windows.Media.Imaging
                     yError += yErrorInc;
                     if (yError >= dx)
                     {
-                        ys += 1;  // Add 1 fractional unit, not 1 whole pixel
+                        ys += 1;  // Add 1 in fixed-point representation to correct accumulated error
                         yError -= dx;
                     }
                     
@@ -581,7 +581,7 @@ namespace System.Windows.Media.Imaging
                     xError += xErrorInc;
                     if (xError >= dy)
                     {
-                        index += 1;  // Add 1 fractional unit, not 1 whole pixel
+                        index += 1;  // Add 1 in fixed-point representation to correct accumulated error
                         xError -= dy;
                     }
                 }
