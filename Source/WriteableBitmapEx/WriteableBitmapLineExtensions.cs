@@ -362,6 +362,10 @@ namespace System.Windows.Media.Imaging
 
                 // Init steps and start
                 int incy = (dy << PRECISION_SHIFT) / dx;
+                
+                // Track remainder to fix precision loss on large bitmaps
+                int yError = 0;
+                int yErrorInc = (dy << PRECISION_SHIFT) - (incy * dx);
 
                 int y1s = y1 << PRECISION_SHIFT;
                 int y2s = y2 << PRECISION_SHIFT;
@@ -446,6 +450,15 @@ namespace System.Windows.Media.Imaging
                 {
                     pixels[index] = color;
                     ys += incy;
+                    
+                    // Accumulate error to fix precision loss on large bitmaps
+                    yError += yErrorInc;
+                    if (yError >= dx)
+                    {
+                        ys += 1;  // Add 1 fractional unit, not 1 whole pixel
+                        yError -= dx;
+                    }
+                    
                     y = ys >> PRECISION_SHIFT;
                     if (y != previousY)
                     {
@@ -481,6 +494,10 @@ namespace System.Windows.Media.Imaging
                 int ws = pixelWidth << PRECISION_SHIFT;
 
                 int incx = (dx << PRECISION_SHIFT) / dy;
+                
+                // Track remainder to fix precision loss on large bitmaps
+                int xError = 0;
+                int xErrorInc = (dx << PRECISION_SHIFT) - (incx * dy);
 
                 if (x1 < x2)
                 {
@@ -559,6 +576,14 @@ namespace System.Windows.Media.Imaging
                 {
                     pixels[indexBaseValue + (index >> PRECISION_SHIFT)] = color;
                     index += inc;
+                    
+                    // Accumulate error to fix precision loss on large bitmaps
+                    xError += xErrorInc;
+                    if (xError >= dy)
+                    {
+                        index += 1;  // Add 1 fractional unit, not 1 whole pixel
+                        xError -= dy;
+                    }
                 }
             }
         }
@@ -1364,7 +1389,7 @@ namespace System.Windows.Media.Imaging
                 }
                 u++;
                 addr += uincr;
-            } while (u <= uend);
+            } while (u < uend);
         }
 
         /// <summary> 
