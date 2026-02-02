@@ -84,7 +84,7 @@ Once all libraries are built and placed in the `Build\Release\` directory:
    ```cmd
    pack.cmd
    ```
-   This will create `WriteableBitmapEx.1.6.10.nupkg` in the `Build\nuget\` directory.
+   This will create `WriteableBitmapEx.1.6.11.nupkg` in the `Build\nuget\` directory.
 
 ### Publishing to NuGet.org (Manual Option)
 
@@ -104,14 +104,14 @@ Once all libraries are built and placed in the `Build\Release\` directory:
 After publishing, verify the package at:
 https://www.nuget.org/packages/WriteableBitmapEx
 
-The new version 1.6.10 should appear with the updated metadata.
+The new version 1.6.11 should appear with the updated metadata.
 
 ## Summary
 
 ✅ **Automated version management** - Version auto-increments with each build (1.6.{run_number})
 ✅ **Automatic NuGet publishing** - Publishes to NuGet.org on every successful build
 ✅ **No manual version updates needed** - Workflow handles everything
-✅ Copyright year updated to 2025
+✅ Copyright year updated to 2026
 ✅ GitHub Actions workflow configured for cloud builds
 
 ## GitHub Codespaces Compatibility

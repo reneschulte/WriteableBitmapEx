@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 <metadata>
   <id>WriteableBitmapEx</id>
-  <version>1.6.10</version>
+  <version>1.6.11</version>
   <authors>Schulte Software Development</authors>
   <owners>Schulte Software Development</owners>
   <license type="expression">MIT</license>
@@ -12,7 +12,7 @@
   <summary>The WriteableBitmapEx library is a collection of extension methods for the WriteableBitmap. The WriteableBitmap class is available for WPF. It supports the .NET Framework and .NET Core 3 and allows the direct manipulation of a bitmap and could be used to generate fast procedural images by drawing directly to a bitmap.</summary>
   <description>The WriteableBitmapEx library extensions.</description>
   <releaseNotes>Minor fixes and improvements</releaseNotes>
-  <copyright>Copyright (c) 2009-2025 Schulte Software Development</copyright>
+  <copyright>Copyright (c) 2009-2026 Schulte Software Development</copyright>
   <tags>WriteableBitmap Bitmap Graphics WPF .NET Core NETCore</tags>
 </metadata>
 <files>    
