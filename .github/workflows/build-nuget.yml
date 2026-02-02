@@ -17,7 +17,7 @@ jobs:
     - name: Set version number
       id: version
       run: |
-        $version = "1.6.9"
+        $version = "1.6.11"
         echo "VERSION=$version" >> $env:GITHUB_ENV
         echo "Version will be: $version"
       shell: pwsh
