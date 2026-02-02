@@ -77,5 +77,39 @@ jobs:
         
     - name: Publish to NuGet
       run: |
-        3rdParty\nuget\nuget push Build\nuget\*.nupkg -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_API_KEY }}
-      shell: cmd
+        # Check for .nupkg files (must exist)
+        $nupkgFiles = Get-ChildItem -Path "Build\nuget\*.nupkg" -ErrorAction SilentlyContinue
+        if ($null -eq $nupkgFiles -or $nupkgFiles.Count -eq 0) {
+          Write-Error "No .nupkg files found in Build\nuget\"
+          exit 1
+        }
+        
+        # Push all .nupkg files
+        Write-Host "Pushing $($nupkgFiles.Count) .nupkg file(s)..."
+        foreach ($pkg in $nupkgFiles) {
+          Write-Host "Pushing $($pkg.Name)..."
+          & "3rdParty\nuget\nuget.exe" push $pkg.FullName -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_API_KEY }}
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to push $($pkg.Name)"
+            exit $LASTEXITCODE
+          }
+        }
+        
+        # Check for .snupkg files (optional)
+        $snupkgFiles = Get-ChildItem -Path "Build\nuget\*.snupkg" -ErrorAction SilentlyContinue
+        if ($null -eq $snupkgFiles -or $snupkgFiles.Count -eq 0) {
+          Write-Host "No .snupkg found - skipping."
+        } else {
+          Write-Host "Pushing $($snupkgFiles.Count) .snupkg file(s)..."
+          foreach ($pkg in $snupkgFiles) {
+            Write-Host "Pushing $($pkg.Name)..."
+            & "3rdParty\nuget\nuget.exe" push $pkg.FullName -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_API_KEY }}
+            if ($LASTEXITCODE -ne 0) {
+              Write-Error "Failed to push $($pkg.Name)"
+              exit $LASTEXITCODE
+            }
+          }
+        }
+        
+        Write-Host "Publish completed successfully!"
+      shell: pwsh
