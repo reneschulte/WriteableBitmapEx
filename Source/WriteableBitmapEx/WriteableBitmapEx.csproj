@@ -71,6 +71,7 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BitmapContext.cs" />
+    <Compile Include="BitmapContextExtensions.cs" />
     <Compile Include="BitmapFactory.cs" />
     <Compile Include="WriteableBitmapAntialiasingExtensions.cs" />
     <Compile Include="WriteableBitmapContextExtensions.cs" />

@@ -132,6 +132,9 @@
     <Compile Include="..\WriteableBitmapEx\BitmapContext.cs">
       <Link>BitmapContext.cs</Link>
     </Compile>
+    <Compile Include="..\WriteableBitmapEx\BitmapContextExtensions.cs">
+      <Link>BitmapContextExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\WriteableBitmapEx\BitmapFactory.cs">
       <Link>BitmapFactory.cs</Link>
     </Compile>

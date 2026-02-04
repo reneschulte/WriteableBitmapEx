@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="..\Common\GlobalAssemblyInfo.cs" Link="Properties\GlobalAssemblyInfo.cs" />
     <Compile Include="..\WriteableBitmapEx\BitmapContext.cs" Link="BitmapContext.cs" />
+    <Compile Include="..\WriteableBitmapEx\BitmapContextExtensions.cs" Link="BitmapContextExtensions.cs" />
     <Compile Include="..\WriteableBitmapEx\BitmapFactory.cs" Link="BitmapFactory.cs" />
     <Compile Include="..\WriteableBitmapEx\WriteableBitmapAntialiasingExtensions.cs" Link="WriteableBitmapAntialiasingExtensions.cs" />
     <Compile Include="..\WriteableBitmapEx\WriteableBitmapBaseExtensions.cs" Link="WriteableBitmapBaseExtensions.cs" />
